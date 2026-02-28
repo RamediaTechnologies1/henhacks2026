@@ -1,218 +1,138 @@
-# CLAUDE.md — HenHacks 2026
+# CLAUDE.md — FixIt AI Project Context
 
-## Project Overview
+## What This Project Is
+FixIt AI is a smart campus maintenance reporting and automation platform for University of Delaware, built for the HenHacks 2026 hackathon (Automation Systems & Public Infrastructure category, sponsored by Bentley).
 
-HenHacks 2026 hackathon project — a **Remote Assistance & Inspection Platform** for the "Automation Systems & Public Infrastructure" category (sponsored by Bentley).
+**The Problem:** UDel students report maintenance issues by emailing fixit@udel.edu. A human dispatcher manually reads emails, classifies the trade type, assesses priority, creates a work order in IBM Maximo, and routes to the correct team.
 
-The app enables remote expert assistance: a person on-site uses a phone camera (or smart glasses) to stream video to a remote expert. AI analyzes the live feed in real-time, a map tracks locations, and alerts/emails keep stakeholders informed.
-
-**Hackathon rules: prioritize speed, working demos, and wow-factor over production polish.**
+**Our Solution:** AI-powered automation that eliminates the dispatcher bottleneck:
+1. Student snaps photo of issue + selects building/location
+2. OpenAI Vision API analyzes image - auto-classifies trade, severity, priority
+3. System auto-generates structured work order
+4. Auto-sends email to correct department via Gmail SMTP
+5. Live campus dashboard shows all reports on interactive map
+6. Smart deduplication: multiple reports of same issue = 1 work order with upvotes
+7. Pattern detection: repeated issues trigger preventive maintenance alerts
 
 ## Tech Stack
-
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Framework | Next.js (App Router) | 16.1.6 |
-| UI | React | 19.2.3 |
-| Language | TypeScript | 5.x |
-| Styling | Tailwind CSS (CSS-first v4) | 4.x |
-| Components | shadcn/ui + Radix UI | latest |
-| AI | OpenAI SDK (GPT-4o, GPT-4o Vision) | 6.25.0 |
-| Maps | Leaflet + React-Leaflet | 1.9.4 / 5.0.0 |
-| Email | Resend | 6.9.3 |
-| State | Zustand | 5.0.11 |
-| Validation | Zod | 4.3.6 |
-| Icons | lucide-react | 0.575.0 |
-| Animations | tw-animate-css | 1.4.0 |
-
-## Project Structure
-
-```
-henhacks2026/
-├── app/                       # Next.js App Router
-│   ├── layout.tsx             # Root layout with sidebar nav
-│   ├── page.tsx               # Dashboard home
-│   ├── globals.css            # Global styles (Tailwind v4)
-│   ├── map/page.tsx           # Leaflet map view
-│   ├── feed/page.tsx          # Live camera feed + AI analysis
-│   ├── assistant/page.tsx     # AI chat assistant
-│   ├── alerts/page.tsx        # Alert notifications
-│   ├── settings/page.tsx      # Configuration
-│   └── api/                   # Server-side API routes
-│       ├── analyze/route.ts   # OpenAI Vision frame analysis
-│       ├── chat/route.ts      # OpenAI chat completions
-│       └── notify/route.ts    # Resend email notifications
-├── components/                # Shared components
-│   ├── sidebar.tsx            # Navigation sidebar
-│   └── ui/                    # shadcn/ui components
-├── lib/                       # Utilities
-│   ├── stores/                # Zustand stores
-│   ├── openai.ts              # OpenAI client singleton
-│   └── utils.ts               # Shared helpers (cn, etc.)
-├── public/                    # Static assets
-├── .env.local                 # Secrets (NEVER commit)
-├── env.local.example          # Template for env vars
-└── CLAUDE.md                  # This file
-```
+- Framework: Next.js 14 (App Router) with TypeScript
+- Styling: Tailwind CSS + shadcn/ui components
+- Database: Supabase (PostgreSQL)
+- AI: OpenAI Vision API (GPT-4o) for image analysis
+- Email: Nodemailer with Gmail SMTP for auto-dispatch
+- Maps: React-Leaflet for campus map visualization
+- PWA: Installable mobile app with GPS + camera access
+- Deployment: Vercel (auto-deploys from main branch)
 
 ## Environment Variables
+All secrets are in .env.local (not committed to git). Required keys:
+- OPENAI_API_KEY
+- GMAIL_USER
+- GMAIL_APP_PASSWORD
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
 
-Copy `env.local.example` to `.env.local`:
+## Database Schema (Supabase PostgreSQL)
+Table: reports
+- id UUID PRIMARY KEY
+- created_at, updated_at TIMESTAMPTZ
+- building TEXT, room TEXT, floor TEXT
+- latitude DOUBLE PRECISION, longitude DOUBLE PRECISION
+- description TEXT, photo_url TEXT, photo_base64 TEXT
+- trade TEXT (plumbing|electrical|hvac|structural|custodial|landscaping|safety_hazard)
+- priority TEXT (critical|high|medium|low)
+- ai_description TEXT, suggested_action TEXT
+- safety_concern BOOLEAN, estimated_cost TEXT, estimated_time TEXT, confidence_score DOUBLE PRECISION
+- status TEXT (submitted|analyzing|dispatched|in_progress|resolved)
+- duplicate_of UUID, upvote_count INTEGER, urgency_score DOUBLE PRECISION
+- dispatched_to TEXT, dispatched_at TIMESTAMPTZ, email_sent BOOLEAN
+- reporter_email TEXT, reporter_name TEXT
 
-```
-OPENAI_API_KEY=sk-...
-RESEND_API_KEY=re_...
-```
+## Project Structure
+app/
+  layout.tsx - Root layout
+  page.tsx - Main report submission page (mobile-first PWA)
+  dashboard/page.tsx - Admin dashboard with campus map
+  api/
+    analyze/route.ts - POST: Send image to OpenAI Vision
+    report/route.ts - POST: Save report to Supabase + send email
+    reports/route.ts - GET: Fetch all reports for dashboard
+components/
+  report-form.tsx - Photo upload, building select, description
+  camera-capture.tsx - Camera/file upload
+  location-picker.tsx - Building dropdown with GPS
+  campus-map.tsx - Leaflet map showing reports
+  report-card.tsx - Individual report card
+  ai-analysis-display.tsx - AI results with animations
+lib/
+  supabase.ts - Supabase client
+  openai.ts - OpenAI client + analysis prompt
+  email.ts - Nodemailer Gmail SMTP
+  types.ts - TypeScript interfaces
+  constants.ts - UDel buildings, departments, map center
+  utils.ts - cn() helper
 
-**NEVER commit `.env.local`. NEVER expose keys in client code.**
+## OpenAI Vision Prompt
+Analyze this campus maintenance image and return ONLY valid JSON:
+{
+  "trade": "plumbing|electrical|hvac|structural|custodial|landscaping|safety_hazard",
+  "priority": "critical|high|medium|low",
+  "description": "Brief description",
+  "suggested_action": "What team should do",
+  "safety_concern": true/false,
+  "estimated_cost": "$X-Y range",
+  "estimated_time": "repair time estimate",
+  "confidence_score": 0.0-1.0
+}
 
-## Critical Architecture Rules
+## Department Routing
+plumbing -> plumbing-team@facilities.udel.edu
+electrical -> electrical-team@facilities.udel.edu
+hvac -> hvac-team@facilities.udel.edu
+structural -> structural-team@facilities.udel.edu
+custodial -> custodial-team@facilities.udel.edu
+landscaping -> grounds-team@facilities.udel.edu
+safety_hazard -> safety@facilities.udel.edu
 
-### Server vs Client Components
-- Default is **Server Component** — no directive needed
-- Add `"use client"` ONLY when using: hooks, browser APIs, event handlers, Zustand stores
-- Keep `"use client"` at the leaf level — don't put it on layout or page unless necessary
-- NEVER import server-only modules (like `openai`, `resend`, `fs`) in client components
+## UDel Campus Buildings
+Gore Hall: 39.6812, -75.7528
+Smith Hall: 39.6800, -75.7520
+Memorial Hall: 39.6795, -75.7515
+Perkins Student Center: 39.6790, -75.7535
+Morris Library: 39.6805, -75.7530
+Trabant University Center: 39.6783, -75.7510
+ISE Lab: 39.6778, -75.7505
+Evans Hall: 39.6815, -75.7540
+Brown Lab: 39.6808, -75.7525
+Colburn Lab: 39.6803, -75.7518
+Spencer Lab: 39.6798, -75.7512
+DuPont Hall: 39.6810, -75.7535
+Sharp Lab: 39.6807, -75.7522
+Purnell Hall: 39.6792, -75.7508
+Kirkbride Hall: 39.6788, -75.7502
+Mitchell Hall: 39.6785, -75.7530
+Willard Hall: 39.6813, -75.7532
+STAR Campus: 39.6740, -75.7460
+Carpenter Sports Building: 39.6760, -75.7550
+Christiana Towers: 39.6710, -75.7490
+Campus Center: 39.6780, -75.7506
 
-### API Route Pattern (MANDATORY)
-All external API calls (OpenAI, Resend) MUST go through `app/api/` routes:
-```
-Client → fetch('/api/analyze') → API route → OpenAI
-```
-NEVER import `openai` or call external APIs from client components.
+## Smart Features
+1. Deduplication: Same building + same trade within 7 days = increment upvote
+2. Urgency Score: base_priority + (upvotes * 1.5) + (safety ? 3 : 0)
+3. Pattern Detection: 3+ reports same trade in 90 days = preventive maintenance alert
 
-### Leaflet in Next.js (CRITICAL)
-Leaflet requires dynamic import with SSR disabled:
-```tsx
-import dynamic from 'next/dynamic'
-const MapComponent = dynamic(() => import('@/components/map-view'), { ssr: false })
-```
-Also import Leaflet CSS in the map component:
-```tsx
-import 'leaflet/dist/leaflet.css'
-```
-
-### Tailwind CSS v4
-This project uses Tailwind v4 with CSS-first configuration:
-- Use `@import "tailwindcss"` in globals.css (NOT `@tailwind base/components/utilities`)
-- Use `@theme { }` in CSS for custom tokens (NOT `tailwind.config.ts`)
-- Use `size-*` shorthand for `w-* h-*`
-- Do NOT use arbitrary values — extend `@theme` instead
-- Do NOT use `@tailwind` directives — use `@import "tailwindcss"`
-
-### shadcn/ui Components
-Add new components with: `npx shadcn add <component-name>`
-Components install to `components/ui/`. Import with `@/components/ui/...`
-
-## Design System
-
-- **Theme**: Dark mode (zinc-950 background)
-- **Primary accent**: Emerald (emerald-400/500/600)
-- **Cards**: zinc-900 with zinc-800 borders
-- **Text hierarchy**: zinc-100 (headings) → zinc-400 (body) → zinc-500 (muted)
-- **Inputs**: zinc-800 bg, zinc-700 borders, emerald-500 focus ring
-- **Font**: Geist Sans (variable: `--font-geist-sans`)
-
-## Key Features to Build
-
-### 1. Live Feed (`/feed`)
-- `navigator.mediaDevices.getUserMedia()` for camera access
-- Capture frames → base64 → POST to `/api/analyze`
-- OpenAI Vision (`gpt-4o`) analyzes frames
-- Display results in sidebar panel
-- Future: WebRTC for multi-device streaming
-
-### 2. Map View (`/map`)
-- Leaflet + React-Leaflet (dynamic import, ssr: false)
-- Import `leaflet/dist/leaflet.css`
-- Pin inspection locations, track user GPS
-- Custom markers with status indicators
-
-### 3. AI Assistant (`/assistant`)
-- Chat UI with message history
-- POST to `/api/chat` → OpenAI streaming response
-- Context about current inspection/task
-- Use Zustand store for conversation state
-
-### 4. Alerts (`/alerts`)
-- Zustand store for alert queue
-- Visual + audio notifications for critical findings
-- Email alerts via `/api/notify` → Resend
-
-### 5. Settings (`/settings`)
-- Notification preferences
-- Auto-analysis toggle
-- Connection management
+## Design
+- UDel colors: #00539F (blue), #FFD200 (gold)
+- Mobile-first PWA (installable on phone)
+- shadcn/ui components
+- Loading animations for AI analysis
 
 ## Commands
+npm run dev - Start dev server
+npm run build - Production build
 
-```bash
-npm run dev          # Dev server at localhost:3000
-npm run build        # Production build
-npm run lint         # ESLint
-npx shadcn add ...   # Add UI components
-```
-
-## Git Workflow
-
-```bash
-git checkout -b feat/<feature-name>   # Create feature branch
-git add -A && git commit -m "..."     # Commit often
-git push origin feat/<feature-name>   # Push to remote
-```
-
-Both partners push via SSH to `git@github.com:RamediaTechnologies1/henhacks2026.git`
-
-## Common Patterns
-
-### Creating an API route
-```ts
-// app/api/analyze/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
-
-const openai = new OpenAI() // reads OPENAI_API_KEY from env
-
-export async function POST(req: NextRequest) {
-  const { image } = await req.json()
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'text', text: 'Analyze this image for inspection purposes.' },
-        { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${image}` } }
-      ]
-    }]
-  })
-  return NextResponse.json({ analysis: response.choices[0].message.content })
-}
-```
-
-### Creating a Zustand store
-```ts
-// lib/stores/alerts.ts
-import { create } from 'zustand'
-
-interface AlertStore {
-  alerts: Alert[]
-  addAlert: (alert: Alert) => void
-  clearAlerts: () => void
-}
-
-export const useAlertStore = create<AlertStore>((set) => ({
-  alerts: [],
-  addAlert: (alert) => set((s) => ({ alerts: [...s.alerts, alert] })),
-  clearAlerts: () => set({ alerts: [] }),
-}))
-```
-
-## Important Reminders
-
-- This is a HACKATHON — ship fast, demo well
-- `"use client"` only where needed (hooks, interactivity, browser APIs)
-- All API keys stay server-side in `app/api/` routes
-- Leaflet MUST use dynamic import with `{ ssr: false }`
-- Tailwind v4 uses CSS `@theme` — no tailwind.config.ts
-- When in doubt about a component: check if shadcn has it first
-- Test in both desktop and mobile viewports
+## Deployment
+Vercel auto-deploys from main branch
+Live: https://fixitai-gamma.vercel.app
