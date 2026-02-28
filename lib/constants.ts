@@ -55,3 +55,42 @@ export const UDEL_COLORS = {
   blue: "#00539F",
   gold: "#FFD200",
 };
+
+// PIN Auth
+export const PIN_LENGTH = 6;
+export const PIN_EXPIRY_MINUTES = 10;
+export const SESSION_EXPIRY_HOURS = 24;
+
+// Demo buildings with floor plans
+export const DEMO_BUILDINGS = ["Gore Hall", "Smith Hall"] as const;
+
+// AI Assignment scoring weights
+export const ASSIGNMENT_SCORE = {
+  AVAILABLE: 10,
+  BUILDING_MATCH: 5,
+  TRADE_MATCH: 5,
+  LOW_WORKLOAD_BONUS: 2,
+  MAX_ACTIVE_ASSIGNMENTS: 3,
+};
+
+// Demo seed technicians
+export const DEMO_TECHNICIANS = [
+  {
+    name: "Mike Johnson",
+    email: "mike@facilities.udel.edu",
+    trade: "hvac" as const,
+    assigned_buildings: ["Gore Hall", "Smith Hall"],
+  },
+  {
+    name: "Sarah Chen",
+    email: "sarah@facilities.udel.edu",
+    trade: "hvac" as const,
+    assigned_buildings: ["Gore Hall"],
+  },
+  {
+    name: "James Williams",
+    email: "james@facilities.udel.edu",
+    trade: "hvac" as const,
+    assigned_buildings: ["Smith Hall"],
+  },
+];

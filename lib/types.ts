@@ -82,3 +82,100 @@ export interface SubmitReportPayload {
   reporter_name?: string;
   ai_analysis: AIAnalysis;
 }
+
+// Auth
+export type UserRole = "manager" | "technician" | "user";
+
+export interface AuthPin {
+  id: string;
+  email: string;
+  role: UserRole;
+  pin_hash: string;
+  created_at: string;
+  expires_at: string;
+}
+
+export interface Session {
+  id: string;
+  email: string;
+  role: UserRole;
+  created_at: string;
+  expires_at: string;
+}
+
+// Technicians
+export interface Technician {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  trade: Trade;
+  assigned_buildings: string[];
+  is_available: boolean;
+  current_location: string | null;
+  phone: string | null;
+}
+
+// Assignments
+export type AssignmentStatus =
+  | "pending"
+  | "accepted"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+
+export interface Assignment {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  report_id: string;
+  technician_id: string;
+  assigned_by: string;
+  status: AssignmentStatus;
+  notes: string | null;
+  completion_notes: string | null;
+  completion_photo_base64: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  estimated_arrival: string | null;
+  // Joined data
+  report?: Report;
+  technician?: Technician;
+}
+
+// Floor Plans
+export interface FloorPlanRoom {
+  id: string;
+  label: string;
+  type:
+    | "classroom"
+    | "seminar"
+    | "lecture-hall"
+    | "office"
+    | "restroom"
+    | "utility"
+    | "common"
+    | "hallway"
+    | "stairwell";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  floor: string;
+}
+
+export interface FloorPlanHallway {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface BuildingFloorPlan {
+  building: string;
+  floors: string[];
+  svgViewBox: string;
+  rooms: FloorPlanRoom[];
+  hallways: FloorPlanHallway[];
+}

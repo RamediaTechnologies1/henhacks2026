@@ -130,6 +130,110 @@ function buildEmailHtml(report: Report): string {
 </html>`;
 }
 
+export async function sendPinEmail(
+  email: string,
+  pin: string,
+  role: string
+): Promise<void> {
+  await transporter.sendMail({
+    from: `"FixIt AI — UDel" <${process.env.GMAIL_USER}>`,
+    to: email,
+    subject: `Your FixIt AI Login Code: ${pin}`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; }
+    .header { background: #00539F; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .body { padding: 24px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; text-align: center; }
+    .pin { font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #00539F; margin: 24px 0; font-family: monospace; }
+    .role { display: inline-block; background: #FFD200; color: #333; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+    .footer { font-size: 12px; color: #999; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>FixIt AI — Login Verification</h1>
+  </div>
+  <div class="body">
+    <p>Your one-time login code is:</p>
+    <div class="pin">${pin}</div>
+    <p>Logging in as: <span class="role">${role.toUpperCase()}</span></p>
+    <p style="color:#666;font-size:14px;">This code expires in 10 minutes.</p>
+    <div class="footer">
+      FixIt AI — University of Delaware Campus Maintenance
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+export async function sendAssignmentEmail(
+  techEmail: string,
+  techName: string,
+  report: Report
+): Promise<void> {
+  await transporter.sendMail({
+    from: `"FixIt AI — UDel Facilities" <${process.env.GMAIL_USER}>`,
+    to: techEmail,
+    subject: `[ASSIGNED] ${report.trade.replace("_", " ").toUpperCase()} issue at ${report.building}${report.room ? `, Room ${report.room}` : ""} — WO #${report.id.slice(0, 8)}`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; }
+    .header { background: #00539F; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+    .header h1 { margin: 0; font-size: 22px; }
+    .body { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
+    .field { margin: 12px 0; }
+    .label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .value { font-size: 15px; margin-top: 2px; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
+    .critical { background: #fee2e2; color: #991b1b; }
+    .high { background: #ffedd5; color: #9a3412; }
+    .medium { background: #fef9c3; color: #854d0e; }
+    .low { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>FixIt AI — New Assignment</h1>
+  </div>
+  <div class="body">
+    <p>Hi ${techName}, you have been assigned a new work order.</p>
+    <div class="field">
+      <div class="label">Priority</div>
+      <div class="value"><span class="badge ${report.priority}">${getPriorityLabel(report.priority)}</span></div>
+    </div>
+    <div class="field">
+      <div class="label">Location</div>
+      <div class="value">${report.building}${report.floor ? `, Floor ${report.floor}` : ""}${report.room ? `, Room ${report.room}` : ""}</div>
+    </div>
+    <div class="field">
+      <div class="label">Issue</div>
+      <div class="value">${report.ai_description}</div>
+    </div>
+    <div class="field">
+      <div class="label">Suggested Action</div>
+      <div class="value">${report.suggested_action}</div>
+    </div>
+    <hr class="divider" />
+    <div class="field">
+      <div class="label">Estimated Time</div>
+      <div class="value">${report.estimated_time}</div>
+    </div>
+    <p style="font-size:13px;color:#666;">Log in to the FixIt AI Technician Portal to accept this assignment.</p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
 export async function sendDispatchEmail(report: Report): Promise<void> {
   const to = DEPARTMENT_EMAIL[report.trade];
   const priorityLabel = getPriorityLabel(report.priority);

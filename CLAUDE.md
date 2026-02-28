@@ -129,6 +129,72 @@ Campus Center: 39.6780, -75.7506
 - shadcn/ui components
 - Loading animations for AI analysis
 
+## 3-Portal Architecture
+
+### Authentication: PIN via Gmail SMTP
+- User enters email + selects role (User/Technician/Manager)
+- 6-digit PIN sent via Nodemailer → enter PIN → session cookie set
+- Supabase tables: auth_pins (temp), sessions (24h expiry)
+- middleware.ts protects routes by role
+
+### Portal 1: User (Student)
+- Route: /user/*
+- Photo capture (camera/file) → select building → interactive floor plan room select → description → submit
+- AI analyzes via OpenAI Vision → auto-classifies trade/priority
+- Report saved to Supabase, dispatch email sent
+
+### Portal 2: Technician (Field Worker)
+- Route: /technician/*
+- Job queue showing assigned work orders
+- Floor plan view showing exact room location
+- Mark complete with photo + notes
+- Receives email when assigned new job
+
+### Portal 3: Manager (AI Agent Dashboard)
+- Route: /manager/*
+- AI auto-assigns reports to technicians (scoring: availability + building match + trade + workload)
+- Override/reassign capability
+- Campus map (Leaflet), reports table, pattern detection alerts
+- Stats overview (open reports, response times)
+
+### Interactive Floor Plans
+- SVG-based, zero dependencies, mobile touch-friendly
+- Gore Hall: 3 floors, ~12 rooms each, central atrium
+- Smith Hall: 3 floors, ~10 rooms each, large lecture halls
+- Clickable rooms with UDel gold highlight on selection
+- Red/orange highlights for active issues (technician + manager views)
+
+## Additional Database Tables
+Table: auth_pins - id, email, role, pin_hash, expires_at
+Table: sessions - id, email, role, expires_at
+Table: technicians - id, name, email, trade, assigned_buildings[], is_available, current_location
+Table: assignments - id, report_id FK, technician_id FK, assigned_by, status, notes, completion_notes, completion_photo_base64, started_at, completed_at
+
+## Additional API Routes
+POST /api/auth/send-pin - Generate + email PIN
+POST /api/auth/verify-pin - Verify PIN, create session
+GET|DELETE /api/auth/session - Check/destroy session
+GET|POST /api/technicians - List/create technicians
+GET|POST /api/assignments - List/create assignments
+PATCH /api/assignments/[id] - Update assignment status
+POST /api/ai-assign - AI auto-assign report to best technician
+
+## AI Assignment Scoring
+Score(tech) = available(+10) + building_match(+5) + trade_match(+5) + low_workload(+2 per slot under 3)
+
+## Demo Scope
+- Buildings: Gore Hall + Smith Hall only (with interactive floor plans)
+- Trade: HVAC focus
+- Technicians: 3 seeded HVAC techs (Mike Johnson, Sarah Chen, James Williams)
+
+## Future Architecture (Meta Glasses + 11 Labs)
+All APIs are client-agnostic JSON endpoints, ready for:
+- Meta Glasses camera → /api/analyze (same base64 photo endpoint)
+- 11 Labs voice → transcribe → /api/report (same submission endpoint)
+- Technician completion via glasses → /api/assignments/[id] PATCH
+- AR navigation → floor-plans.ts room coordinates drive overlays
+- Voice guidance → 11 Labs TTS reads suggested_action field
+
 ## Commands
 npm run dev - Start dev server
 npm run build - Production build
