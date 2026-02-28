@@ -1,87 +1,81 @@
 "use client";
 
-import { Bot, AlertTriangle, Clock, DollarSign, Shield, Gauge } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Bot, AlertTriangle, Clock, DollarSign, Gauge, Sparkles } from "lucide-react";
 import type { AIAnalysis } from "@/lib/types";
 
 interface AIAnalysisDisplayProps {
   analysis: AIAnalysis;
 }
 
-const PRIORITY_STYLES: Record<string, string> = {
-  critical: "bg-red-100 text-red-800 border-red-300",
-  high: "bg-orange-100 text-orange-800 border-orange-300",
-  medium: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  low: "bg-green-100 text-green-800 border-green-300",
-};
-
-const PRIORITY_ICONS: Record<string, string> = {
-  critical: "🔴",
-  high: "🟠",
-  medium: "🟡",
-  low: "🟢",
+const PRIORITY_CONFIG: Record<string, { bg: string; text: string; icon: string; glow: string }> = {
+  critical: { bg: "bg-red-50 border-red-200", text: "text-red-700", icon: "🔴", glow: "shadow-red-200/50" },
+  high: { bg: "bg-orange-50 border-orange-200", text: "text-orange-700", icon: "🟠", glow: "shadow-orange-200/50" },
+  medium: { bg: "bg-amber-50 border-amber-200", text: "text-amber-700", icon: "🟡", glow: "shadow-amber-200/50" },
+  low: { bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", icon: "🟢", glow: "shadow-emerald-200/50" },
 };
 
 export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
-  return (
-    <Card className="border-2 border-[#00539F]/20 bg-gradient-to-br from-blue-50/50 to-white">
-      <CardContent className="p-4 space-y-4">
-        {/* Header */}
-        <div className="flex items-center gap-2">
-          <div className="bg-[#00539F] p-1.5 rounded-lg">
-            <Bot className="h-4 w-4 text-white" />
-          </div>
-          <span className="font-semibold text-sm text-[#00539F]">AI Analysis</span>
-          <Badge variant="outline" className="ml-auto text-[10px]">
-            {Math.round(analysis.confidence_score * 100)}% confidence
-          </Badge>
-        </div>
+  const priority = PRIORITY_CONFIG[analysis.priority] || PRIORITY_CONFIG.medium;
+  const confidence = Math.round(analysis.confidence_score * 100);
 
-        {/* Priority + Trade */}
-        <div className="flex gap-2">
-          <Badge className={`${PRIORITY_STYLES[analysis.priority]} text-xs`}>
-            {PRIORITY_ICONS[analysis.priority]} {analysis.priority.toUpperCase()}
-          </Badge>
-          <Badge variant="secondary" className="text-xs">
+  return (
+    <div className="rounded-2xl border border-[#00539F]/10 bg-gradient-to-br from-blue-50/30 via-white to-violet-50/20 overflow-hidden page-enter">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#00539F] to-[#0066cc] px-5 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="bg-white/20 p-1.5 rounded-lg">
+            <Sparkles className="h-4 w-4 text-[#FFD200]" />
+          </div>
+          <span className="font-semibold text-sm text-white">AI Analysis Complete</span>
+        </div>
+        <div className="flex items-center gap-1.5 bg-white/15 px-2.5 py-1 rounded-full">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[11px] font-medium text-blue-100">{confidence}% confident</span>
+        </div>
+      </div>
+
+      <div className="p-5 space-y-4 stagger-enter">
+        {/* Priority + Trade + Safety */}
+        <div className="flex flex-wrap gap-2">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border ${priority.bg} ${priority.text} shadow-sm ${priority.glow}`}>
+            {priority.icon} {analysis.priority.toUpperCase()}
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
             {analysis.trade.replace("_", " ").toUpperCase()}
-          </Badge>
+          </span>
           {analysis.safety_concern && (
-            <Badge variant="destructive" className="text-xs">
-              <AlertTriangle className="h-3 w-3 mr-1" />
-              Safety
-            </Badge>
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg shadow-red-500/20">
+              <AlertTriangle className="h-3 w-3" /> SAFETY HAZARD
+            </span>
           )}
         </div>
 
         {/* Description */}
-        <p className="text-sm text-gray-700">{analysis.description}</p>
+        <p className="text-sm text-gray-700 leading-relaxed">{analysis.description}</p>
 
         {/* Suggested Action */}
-        <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-          <p className="text-xs font-medium text-blue-600 mb-1">Suggested Action</p>
-          <p className="text-sm text-blue-800">{analysis.suggested_action}</p>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100/80">
+          <p className="text-[11px] font-bold text-[#00539F] uppercase tracking-wider mb-1.5">Recommended Action</p>
+          <p className="text-sm text-blue-900 leading-relaxed">{analysis.suggested_action}</p>
         </div>
 
-        {/* Meta info */}
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="bg-gray-50 rounded-lg p-2">
-            <DollarSign className="h-3.5 w-3.5 mx-auto text-gray-400 mb-1" />
-            <p className="text-[10px] text-gray-500">Est. Cost</p>
-            <p className="text-xs font-medium">{analysis.estimated_cost}</p>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-2">
-            <Clock className="h-3.5 w-3.5 mx-auto text-gray-400 mb-1" />
-            <p className="text-[10px] text-gray-500">Est. Time</p>
-            <p className="text-xs font-medium">{analysis.estimated_time}</p>
-          </div>
-          <div className="bg-gray-50 rounded-lg p-2">
-            <Gauge className="h-3.5 w-3.5 mx-auto text-gray-400 mb-1" />
-            <p className="text-[10px] text-gray-500">Confidence</p>
-            <p className="text-xs font-medium">{Math.round(analysis.confidence_score * 100)}%</p>
-          </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { icon: DollarSign, label: "Est. Cost", value: analysis.estimated_cost, color: "text-emerald-600", bg: "bg-emerald-50" },
+            { icon: Clock, label: "Est. Time", value: analysis.estimated_time, color: "text-blue-600", bg: "bg-blue-50" },
+            { icon: Gauge, label: "Confidence", value: `${confidence}%`, color: "text-violet-600", bg: "bg-violet-50" },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+              <div className={`${stat.bg} w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5`}>
+                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              </div>
+              <p className="text-[10px] text-gray-400 font-medium">{stat.label}</p>
+              <p className="text-xs font-bold text-gray-800 mt-0.5">{stat.value}</p>
+            </div>
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

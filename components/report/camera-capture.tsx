@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, ImagePlus, X, RotateCcw } from "lucide-react";
+import { Camera, ImagePlus, X, RotateCcw, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CameraCaptureProps {
@@ -20,27 +20,19 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result as string;
-      // Compress image by drawing to canvas
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const maxSize = 1024;
         let { width, height } = img;
         if (width > maxSize || height > maxSize) {
-          if (width > height) {
-            height = (height / width) * maxSize;
-            width = maxSize;
-          } else {
-            width = (width / height) * maxSize;
-            height = maxSize;
-          }
+          if (width > height) { height = (height / width) * maxSize; width = maxSize; }
+          else { width = (width / height) * maxSize; height = maxSize; }
         }
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, 0, 0, width, height);
-        const compressed = canvas.toDataURL("image/jpeg", 0.8);
-        onCapture(compressed);
+        canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+        onCapture(canvas.toDataURL("image/jpeg", 0.8));
         setProcessing(false);
       };
       img.src = base64;
@@ -55,40 +47,36 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
 
   if (photoPreview) {
     return (
-      <div className="relative rounded-xl overflow-hidden border-2 border-[#00539F]">
+      <div className="relative rounded-2xl overflow-hidden shadow-lg group">
         <img
           src={photoPreview}
           alt="Captured maintenance issue"
-          className="w-full h-48 object-cover"
+          className="w-full h-52 object-cover"
         />
-        <div className="absolute top-2 right-2 flex gap-2">
-          <Button
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute top-3 right-3 flex gap-2">
+          <button
             type="button"
-            size="sm"
-            variant="secondary"
-            className="h-8 w-8 p-0 bg-white/90 backdrop-blur"
-            onClick={() => {
-              onClear();
-              cameraInputRef.current?.click();
-            }}
+            onClick={() => { onClear(); cameraInputRef.current?.click(); }}
+            className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-white transition"
           >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-          <Button
+            <RotateCcw className="h-4 w-4 text-gray-700" />
+          </button>
+          <button
             type="button"
-            size="sm"
-            variant="secondary"
-            className="h-8 w-8 p-0 bg-white/90 backdrop-blur"
             onClick={onClear}
+            className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-white transition"
           >
-            <X className="h-4 w-4" />
-          </Button>
+            <X className="h-4 w-4 text-gray-700" />
+          </button>
         </div>
-        <div className="absolute bottom-2 left-2">
-          <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-            Photo ready
-          </span>
+        <div className="absolute bottom-3 left-3">
+          <div className="flex items-center gap-1.5 bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Photo captured
+          </div>
         </div>
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleInputChange} className="hidden" />
       </div>
     );
   }
@@ -96,51 +84,40 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
-        {/* Camera button */}
         <button
           type="button"
           onClick={() => cameraInputRef.current?.click()}
           disabled={processing}
-          className="flex flex-col items-center justify-center gap-2 h-32 rounded-xl border-2 border-dashed border-[#00539F]/30 bg-blue-50/50 hover:bg-blue-50 transition-colors"
+          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-[#00539F]/20 bg-gradient-to-br from-blue-50/80 to-cyan-50/50 hover:from-blue-50 hover:to-cyan-50 hover:border-[#00539F]/40 transition-all duration-200 active:scale-[0.98]"
         >
-          <Camera className="h-8 w-8 text-[#00539F]" />
-          <span className="text-sm font-medium text-[#00539F]">Take Photo</span>
+          <div className="bg-[#00539F]/10 p-3 rounded-2xl group-hover:bg-[#00539F]/15 transition">
+            <Camera className="h-7 w-7 text-[#00539F]" />
+          </div>
+          <span className="text-sm font-semibold text-[#00539F]">Take Photo</span>
         </button>
 
-        {/* Upload button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={processing}
-          className="flex flex-col items-center justify-center gap-2 h-32 rounded-xl border-2 border-dashed border-gray-300 hover:bg-gray-50 transition-colors"
+          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-gray-200 bg-gradient-to-br from-gray-50/80 to-slate-50/50 hover:from-gray-50 hover:to-slate-50 hover:border-gray-300 transition-all duration-200 active:scale-[0.98]"
         >
-          <ImagePlus className="h-8 w-8 text-gray-400" />
-          <span className="text-sm font-medium text-gray-500">Upload Image</span>
+          <div className="bg-gray-100 p-3 rounded-2xl group-hover:bg-gray-200/70 transition">
+            <ImagePlus className="h-7 w-7 text-gray-500" />
+          </div>
+          <span className="text-sm font-semibold text-gray-500">Upload Image</span>
         </button>
       </div>
 
       {processing && (
-        <p className="text-sm text-center text-gray-400 animate-pulse">
-          Processing image...
-        </p>
+        <div className="flex items-center justify-center gap-2 py-2">
+          <div className="w-4 h-4 rounded-full border-2 border-[#00539F]/30 border-t-[#00539F] animate-spin" />
+          <span className="text-sm text-gray-400">Processing...</span>
+        </div>
       )}
 
-      {/* Hidden inputs */}
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleInputChange}
-        className="hidden"
-      />
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleInputChange}
-        className="hidden"
-      />
+      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleInputChange} className="hidden" />
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleInputChange} className="hidden" />
     </div>
   );
 }
