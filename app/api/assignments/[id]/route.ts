@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { sendReporterStatusEmail } from "@/lib/email";
+import type { Report } from "@/lib/types";
 
 export async function PATCH(
   request: NextRequest,
@@ -30,27 +32,51 @@ export async function PATCH(
       .from("assignments")
       .update(updateData)
       .eq("id", id)
-      .select()
+      .select("*, technician:technicians(name, email)")
       .single();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // If completed, update the report status
-    if (status === "completed" && assignment) {
-      await supabaseAdmin
-        .from("reports")
-        .update({ status: "resolved" })
-        .eq("id", assignment.report_id);
-    }
+    // Map assignment status to report status
+    const reportStatusMap: Record<string, string> = {
+      accepted: "in_progress",
+      in_progress: "in_progress",
+      completed: "resolved",
+    };
 
-    // If accepted, update report status to in_progress
-    if (status === "accepted" && assignment) {
+    const newReportStatus = reportStatusMap[status];
+
+    if (newReportStatus && assignment) {
       await supabaseAdmin
         .from("reports")
-        .update({ status: "in_progress" })
+        .update({ status: newReportStatus })
         .eq("id", assignment.report_id);
+
+      // --- Automated Follow-up: notify reporter ---
+      const { data: report } = await supabaseAdmin
+        .from("reports")
+        .select("*")
+        .eq("id", assignment.report_id)
+        .single();
+
+      if (report && report.reporter_email) {
+        const techName = (assignment.technician as { name: string } | null)?.name;
+        try {
+          await sendReporterStatusEmail(
+            report.reporter_email,
+            report as Report,
+            newReportStatus,
+            {
+              techName: techName || undefined,
+              completionNotes: completion_notes || undefined,
+            }
+          );
+        } catch (emailErr) {
+          console.error("[follow-up email]", emailErr);
+        }
+      }
     }
 
     return NextResponse.json({ assignment });

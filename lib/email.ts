@@ -249,6 +249,130 @@ export async function sendEscalationEmail(opts: {
   });
 }
 
+// --- Automated Follow-up Emails to Reporters ---
+export async function sendReporterStatusEmail(
+  reporterEmail: string,
+  report: Report,
+  newStatus: string,
+  extra?: { techName?: string; completionNotes?: string }
+): Promise<void> {
+  const statusMessages: Record<string, { subject: string; heading: string; body: string; color: string }> = {
+    dispatched: {
+      subject: `Your report has been dispatched — ${report.building}`,
+      heading: "Your Report Has Been Dispatched",
+      body: `A technician has been assigned to address the ${report.trade.replace("_", " ")} issue at ${report.building}${report.room ? `, Room ${report.room}` : ""}. ${extra?.techName ? `Assigned to: ${extra.techName}.` : ""}`,
+      color: "#3b82f6",
+    },
+    in_progress: {
+      subject: `Work has started on your report — ${report.building}`,
+      heading: "A Technician Is Working On It",
+      body: `${extra?.techName || "A technician"} has started working on the ${report.trade.replace("_", " ")} issue at ${report.building}${report.room ? `, Room ${report.room}` : ""}.`,
+      color: "#f59e0b",
+    },
+    resolved: {
+      subject: `Your report has been resolved — ${report.building}`,
+      heading: "Issue Resolved!",
+      body: `The ${report.trade.replace("_", " ")} issue at ${report.building}${report.room ? `, Room ${report.room}` : ""} has been resolved.${extra?.completionNotes ? ` Notes: ${extra.completionNotes}` : ""}`,
+      color: "#22c55e",
+    },
+  };
+
+  const msg = statusMessages[newStatus];
+  if (!msg) return;
+
+  await transporter.sendMail({
+    from: `"FixIt AI — UDel" <${process.env.GMAIL_USER}>`,
+    to: reporterEmail,
+    subject: msg.subject,
+    html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; }
+    .header { background: ${msg.color}; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+    .header h1 { margin: 0; font-size: 20px; }
+    .body { padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }
+    .status { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; color: white; background: ${msg.color}; }
+    .footer { font-size: 12px; color: #999; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="header"><h1>FixIt AI — Status Update</h1></div>
+  <div class="body">
+    <h2 style="margin-top:0;">${msg.heading}</h2>
+    <p>${msg.body}</p>
+    <p><strong>Report:</strong> ${report.ai_description || report.description}</p>
+    <p><strong>Location:</strong> ${report.building}${report.floor ? `, Floor ${report.floor}` : ""}${report.room ? `, Room ${report.room}` : ""}</p>
+    <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
+    <p class="footer">Report #${report.id.slice(0, 8)} • FixIt AI — University of Delaware</p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// --- SLA Escalation Email to Manager ---
+export async function sendSLAEscalationEmail(opts: {
+  reports: { id: string; building: string; room: string; trade: string; priority: string; created_at: string; minutesElapsed: number }[];
+  reason: string;
+}): Promise<void> {
+  const rows = opts.reports.map((r) =>
+    `<tr><td style="padding:8px;border-bottom:1px solid #eee;">#${r.id.slice(0, 8)}</td><td style="padding:8px;border-bottom:1px solid #eee;">${r.building}${r.room ? `, ${r.room}` : ""}</td><td style="padding:8px;border-bottom:1px solid #eee;">${r.trade}</td><td style="padding:8px;border-bottom:1px solid #eee;color:${r.priority === "critical" ? "#ef4444" : r.priority === "high" ? "#f97316" : "#eab308"};">${r.priority.toUpperCase()}</td><td style="padding:8px;border-bottom:1px solid #eee;">${r.minutesElapsed}m ago</td></tr>`
+  ).join("");
+
+  await transporter.sendMail({
+    from: `"FixIt AI — UDel Facilities" <${process.env.GMAIL_USER}>`,
+    to: "facilities-manager@udel.edu",
+    subject: `⚠ SLA ESCALATION: ${opts.reports.length} report(s) need attention — ${opts.reason}`,
+    html: `
+<!DOCTYPE html>
+<html>
+<head><style>body{font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto;} table{width:100%;border-collapse:collapse;} th{text-align:left;padding:8px;background:#f9fafb;border-bottom:2px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;}</style></head>
+<body>
+  <div style="background:#ef4444;color:white;padding:16px 20px;border-radius:8px 8px 0 0;">
+    <h2 style="margin:0;">⚠ SLA Escalation Alert</h2>
+    <p style="margin:4px 0 0;opacity:0.9;font-size:14px;">${opts.reason}</p>
+  </div>
+  <div style="padding:20px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;">
+    <table><thead><tr><th>ID</th><th>Location</th><th>Trade</th><th>Priority</th><th>Elapsed</th></tr></thead><tbody>${rows}</tbody></table>
+    <p style="font-size:12px;color:#999;margin-top:16px;">Auto-escalated by FixIt AI SLA Engine</p>
+  </div>
+</body></html>`,
+  });
+}
+
+// --- Preventive Maintenance Work Order Email ---
+export async function sendPreventiveMaintenanceEmail(opts: {
+  trade: string;
+  count: number;
+  buildings: string[];
+  windowDays: number;
+}): Promise<void> {
+  await transporter.sendMail({
+    from: `"FixIt AI — UDel Facilities" <${process.env.GMAIL_USER}>`,
+    to: "facilities-manager@udel.edu",
+    subject: `🔧 Preventive Maintenance Auto-Generated: ${opts.trade.replace("_", " ")} (${opts.count} incidents in ${opts.windowDays} days)`,
+    html: `
+<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;color:#333;max-width:600px;margin:0 auto;">
+  <div style="background:#f59e0b;color:white;padding:16px 20px;border-radius:8px 8px 0 0;">
+    <h2 style="margin:0;">🔧 Preventive Maintenance Work Order</h2>
+    <p style="margin:4px 0 0;opacity:0.9;font-size:14px;">Auto-generated by Pattern Detection</p>
+  </div>
+  <div style="padding:20px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px;">
+    <p><strong>Trade:</strong> ${opts.trade.replace("_", " ").toUpperCase()}</p>
+    <p><strong>Pattern:</strong> ${opts.count} reports in the last ${opts.windowDays} days</p>
+    <p><strong>Affected Buildings:</strong> ${opts.buildings.join(", ")}</p>
+    <p><strong>Recommended Action:</strong> Schedule a comprehensive ${opts.trade.replace("_", " ")} inspection across affected buildings to identify and address root causes before further incidents occur.</p>
+    <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
+    <p style="font-size:12px;color:#999;">Auto-generated by FixIt AI Predictive Maintenance Engine</p>
+  </div>
+</body></html>`,
+  });
+}
+
 export async function sendDispatchEmail(report: Report): Promise<void> {
   const to = DEPARTMENT_EMAIL[report.trade];
   const priorityLabel = getPriorityLabel(report.priority);

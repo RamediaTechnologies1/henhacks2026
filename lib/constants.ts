@@ -73,6 +73,25 @@ export const ASSIGNMENT_SCORE = {
   MAX_ACTIVE_ASSIGNMENTS: 3,
 };
 
+// Escalation SLA thresholds (in minutes)
+export const ESCALATION_THRESHOLDS = {
+  // Time before unassigned report auto-reassigns
+  UNASSIGNED_CRITICAL: 15,
+  UNASSIGNED_HIGH: 60,
+  UNASSIGNED_DEFAULT: 120,
+  // Time before pending assignment triggers reassignment
+  UNACCEPTED_CRITICAL: 30,
+  UNACCEPTED_DEFAULT: 120,
+  // Time before in_progress triggers manager notification
+  STALE_IN_PROGRESS: 480, // 8 hours
+  // Manager notification email
+  MANAGER_EMAIL: "facilities-manager@udel.edu",
+  SAFETY_DIRECTOR_EMAIL: "safety@facilities.udel.edu",
+};
+
+// Job batching: same building + same trade within this window
+export const BATCH_WINDOW_HOURS = 4;
+
 // Demo seed technicians
 export const DEMO_TECHNICIANS = [
   {
