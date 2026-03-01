@@ -161,6 +161,16 @@ export interface Assignment {
 }
 
 // Floor Plans
+export interface RoomEquipment {
+  hvac_units?: number;
+  plumbing_fixtures?: number;
+  electrical_panels?: number;
+  fire_extinguishers?: number;
+  projectors?: number;
+  computers?: number;
+  description?: string;
+}
+
 export interface FloorPlanRoom {
   id: string;
   label: string;
@@ -173,12 +183,18 @@ export interface FloorPlanRoom {
     | "utility"
     | "common"
     | "hallway"
-    | "stairwell";
+    | "stairwell"
+    | "lab"
+    | "cafe";
   x: number;
   y: number;
   width: number;
   height: number;
   floor: string;
+  capacity?: number;
+  equipment?: RoomEquipment;
+  description?: string;
+  commonIssues?: string[];
 }
 
 export interface FloorPlanHallway {
@@ -195,4 +211,6 @@ export interface BuildingFloorPlan {
   svgViewBox: string;
   rooms: FloorPlanRoom[];
   hallways: FloorPlanHallway[];
+  groundElevation?: number;
+  floorHeight?: number;
 }

@@ -13,6 +13,7 @@ import {
   EyeOff,
   Eye,
   ShieldAlert,
+  Navigation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,8 +29,8 @@ import { VoiceInput } from "./voice-input";
 import { AIAnalysisDisplay } from "./ai-analysis-display";
 import { FloorPlanViewer } from "@/components/floor-plan/floor-plan-viewer";
 import { hasFloorPlan } from "@/lib/floor-plans";
-import { UDEL_BUILDINGS } from "@/lib/constants";
-import { findNearestBuilding } from "@/lib/utils";
+import { DEMO_BUILDINGS } from "@/lib/constants";
+import { findNearestBuilding, guessFloor } from "@/lib/utils";
 import type { AIAnalysis, FloorPlanRoom } from "@/lib/types";
 
 type Step = "photo" | "location" | "details" | "analyzing" | "review" | "submitted";
@@ -40,8 +41,6 @@ const STEPS = [
   { key: "details", label: "Details" },
   { key: "review", label: "Review" },
 ];
-
-const ALL_BUILDING_NAMES = UDEL_BUILDINGS.map((b) => b.name);
 
 interface ReportFormProps {
   prefill?: { building: string; floor: string; room: string };
@@ -61,9 +60,10 @@ export function ReportForm({ prefill }: ReportFormProps) {
   const [anonymous, setAnonymous] = useState(false);
 
   // GPS auto-detection state
-  const [photoGPS, setPhotoGPS] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [photoGPS, setPhotoGPS] = useState<{ latitude: number; longitude: number; altitude?: number } | null>(null);
   const [detectedBuilding, setDetectedBuilding] = useState<string | null>(null);
   const [gpsConfirmed, setGpsConfirmed] = useState(false);
+  const [suggestedFloor, setSuggestedFloor] = useState<string | null>(null);
 
   function handleRoomSelect(roomData: FloorPlanRoom) {
     setSelectedRoom(roomData);
@@ -119,14 +119,13 @@ export function ReportForm({ prefill }: ReportFormProps) {
   function resetForm() {
     setStep("photo"); setPhotoBase64(null); setBuilding(""); setSelectedRoom(null);
     setFloor(""); setRoom(""); setDescription(""); setAiAnalysis(null); setAnonymous(false);
-    setPhotoGPS(null); setDetectedBuilding(null); setGpsConfirmed(false);
+    setPhotoGPS(null); setDetectedBuilding(null); setGpsConfirmed(false); setSuggestedFloor(null);
   }
 
   const currentStepIndex = STEPS.findIndex(
     (s) => s.key === step || (step === "analyzing" && s.key === "review") || (step === "submitted" && s.key === "review")
   );
 
-  // For buildings without floor plans, don't require room selection
   const buildingHasFloorPlan = building ? hasFloorPlan(building) : false;
   const locationReady = building && (buildingHasFloorPlan ? !!selectedRoom : true);
 
@@ -239,9 +238,17 @@ export function ReportForm({ prefill }: ReportFormProps) {
                 setPhotoGPS(gpsCoords);
                 const nearest = findNearestBuilding(gpsCoords.latitude, gpsCoords.longitude);
                 if (nearest) {
-                  setDetectedBuilding(nearest.building);
-                  setBuilding(nearest.building);
-                  toast.success(`Location detected: ${nearest.building}`);
+                  // Only auto-fill if building is in our demo set
+                  if (DEMO_BUILDINGS.includes(nearest.building as typeof DEMO_BUILDINGS[number])) {
+                    setDetectedBuilding(nearest.building);
+                    setBuilding(nearest.building);
+                    // Floor guess from altitude
+                    const floorGuess = guessFloor(gpsCoords.altitude, nearest.building);
+                    if (floorGuess) {
+                      setSuggestedFloor(floorGuess);
+                    }
+                    toast.success(`Location detected: ${nearest.building}${floorGuess ? `, Floor ${floorGuess}` : ""}`);
+                  }
                 }
               }
             }}
@@ -251,6 +258,7 @@ export function ReportForm({ prefill }: ReportFormProps) {
               setPhotoGPS(null);
               setDetectedBuilding(null);
               setGpsConfirmed(false);
+              setSuggestedFloor(null);
             }}
           />
           <Button
@@ -276,10 +284,11 @@ export function ReportForm({ prefill }: ReportFormProps) {
           {/* GPS auto-detected confirmation banner */}
           {detectedBuilding && !gpsConfirmed && (
             <div className="flex items-center gap-3 p-3 bg-[#EFF6FF] dark:bg-[#1E293B] border border-[#00539F]/20 dark:border-[#3B82F6]/20 rounded-[6px]">
-              <MapPin className="h-4 w-4 text-[#00539F] dark:text-[#60A5FA] flex-shrink-0" />
+              <Navigation className="h-4 w-4 text-[#00539F] dark:text-[#60A5FA] flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] text-[#111111] dark:text-[#E5E7EB]">
                   Photo taken near <span className="font-medium">{detectedBuilding}</span>
+                  {suggestedFloor && <span className="text-[#6B7280] dark:text-[#9CA3AF]"> (Floor {suggestedFloor})</span>}
                 </p>
                 <p className="text-[12px] text-[#6B7280] dark:text-[#9CA3AF]">Use this location?</p>
               </div>
@@ -298,6 +307,7 @@ export function ReportForm({ prefill }: ReportFormProps) {
                     setBuilding("");
                     setPhotoGPS(null);
                     setGpsConfirmed(false);
+                    setSuggestedFloor(null);
                   }}
                   className="px-3 py-1.5 text-[12px] font-medium border border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] rounded-[4px] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
                 >
@@ -311,7 +321,8 @@ export function ReportForm({ prefill }: ReportFormProps) {
             <div className="flex items-center gap-2 p-3 bg-[#ECFDF5] dark:bg-[#10B981]/10 border border-[#10B981]/20 rounded-[6px]">
               <CheckCircle2 className="h-4 w-4 text-[#10B981] flex-shrink-0" />
               <span className="text-[13px] text-[#10B981]">
-                Location detected from photo: <span className="font-medium">{detectedBuilding}</span>
+                Location detected: <span className="font-medium">{detectedBuilding}</span>
+                {suggestedFloor && ` (Floor ${suggestedFloor})`}
               </span>
             </div>
           )}
@@ -326,6 +337,7 @@ export function ReportForm({ prefill }: ReportFormProps) {
                 if (val !== detectedBuilding) {
                   setGpsConfirmed(false);
                   setDetectedBuilding(null);
+                  setSuggestedFloor(null);
                 }
               }}
             >
@@ -333,17 +345,30 @@ export function ReportForm({ prefill }: ReportFormProps) {
                 <SelectValue placeholder="Select building" />
               </SelectTrigger>
               <SelectContent>
-                {ALL_BUILDING_NAMES.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                {DEMO_BUILDINGS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
           {building && buildingHasFloorPlan && (
-            <FloorPlanViewer
-              building={building}
-              onRoomSelect={handleRoomSelect}
-              selectedRoomId={selectedRoom?.id}
-            />
+            <>
+              {/* Floor guess hint */}
+              {suggestedFloor && !selectedRoom && (
+                <div className="flex items-center gap-2 p-2 bg-[#EFF6FF] dark:bg-[#1E293B] rounded-[6px]">
+                  <MapPin className="h-3.5 w-3.5 text-[#00539F] dark:text-[#60A5FA] flex-shrink-0" />
+                  <span className="text-[12px] text-[#6B7280] dark:text-[#9CA3AF]">
+                    Based on GPS, you may be on {suggestedFloor === "LL" ? "Lower Level" : `Floor ${suggestedFloor}`}. Tap a room to confirm.
+                  </span>
+                </div>
+              )}
+              <FloorPlanViewer
+                building={building}
+                onRoomSelect={handleRoomSelect}
+                selectedRoomId={selectedRoom?.id}
+                initialFloor={suggestedFloor || "1"}
+                showRoomDetails
+              />
+            </>
           )}
 
           {selectedRoom && (

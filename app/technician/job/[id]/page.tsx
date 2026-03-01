@@ -157,6 +157,7 @@ export default function JobDetailPage() {
             building={report.building}
             highlightedRooms={highlightedRooms}
             initialFloor={report.floor || "1"}
+            showRoomDetails
           />
         )}
       </div>

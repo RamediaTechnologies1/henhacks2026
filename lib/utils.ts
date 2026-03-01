@@ -40,3 +40,19 @@ export function findNearestBuilding(
 
   return nearest;
 }
+
+const BUILDING_ELEVATION: Record<string, { groundElevation: number; floorHeight: number; floors: string[] }> = {
+  "Gore Hall": { groundElevation: 25, floorHeight: 4.2, floors: ["1", "2", "3"] },
+  "Smith Hall": { groundElevation: 24, floorHeight: 4.2, floors: ["LL", "1", "2", "3"] },
+};
+
+export function guessFloor(altitude: number | undefined, building: string): string | null {
+  if (altitude === undefined) return null;
+  const data = BUILDING_ELEVATION[building];
+  if (!data) return null;
+
+  const heightAboveGround = altitude - data.groundElevation;
+  const floorIndex = Math.round(heightAboveGround / data.floorHeight);
+  const clamped = Math.max(0, Math.min(floorIndex, data.floors.length - 1));
+  return data.floors[clamped];
+}

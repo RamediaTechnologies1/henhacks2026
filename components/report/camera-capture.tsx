@@ -2,10 +2,10 @@
 
 import { useRef, useState } from "react";
 import { Camera, ImagePlus, X, RotateCcw } from "lucide-react";
-import { gps } from "exifr";
+import exifr from "exifr";
 
 interface CameraCaptureProps {
-  onCapture: (base64: string, gpsCoords?: { latitude: number; longitude: number }) => void;
+  onCapture: (base64: string, gpsCoords?: { latitude: number; longitude: number; altitude?: number }) => void;
   photoPreview: string | null;
   onClear: () => void;
 }
@@ -18,12 +18,16 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
   async function handleFile(file: File) {
     setProcessing(true);
 
-    // Extract GPS from original file BEFORE canvas resize strips EXIF
-    let gpsData: { latitude: number; longitude: number } | undefined;
+    // Extract GPS + altitude from original file BEFORE canvas resize strips EXIF
+    let gpsData: { latitude: number; longitude: number; altitude?: number } | undefined;
     try {
-      const coords = await gps(file);
-      if (coords && typeof coords.latitude === "number" && typeof coords.longitude === "number") {
-        gpsData = { latitude: coords.latitude, longitude: coords.longitude };
+      const exifData = await exifr.parse(file, { gps: true });
+      if (exifData && typeof exifData.latitude === "number" && typeof exifData.longitude === "number") {
+        gpsData = {
+          latitude: exifData.latitude,
+          longitude: exifData.longitude,
+          altitude: typeof exifData.GPSAltitude === "number" ? exifData.GPSAltitude : undefined,
+        };
       }
     } catch {
       // No GPS data or unsupported format
