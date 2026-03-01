@@ -1,13 +1,18 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Glasses, Mic, Volume2, Camera, X, Loader2 } from "lucide-react";
+import { Glasses, Mic, MicOff, Camera, X, Loader2 } from "lucide-react";
 import type { Assignment } from "@/lib/types";
 
 const PRIORITY_ORDER = { critical: 0, high: 1, medium: 2, low: 3 };
 function priorityRank(p: string) {
   return PRIORITY_ORDER[p as keyof typeof PRIORITY_ORDER] ?? 4;
 }
+
+// Silence detection config
+const SILENCE_THRESHOLD = 0.015; // volume level below which = silence
+const SILENCE_DURATION = 1500; // ms of silence before auto-sending
+const MIN_SPEECH_DURATION = 300; // ms of speech before we consider it real
 
 interface GlassesAssistantProps {
   email: string;
@@ -18,7 +23,8 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [techName, setTechName] = useState("Technician");
   const [processing, setProcessing] = useState(false);
-  const [recording, setRecording] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [lastMessage, setLastMessage] = useState("");
   const [lastHeard, setLastHeard] = useState("");
@@ -29,9 +35,19 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
   const initialLoadDoneRef = useRef(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const capturedImageRef = useRef<string | null>(null);
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
+
+  // Always-on mic refs
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const audioElRef = useRef<HTMLAudioElement | null>(null);
+  const rafRef = useRef<number>(0);
+  const isSpeechRef = useRef(false);
+  const speechStartRef = useRef(0);
+  const silenceStartRef = useRef(0);
+  const pausedRef = useRef(false); // paused while TTS plays or processing
 
   assignmentsRef.current = assignments;
   capturedImageRef.current = capturedImage;
@@ -45,6 +61,8 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
   // ---- TTS: speak through glasses via ElevenLabs or Web Speech ----
   const speak = useCallback(async (text: string) => {
     setLastMessage(text);
+    setSpeaking(true);
+    pausedRef.current = true; // pause mic monitoring while speaking
 
     // Try ElevenLabs first
     try {
@@ -64,12 +82,15 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
           audio.onended = () => { URL.revokeObjectURL(url); resolve(); };
           audio.onerror = () => { URL.revokeObjectURL(url); resolve(); };
         });
+        setSpeaking(false);
+        // Small delay before resuming mic to avoid echo pickup
+        setTimeout(() => { pausedRef.current = false; }, 500);
         return;
       }
     } catch { /* fall through */ }
 
     // Fallback: Web Speech
-    return new Promise<void>((resolve) => {
+    await new Promise<void>((resolve) => {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.rate = 1.05;
@@ -80,57 +101,161 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
       setTimeout(() => window.speechSynthesis.speak(u), 50);
       setTimeout(() => resolve(), 30000);
     });
+    setSpeaking(false);
+    setTimeout(() => { pausedRef.current = false; }, 500);
   }, []);
 
-  // ---- Push-to-talk: record → Whisper → process command ----
-  async function startRecording() {
+  // ---- Always-on mic: start stream + silence detection loop ----
+  const startMic = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-      chunksRef.current = [];
+      streamRef.current = stream;
 
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
+      const ctx = new AudioContext();
+      audioContextRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 512;
+      source.connect(analyser);
+      analyserRef.current = analyser;
 
-      recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        if (blob.size < 1000) return; // too short, ignore
+      const dataArray = new Float32Array(analyser.fftSize);
+      isSpeechRef.current = false;
+      silenceStartRef.current = 0;
+      speechStartRef.current = 0;
+      pausedRef.current = false;
 
-        setProcessing(true);
+      function monitor() {
+        rafRef.current = requestAnimationFrame(monitor);
+        if (pausedRef.current) return;
 
-        // Transcribe with Whisper
-        const formData = new FormData();
-        formData.append("audio", blob, "recording.webm");
-        try {
-          const res = await fetch("/api/transcribe", { method: "POST", body: formData });
-          if (res.ok) {
-            const { text } = await res.json();
-            if (text && text.trim()) {
-              setLastHeard(text.trim());
-              await processCommand(text.trim());
+        analyser.getFloatTimeDomainData(dataArray);
+        // RMS volume
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i] * dataArray[i];
+        const rms = Math.sqrt(sum / dataArray.length);
+
+        const now = Date.now();
+
+        if (rms > SILENCE_THRESHOLD) {
+          // Sound detected
+          silenceStartRef.current = 0;
+          if (!isSpeechRef.current) {
+            // Speech just started — begin recording
+            isSpeechRef.current = true;
+            speechStartRef.current = now;
+            startRecording(stream);
+          }
+        } else {
+          // Silence
+          if (isSpeechRef.current) {
+            if (silenceStartRef.current === 0) {
+              silenceStartRef.current = now;
+            } else if (now - silenceStartRef.current > SILENCE_DURATION) {
+              // Enough silence — check if speech was long enough
+              if (now - speechStartRef.current > MIN_SPEECH_DURATION + SILENCE_DURATION) {
+                // Auto-send!
+                isSpeechRef.current = false;
+                silenceStartRef.current = 0;
+                stopRecordingAndProcess();
+              } else {
+                // Too short, discard
+                isSpeechRef.current = false;
+                silenceStartRef.current = 0;
+                discardRecording();
+              }
             }
           }
-        } catch {
-          speak("Sorry, I couldn't hear that. Try again.");
         }
-        setProcessing(false);
-      };
+      }
 
-      mediaRecorderRef.current = recorder;
-      recorder.start();
-      setRecording(true);
+      monitor();
+      setListening(true);
     } catch {
       speak("Microphone access needed. Please allow mic permission.");
     }
-  }
+  }, [speak]);
 
-  function stopRecording() {
+  const stopMic = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop();
     }
-    setRecording(false);
+    mediaRecorderRef.current = null;
+    audioContextRef.current?.close();
+    audioContextRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    analyserRef.current = null;
+    isSpeechRef.current = false;
+    setListening(false);
+  }, []);
+
+  // Start a MediaRecorder segment (speech detected)
+  function startRecording(stream: MediaStream) {
+    chunksRef.current = [];
+    try {
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+    } catch { /* ignore */ }
+  }
+
+  // Stop recording and send to Whisper
+  function stopRecordingAndProcess() {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state !== "recording") return;
+
+    pausedRef.current = true; // pause monitoring during processing
+    setProcessing(true);
+
+    recorder.onstop = async () => {
+      const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+      chunksRef.current = [];
+      mediaRecorderRef.current = null;
+
+      if (blob.size < 1000) {
+        setProcessing(false);
+        pausedRef.current = false;
+        return;
+      }
+
+      // Transcribe with Whisper
+      const formData = new FormData();
+      formData.append("audio", blob, "recording.webm");
+      try {
+        const res = await fetch("/api/transcribe", { method: "POST", body: formData });
+        if (res.ok) {
+          const { text } = await res.json();
+          if (text && text.trim()) {
+            setLastHeard(text.trim());
+            await processCommand(text.trim());
+          }
+        }
+      } catch {
+        await speak("Sorry, I couldn't hear that. Try again.");
+      }
+      setProcessing(false);
+      // pausedRef gets unset by speak() after TTS finishes
+      // If no speech happened, unset it now
+      if (!pausedRef.current) return;
+      pausedRef.current = false;
+    };
+
+    recorder.stop();
+  }
+
+  function discardRecording() {
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state === "recording") {
+      recorder.onstop = () => {};
+      recorder.stop();
+    }
+    chunksRef.current = [];
+    mediaRecorderRef.current = null;
   }
 
   // ---- Process voice commands ----
@@ -245,7 +370,7 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
     const reader = new FileReader();
     reader.onload = () => {
       setCapturedImage(reader.result as string);
-      speak("Photo captured. Tap the mic and ask your question.");
+      speak("Photo captured. Just ask your question aloud.");
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -291,7 +416,7 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
       if (initialLoadDoneRef.current && newJobs.length > 0 && active) {
         for (const job of newJobs) {
           const r = job.report;
-          speak(`Attention. New job assigned. ${r?.priority || ""} priority ${r?.trade || ""} at ${r?.building || "building"}${r?.room ? ", room " + r.room : ""}. ${r?.ai_description || r?.description || ""}. Tap the mic and say accept to take this job.`);
+          speak(`Attention. New job assigned. ${r?.priority || ""} priority ${r?.trade || ""} at ${r?.building || "building"}${r?.room ? ", room " + r.room : ""}. ${r?.ai_description || r?.description || ""}. Say accept to take this job.`);
         }
       }
       prevIdsRef.current = currentPendingIds;
@@ -313,8 +438,8 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
     return () => { wl?.release(); };
   }, [active]);
 
-  // Activate
-  function handleActivate() {
+  // Activate — start always-on mic
+  async function handleActivate() {
     // Unlock audio on user gesture
     if (!audioElRef.current) {
       const a = new Audio();
@@ -323,16 +448,22 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
       audioElRef.current = a;
     }
     setActive(true);
+    await startMic();
     const jobs = getActiveJobs();
-    speak(`FixIt AI glasses connected. Welcome ${techName}. You have ${jobs.length} active job${jobs.length !== 1 ? "s" : ""}. ${jobs.length > 0 ? "Tap the mic button and say what's my queue, or accept to take a job." : "No jobs right now. I'll notify you when one comes in."}`);
+    speak(`FixIt AI glasses connected. Welcome ${techName}. You have ${jobs.length} active job${jobs.length !== 1 ? "s" : ""}. ${jobs.length > 0 ? "Just speak naturally. Say what's my queue, or accept to take a job." : "No jobs right now. I'll notify you when one comes in."}`);
   }
 
   function handleDeactivate() {
     setActive(false);
-    stopRecording();
+    stopMic();
     window.speechSynthesis.cancel();
     if (audioElRef.current) { audioElRef.current.pause(); }
   }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => { stopMic(); };
+  }, [stopMic]);
 
   return (
     <>
@@ -358,7 +489,7 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
                 <img src={capturedImage} alt="Captured" className="w-14 h-14 object-cover rounded-lg border border-[#262626]" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[12px] text-[#E5E7EB]">Photo ready</p>
-                  <p className="text-[11px] text-[#9CA3AF]">Tap mic and ask your question</p>
+                  <p className="text-[11px] text-[#9CA3AF]">Ask your question aloud</p>
                 </div>
                 <button onClick={() => setCapturedImage(null)} className="h-7 w-7 flex items-center justify-center rounded-full bg-[#262626] text-[#9CA3AF]">
                   <X className="h-3.5 w-3.5" />
@@ -378,18 +509,24 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
               <div className="flex items-center gap-2 px-3 py-2.5">
                 {/* Status / expand */}
                 <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="h-9 w-9 rounded-full bg-[#3B82F6]/15 flex items-center justify-center flex-shrink-0">
-                    <Glasses className="h-5 w-5 text-[#3B82F6]" />
+                  <div className={`h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    speaking ? "bg-purple-500/15" : "bg-[#3B82F6]/15"
+                  }`}>
+                    <Glasses className={`h-5 w-5 ${speaking ? "text-purple-400" : "text-[#3B82F6]"}`} />
                   </div>
                   <div className="min-w-0 text-left">
                     {processing ? (
-                      <span className="text-[12px] text-[#3B82F6] flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Processing...</span>
-                    ) : recording ? (
-                      <span className="text-[12px] text-red-400 flex items-center gap-1">
-                        <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" /> Listening — tap to send
+                      <span className="text-[12px] text-[#3B82F6] flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Thinking...</span>
+                    ) : speaking ? (
+                      <span className="text-[12px] text-purple-400 flex items-center gap-1">
+                        <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" /> Speaking...
+                      </span>
+                    ) : listening ? (
+                      <span className="text-[12px] text-emerald-400 flex items-center gap-1">
+                        <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" /> Listening — just speak
                       </span>
                     ) : (
-                      <span className="text-[12px] text-emerald-400">Tap mic to speak</span>
+                      <span className="text-[12px] text-[#6B7280]">Mic off</span>
                     )}
                     {lastHeard && !expanded && (
                       <p className="text-[11px] text-[#9CA3AF] truncate max-w-[160px]">&quot;{lastHeard}&quot;</p>
@@ -405,24 +542,20 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
                   <Camera className="h-4.5 w-4.5" />
                 </button>
 
-                {/* Tap-to-record mic button */}
+                {/* Mic toggle (mute/unmute) */}
                 <button
-                  onClick={() => { if (recording) { stopRecording(); } else { startRecording(); } }}
+                  onClick={() => { if (listening) { stopMic(); } else { startMic(); } }}
                   disabled={processing}
                   className={`h-12 w-12 flex items-center justify-center rounded-full flex-shrink-0 active:scale-95 transition-all ${
-                    recording
-                      ? "bg-red-500 text-white scale-110 shadow-lg shadow-red-500/30 animate-pulse"
-                      : processing
-                        ? "bg-[#262626] text-[#6B7280]"
-                        : "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                    listening
+                      ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                      : "bg-[#262626] text-[#6B7280] border border-[#333]"
                   }`}
                 >
-                  {processing ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : recording ? (
-                    <Volume2 className="h-5 w-5" />
-                  ) : (
+                  {listening ? (
                     <Mic className="h-5 w-5" />
+                  ) : (
+                    <MicOff className="h-5 w-5" />
                   )}
                 </button>
 
