@@ -28,7 +28,8 @@ import { VoiceInput } from "./voice-input";
 import { AIAnalysisDisplay } from "./ai-analysis-display";
 import { FloorPlanViewer } from "@/components/floor-plan/floor-plan-viewer";
 import { hasFloorPlan } from "@/lib/floor-plans";
-import { DEMO_BUILDINGS } from "@/lib/constants";
+import { UDEL_BUILDINGS } from "@/lib/constants";
+import { findNearestBuilding } from "@/lib/utils";
 import type { AIAnalysis, FloorPlanRoom } from "@/lib/types";
 
 type Step = "photo" | "location" | "details" | "analyzing" | "review" | "submitted";
@@ -39,6 +40,8 @@ const STEPS = [
   { key: "details", label: "Details" },
   { key: "review", label: "Review" },
 ];
+
+const ALL_BUILDING_NAMES = UDEL_BUILDINGS.map((b) => b.name);
 
 interface ReportFormProps {
   prefill?: { building: string; floor: string; room: string };
@@ -56,6 +59,11 @@ export function ReportForm({ prefill }: ReportFormProps) {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [anonymous, setAnonymous] = useState(false);
+
+  // GPS auto-detection state
+  const [photoGPS, setPhotoGPS] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [detectedBuilding, setDetectedBuilding] = useState<string | null>(null);
+  const [gpsConfirmed, setGpsConfirmed] = useState(false);
 
   function handleRoomSelect(roomData: FloorPlanRoom) {
     setSelectedRoom(roomData);
@@ -96,6 +104,8 @@ export function ReportForm({ prefill }: ReportFormProps) {
           photo_base64: photoBase64,
           ai_analysis: aiAnalysis,
           anonymous,
+          latitude: photoGPS?.latitude,
+          longitude: photoGPS?.longitude,
         }),
       });
       if (!res.ok) { toast.error("Submission failed"); return; }
@@ -109,11 +119,16 @@ export function ReportForm({ prefill }: ReportFormProps) {
   function resetForm() {
     setStep("photo"); setPhotoBase64(null); setBuilding(""); setSelectedRoom(null);
     setFloor(""); setRoom(""); setDescription(""); setAiAnalysis(null); setAnonymous(false);
+    setPhotoGPS(null); setDetectedBuilding(null); setGpsConfirmed(false);
   }
 
   const currentStepIndex = STEPS.findIndex(
     (s) => s.key === step || (step === "analyzing" && s.key === "review") || (step === "submitted" && s.key === "review")
   );
+
+  // For buildings without floor plans, don't require room selection
+  const buildingHasFloorPlan = building ? hasFloorPlan(building) : false;
+  const locationReady = building && (buildingHasFloorPlan ? !!selectedRoom : true);
 
   if (step === "submitted") {
     const isSafety = aiAnalysis?.safety_concern;
@@ -215,12 +230,28 @@ export function ReportForm({ prefill }: ReportFormProps) {
         <div className="space-y-4">
           <div>
             <h2 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB]">Capture the issue</h2>
-            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">Take a clear photo so our AI can analyze it.</p>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">Take a photo or upload one from your gallery.</p>
           </div>
           <CameraCapture
-            onCapture={(base64) => setPhotoBase64(base64)}
+            onCapture={(base64, gpsCoords) => {
+              setPhotoBase64(base64);
+              if (gpsCoords) {
+                setPhotoGPS(gpsCoords);
+                const nearest = findNearestBuilding(gpsCoords.latitude, gpsCoords.longitude);
+                if (nearest) {
+                  setDetectedBuilding(nearest.building);
+                  setBuilding(nearest.building);
+                  toast.success(`Location detected: ${nearest.building}`);
+                }
+              }
+            }}
             photoPreview={photoBase64}
-            onClear={() => setPhotoBase64(null)}
+            onClear={() => {
+              setPhotoBase64(null);
+              setPhotoGPS(null);
+              setDetectedBuilding(null);
+              setGpsConfirmed(false);
+            }}
           />
           <Button
             onClick={() => setStep("location")}
@@ -237,22 +268,77 @@ export function ReportForm({ prefill }: ReportFormProps) {
         <div className="space-y-4">
           <div>
             <h2 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB]">Where is the issue?</h2>
-            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">Select the building and tap the room.</p>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">
+              {detectedBuilding ? "We detected a location from your photo." : "Select the building and tap the room."}
+            </p>
           </div>
+
+          {/* GPS auto-detected confirmation banner */}
+          {detectedBuilding && !gpsConfirmed && (
+            <div className="flex items-center gap-3 p-3 bg-[#EFF6FF] dark:bg-[#1E293B] border border-[#00539F]/20 dark:border-[#3B82F6]/20 rounded-[6px]">
+              <MapPin className="h-4 w-4 text-[#00539F] dark:text-[#60A5FA] flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] text-[#111111] dark:text-[#E5E7EB]">
+                  Photo taken near <span className="font-medium">{detectedBuilding}</span>
+                </p>
+                <p className="text-[12px] text-[#6B7280] dark:text-[#9CA3AF]">Use this location?</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setGpsConfirmed(true)}
+                  className="px-3 py-1.5 text-[12px] font-medium bg-[#00539F] dark:bg-[#3B82F6] text-white rounded-[4px] hover:bg-[#003d75] dark:hover:bg-[#2563EB] transition-colors duration-150"
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDetectedBuilding(null);
+                    setBuilding("");
+                    setPhotoGPS(null);
+                    setGpsConfirmed(false);
+                  }}
+                  className="px-3 py-1.5 text-[12px] font-medium border border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] rounded-[4px] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
+
+          {detectedBuilding && gpsConfirmed && (
+            <div className="flex items-center gap-2 p-3 bg-[#ECFDF5] dark:bg-[#10B981]/10 border border-[#10B981]/20 rounded-[6px]">
+              <CheckCircle2 className="h-4 w-4 text-[#10B981] flex-shrink-0" />
+              <span className="text-[13px] text-[#10B981]">
+                Location detected from photo: <span className="font-medium">{detectedBuilding}</span>
+              </span>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">Building</label>
-            <Select value={building} onValueChange={(val) => { setBuilding(val); setSelectedRoom(null); }}>
+            <Select
+              value={building}
+              onValueChange={(val) => {
+                setBuilding(val);
+                setSelectedRoom(null);
+                if (val !== detectedBuilding) {
+                  setGpsConfirmed(false);
+                  setDetectedBuilding(null);
+                }
+              }}
+            >
               <SelectTrigger className="h-10 rounded-[6px] text-[14px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB]">
                 <SelectValue placeholder="Select building" />
               </SelectTrigger>
               <SelectContent>
-                {DEMO_BUILDINGS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                {ALL_BUILDING_NAMES.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
-          {building && hasFloorPlan(building) && (
+          {building && buildingHasFloorPlan && (
             <FloorPlanViewer
               building={building}
               onRoomSelect={handleRoomSelect}
@@ -275,7 +361,7 @@ export function ReportForm({ prefill }: ReportFormProps) {
             </Button>
             <Button
               onClick={() => setStep("details")}
-              disabled={!building || !selectedRoom}
+              disabled={!locationReady}
               className="flex-1 h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium disabled:opacity-50"
             >
               Next <ArrowRight className="ml-2 h-4 w-4" />
@@ -332,7 +418,7 @@ export function ReportForm({ prefill }: ReportFormProps) {
             {photoBase64 && <img src={photoBase64} alt="Preview" className="w-10 h-10 rounded-[4px] object-cover" />}
             <div className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">
               <p className="font-medium text-[#111111] dark:text-[#E5E7EB]">{building}</p>
-              <p>Floor {selectedRoom?.floor || floor}, Room {selectedRoom?.label || room}</p>
+              <p>{selectedRoom ? `Floor ${selectedRoom.floor}, Room ${selectedRoom.label}` : ""}</p>
             </div>
           </div>
 
@@ -371,8 +457,8 @@ export function ReportForm({ prefill }: ReportFormProps) {
           <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] dark:bg-[#1C1C1E] rounded-[6px] border border-[#E5E7EB] dark:border-[#262626]">
             {photoBase64 && <img src={photoBase64} alt="Preview" className="w-12 h-12 rounded-[4px] object-cover" />}
             <div className="text-[13px]">
-              <p className="font-medium text-[#111111] dark:text-[#E5E7EB]">{building}, Room {selectedRoom?.label || room}</p>
-              <p className="text-[#6B7280] dark:text-[#9CA3AF]">Floor {selectedRoom?.floor || floor}</p>
+              <p className="font-medium text-[#111111] dark:text-[#E5E7EB]">{building}{selectedRoom ? `, Room ${selectedRoom.label}` : ""}</p>
+              <p className="text-[#6B7280] dark:text-[#9CA3AF]">{selectedRoom ? `Floor ${selectedRoom.floor}` : ""}</p>
               {description && <p className="text-[#9CA3AF] dark:text-[#6B7280] mt-0.5 line-clamp-1">{description}</p>}
             </div>
           </div>

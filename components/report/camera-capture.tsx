@@ -2,9 +2,10 @@
 
 import { useRef, useState } from "react";
 import { Camera, ImagePlus, X, RotateCcw } from "lucide-react";
+import { gps } from "exifr";
 
 interface CameraCaptureProps {
-  onCapture: (base64: string) => void;
+  onCapture: (base64: string, gpsCoords?: { latitude: number; longitude: number }) => void;
   photoPreview: string | null;
   onClear: () => void;
 }
@@ -14,8 +15,21 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [processing, setProcessing] = useState(false);
 
-  function handleFile(file: File) {
+  async function handleFile(file: File) {
     setProcessing(true);
+
+    // Extract GPS from original file BEFORE canvas resize strips EXIF
+    let gpsData: { latitude: number; longitude: number } | undefined;
+    try {
+      const coords = await gps(file);
+      if (coords && typeof coords.latitude === "number" && typeof coords.longitude === "number") {
+        gpsData = { latitude: coords.latitude, longitude: coords.longitude };
+      }
+    } catch {
+      // No GPS data or unsupported format
+    }
+
+    // Canvas resize pipeline
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result as string;
@@ -32,11 +46,11 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
         canvas.width = w;
         canvas.height = h;
         canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
-        onCapture(canvas.toDataURL("image/jpeg", 0.8));
+        onCapture(canvas.toDataURL("image/jpeg", 0.8), gpsData);
         setProcessing(false);
       };
       img.onerror = () => {
-        onCapture(base64);
+        onCapture(base64, gpsData);
         setProcessing(false);
       };
       img.src = base64;
@@ -65,21 +79,34 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
           Retake
         </button>
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleInputChange} className="hidden" />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleInputChange} className="hidden" />
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <button
-        type="button"
-        onClick={() => cameraInputRef.current?.click()}
-        disabled={processing}
-        className="w-full flex flex-col items-center justify-center gap-2 h-[200px] rounded-[6px] border-2 border-dashed border-[#D1D5DB] dark:border-[#3F3F46] bg-white dark:bg-[#141415] hover:border-[#00539F] dark:hover:border-[#3B82F6] hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
-      >
-        <Camera className="h-6 w-6 text-[#9CA3AF] dark:text-[#6B7280]" />
-        <span className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF]">Take a photo or upload</span>
-      </button>
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={() => cameraInputRef.current?.click()}
+          disabled={processing}
+          className="flex-1 flex flex-col items-center justify-center gap-2 h-[200px] rounded-[6px] border-2 border-dashed border-[#D1D5DB] dark:border-[#3F3F46] bg-white dark:bg-[#141415] hover:border-[#00539F] dark:hover:border-[#3B82F6] hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
+        >
+          <Camera className="h-6 w-6 text-[#9CA3AF] dark:text-[#6B7280]" />
+          <span className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF]">Take Photo</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={processing}
+          className="flex-1 flex flex-col items-center justify-center gap-2 h-[200px] rounded-[6px] border-2 border-dashed border-[#D1D5DB] dark:border-[#3F3F46] bg-white dark:bg-[#141415] hover:border-[#00539F] dark:hover:border-[#3B82F6] hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
+        >
+          <ImagePlus className="h-6 w-6 text-[#9CA3AF] dark:text-[#6B7280]" />
+          <span className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF]">Upload Photo</span>
+        </button>
+      </div>
 
       {processing && (
         <div className="flex items-center justify-center gap-2 py-2">
