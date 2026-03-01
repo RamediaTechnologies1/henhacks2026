@@ -48,13 +48,13 @@ export function StatsCards({ reports, assignments, onFilterChange, activeFilter 
               if (!isClickable || !onFilterChange) return;
               onFilterChange(isActive ? "" : stat.filterKey);
             }}
-            className={`bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-colors duration-150 ${
-              isClickable ? "cursor-pointer hover:bg-[#F3F4F6]" : ""
-            } ${isActive ? "ring-1 ring-[#00539F] bg-[#EFF6FF]" : ""}`}
+            className={`bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none transition-colors duration-150 ${
+              isClickable ? "cursor-pointer hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]" : ""
+            } ${isActive ? "ring-1 ring-[#00539F] dark:ring-[#3B82F6] bg-[#EFF6FF] dark:bg-[#1E293B]" : ""}`}
             style={{ borderBottomWidth: '3px', borderBottomColor: stat.borderColor }}
           >
-            <p className="text-[28px] font-semibold text-[#111111]">{stat.value}</p>
-            <p className="text-[13px] text-[#6B7280]">{stat.label}</p>
+            <p className="text-[28px] font-semibold text-[#111111] dark:text-[#E5E7EB]">{stat.value}</p>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">{stat.label}</p>
           </div>
         );
       })}

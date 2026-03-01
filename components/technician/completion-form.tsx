@@ -70,18 +70,17 @@ export function CompletionForm({ assignmentId, onComplete }: CompletionFormProps
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-[14px] font-medium text-[#111111]">Complete this job</h3>
-        <p className="text-[13px] text-[#6B7280] mt-0.5">Add a completion photo and notes</p>
+        <h3 className="text-[14px] font-medium text-[#111111] dark:text-[#E5E7EB]">Complete this job</h3>
+        <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">Add a completion photo and notes</p>
       </div>
 
-      {/* Completion photo */}
       <div>
         {photo ? (
-          <div className="relative rounded-[6px] overflow-hidden border border-[#E5E7EB]">
+          <div className="relative rounded-[6px] overflow-hidden border border-[#E5E7EB] dark:border-[#262626]">
             <img src={photo} alt="Completion" className="w-full h-36 object-cover" />
             <button
               onClick={() => setPhoto(null)}
-              className="absolute top-2 right-2 bg-white border border-[#E5E7EB] px-2 py-1 rounded-[4px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[12px] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150"
+              className="absolute top-2 right-2 bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] px-2 py-1 rounded-[4px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[12px] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
             >
               Retake
             </button>
@@ -90,27 +89,26 @@ export function CompletionForm({ assignmentId, onComplete }: CompletionFormProps
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="w-full h-28 rounded-[6px] border-2 border-dashed border-[#D1D5DB] bg-white flex flex-col items-center justify-center gap-2 hover:border-[#00539F] hover:bg-[#FAFAFA] transition-colors duration-150"
+            className="w-full h-28 rounded-[6px] border-2 border-dashed border-[#D1D5DB] dark:border-[#3F3F46] bg-white dark:bg-[#141415] flex flex-col items-center justify-center gap-2 hover:border-[#00539F] dark:hover:border-[#3B82F6] hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
           >
-            <Camera className="h-6 w-6 text-[#9CA3AF]" />
-            <span className="text-[13px] text-[#6B7280]">Take completion photo</span>
+            <Camera className="h-6 w-6 text-[#9CA3AF] dark:text-[#6B7280]" />
+            <span className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">Take completion photo</span>
           </button>
         )}
         <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
       </div>
 
-      {/* Notes */}
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Completion notes (e.g., replaced filter, adjusted thermostat)..."
-        className="w-full h-24 px-3 py-2.5 text-[14px] border border-[#E5E7EB] rounded-[6px] resize-none bg-white text-[#111111] placeholder:text-[#9CA3AF]"
+        className="w-full h-24 px-3 py-2.5 text-[14px] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] resize-none bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280]"
       />
 
       <Button
         onClick={handleSubmit}
         disabled={submitting}
-        className="w-full h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium disabled:opacity-50"
+        className="w-full h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium disabled:opacity-50"
       >
         {submitting ? (
           <Loader2 className="h-4 w-4 animate-spin" />

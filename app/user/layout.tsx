@@ -33,7 +33,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   if (!ready) return null;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0A0A0B]">
       <PortalHeader role="user" email={email} />
       <SafetyAlerts />
       <main className="pb-20 max-w-[480px] mx-auto">{children}</main>

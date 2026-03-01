@@ -48,7 +48,7 @@
 }
 
 /* ============================================
-   DESIGN SYSTEM — Clean Light Theme
+   DESIGN SYSTEM — Clean Theme with Dark Mode
    Stripe meets Linear meets Citizen
    ============================================ */
 
@@ -109,6 +109,52 @@
   --status-resolved: #10B981;
 }
 
+.dark {
+  --background: #0A0A0B;
+  --foreground: #E5E7EB;
+  --card: #141415;
+  --card-foreground: #E5E7EB;
+  --popover: #141415;
+  --popover-foreground: #E5E7EB;
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1C1C1E;
+  --secondary-foreground: #E5E7EB;
+  --muted: #1C1C1E;
+  --muted-foreground: #9CA3AF;
+  --accent: #1E293B;
+  --accent-foreground: #60A5FA;
+  --destructive: #EF4444;
+  --border: #262626;
+  --input: #262626;
+  --ring: #3B82F6;
+  --chart-1: #3B82F6;
+  --chart-2: #9CA3AF;
+  --chart-3: #6B7280;
+  --chart-4: #4B5563;
+  --chart-5: #EF4444;
+  --sidebar: #141415;
+  --sidebar-foreground: #E5E7EB;
+  --sidebar-primary: #3B82F6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #60A5FA;
+  --sidebar-border: #262626;
+  --sidebar-ring: #3B82F6;
+
+  --bg-primary: #0A0A0B;
+  --bg-card: #141415;
+  --bg-hover: #1C1C1E;
+  --bg-active: #1E293B;
+  --text-primary: #E5E7EB;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --accent-color: #3B82F6;
+  --accent-light: #1E293B;
+  --border-default: #262626;
+  --border-strong: #3F3F46;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -135,6 +181,10 @@
   background-size: 200% 100%;
   animation: skeletonPulse 1.5s ease-in-out infinite;
 }
+.dark .skeleton-pulse {
+  background: linear-gradient(90deg, #262626 25%, #1C1C1E 50%, #262626 75%);
+  background-size: 200% 100%;
+}
 
 @keyframes skeletonPulse {
   0% { background-position: 200% 0; }
@@ -150,12 +200,18 @@
 .hover-row:hover {
   background-color: #F9FAFB;
 }
+.dark .hover-row:hover {
+  background-color: #1C1C1E;
+}
 
 .hover-card {
   transition: border-color 150ms ease;
 }
 .hover-card:hover {
   border-color: #D1D5DB;
+}
+.dark .hover-card:hover {
+  border-color: #3F3F46;
 }
 
 /* ============================================
@@ -167,6 +223,10 @@ input:focus, textarea:focus, select:focus {
   border-color: #00539F !important;
   box-shadow: none !important;
 }
+.dark input:focus, .dark textarea:focus, .dark select:focus {
+  outline-color: #3B82F6 !important;
+  border-color: #3B82F6 !important;
+}
 
 /* ============================================
    MAP CONTAINER
@@ -175,6 +235,9 @@ input:focus, textarea:focus, select:focus {
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid #E5E7EB;
+}
+.dark .map-container {
+  border-color: #262626;
 }
 
 /* ============================================
@@ -193,12 +256,24 @@ input:focus, textarea:focus, select:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: #9CA3AF;
 }
+.dark ::-webkit-scrollbar-track {
+  background: #0A0A0B;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3F3F46;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+}
 
 /* ============================================
    SLIDE-OVER PANEL
    ============================================ */
 .slide-over {
   box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+}
+.dark .slide-over {
+  box-shadow: -4px 0 12px rgba(0,0,0,0.4);
 }
 
 /* ============================================
@@ -211,8 +286,18 @@ input:focus, textarea:focus, select:focus {
   background: #FFFFFF !important;
   color: #111111 !important;
 }
+.dark .leaflet-popup-content-wrapper {
+  border-color: #262626 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+  background: #141415 !important;
+  color: #E5E7EB !important;
+}
 
 .leaflet-popup-tip {
   background: #FFFFFF !important;
   border: 1px solid #E5E7EB !important;
+}
+.dark .leaflet-popup-tip {
+  background: #141415 !important;
+  border-color: #262626 !important;
 }

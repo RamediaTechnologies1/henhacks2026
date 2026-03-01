@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useTheme } from "@/lib/theme";
 import type { UserRole } from "@/lib/types";
 
 const ROLES: {
@@ -32,9 +33,14 @@ const ROLES: {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { resolvedTheme, setTheme } = useTheme();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function toggleTheme() {
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -64,24 +70,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FAFAFA]">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FAFAFA] dark:bg-[#0A0A0B]">
+      {/* Theme toggle */}
+      <div className="fixed top-4 right-4">
+        <button
+          onClick={toggleTheme}
+          className="h-9 w-9 flex items-center justify-center rounded-[6px] border border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#141415] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
+        >
+          {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+      </div>
+
       <div className="w-full max-w-[400px]">
-        {/* Card */}
-        <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-8 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-          {/* Header */}
+        <div className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-8 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
           <div className="text-center mb-6">
-            <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">
+            <h1 className="text-[20px] font-medium text-[#111111] dark:text-[#E5E7EB] tracking-[-0.01em]">
               FixIt AI
             </h1>
-            <p className="text-[13px] text-[#6B7280] mt-1">
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">
               University of Delaware
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Role Selection */}
             <div className="space-y-1.5">
-              <label className="text-[13px] font-medium text-[#374151]">
+              <label className="text-[13px] font-medium text-[#374151] dark:text-[#D1D5DB]">
                 Select your role
               </label>
               <div className="space-y-2">
@@ -94,25 +107,25 @@ export default function LoginPage() {
                       onClick={() => setRole(r.value)}
                       className={`w-full flex items-center justify-between rounded-[6px] p-3 border text-left transition-colors duration-150 ${
                         isActive
-                          ? "border-[#00539F] bg-[#EFF6FF]"
-                          : "border-[#E5E7EB] hover:bg-[#F3F4F6]"
+                          ? "border-[#00539F] dark:border-[#3B82F6] bg-[#EFF6FF] dark:bg-[#1E293B]"
+                          : "border-[#E5E7EB] dark:border-[#262626] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]"
                       }`}
                     >
                       <div>
-                        <p className={`text-[14px] font-medium ${isActive ? "text-[#00539F]" : "text-[#111111]"}`}>
+                        <p className={`text-[14px] font-medium ${isActive ? "text-[#00539F] dark:text-[#60A5FA]" : "text-[#111111] dark:text-[#E5E7EB]"}`}>
                           {r.label}
                         </p>
-                        <p className="text-[13px] text-[#6B7280]">{r.desc}</p>
+                        <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">{r.desc}</p>
                       </div>
                       <div
                         className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                           isActive
-                            ? "border-[#00539F]"
-                            : "border-[#D1D5DB]"
+                            ? "border-[#00539F] dark:border-[#3B82F6]"
+                            : "border-[#D1D5DB] dark:border-[#4B5563]"
                         }`}
                       >
                         {isActive && (
-                          <div className="w-2 h-2 rounded-full bg-[#00539F]" />
+                          <div className="w-2 h-2 rounded-full bg-[#00539F] dark:bg-[#3B82F6]" />
                         )}
                       </div>
                     </button>
@@ -121,9 +134,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Email Input */}
             <div className="space-y-1.5">
-              <label className="text-[13px] font-medium text-[#374151]">
+              <label className="text-[13px] font-medium text-[#374151] dark:text-[#D1D5DB]">
                 Email address
               </label>
               <Input
@@ -132,15 +144,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-10 text-[14px] rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] placeholder:text-[#9CA3AF] focus:border-[#00539F] focus:ring-0"
+                className="h-10 text-[14px] rounded-[6px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280] focus:border-[#00539F] dark:focus:border-[#3B82F6] focus:ring-0"
               />
             </div>
 
-            {/* Submit */}
             <Button
               type="submit"
               disabled={!email || !role || loading}
-              className="w-full h-11 rounded-[6px] text-[14px] font-medium bg-[#00539F] hover:bg-[#003d75] text-white transition-colors duration-150 disabled:opacity-50"
+              className="w-full h-11 rounded-[6px] text-[14px] font-medium bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white transition-colors duration-150 disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -154,7 +165,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center mt-4 text-[13px] text-[#9CA3AF]">
+        <p className="text-center mt-4 text-[13px] text-[#9CA3AF] dark:text-[#6B7280]">
           HenHacks 2026
         </p>
       </div>

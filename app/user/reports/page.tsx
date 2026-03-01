@@ -7,11 +7,11 @@ import Link from "next/link";
 import type { Report } from "@/lib/types";
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; border: string }> = {
-  submitted: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
-  analyzing: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
-  dispatched: { bg: "bg-[#FFFBEB]", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
-  in_progress: { bg: "bg-[#EFF6FF]", text: "text-[#00539F]", border: "border-[#00539F]/20" },
-  resolved: { bg: "bg-[#ECFDF5]", text: "text-[#10B981]", border: "border-[#10B981]/20" },
+  submitted: { bg: "bg-[#F3F4F6] dark:bg-[#1C1C1E]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  analyzing: { bg: "bg-[#F3F4F6] dark:bg-[#1C1C1E]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  dispatched: { bg: "bg-[#FFFBEB] dark:bg-[#F59E0B]/10", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
+  in_progress: { bg: "bg-[#EFF6FF] dark:bg-[#3B82F6]/10", text: "text-[#00539F] dark:text-[#60A5FA]", border: "border-[#00539F]/20 dark:border-[#3B82F6]/20" },
+  resolved: { bg: "bg-[#ECFDF5] dark:bg-[#10B981]/10", text: "text-[#10B981]", border: "border-[#10B981]/20" },
 };
 
 const STATUS_STEPS = ["submitted", "dispatched", "in_progress", "resolved"];
@@ -45,12 +45,12 @@ function StatusTimeline({ status }: { status: string }) {
                 isCompleted
                   ? status === "resolved" && i === STATUS_STEPS.length - 1
                     ? "bg-[#10B981]"
-                    : "bg-[#00539F]"
-                  : "bg-[#E5E7EB]"
+                    : "bg-[#00539F] dark:bg-[#3B82F6]"
+                  : "bg-[#E5E7EB] dark:bg-[#262626]"
               }`}
             />
             <span className={`text-[9px] mt-1 ${
-              isCompleted ? "text-[#6B7280]" : "text-[#9CA3AF]"
+              isCompleted ? "text-[#6B7280] dark:text-[#9CA3AF]" : "text-[#9CA3AF] dark:text-[#6B7280]"
             }`}>
               {step.replace("_", " ")}
             </span>
@@ -64,7 +64,7 @@ function StatusTimeline({ status }: { status: string }) {
 const PRIORITY_COLORS: Record<string, string> = {
   critical: "border-l-[#DC2626]",
   high: "border-l-[#F59E0B]",
-  medium: "border-l-[#00539F]",
+  medium: "border-l-[#00539F] dark:border-l-[#3B82F6]",
   low: "border-l-[#10B981]",
 };
 
@@ -98,20 +98,19 @@ export default function MyReports() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">My Reports</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">Track the status of your submissions</p>
+          <h1 className="text-[20px] font-medium text-[#111111] dark:text-[#E5E7EB] tracking-[-0.01em]">My Reports</h1>
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">Track the status of your submissions</p>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => { setRefreshing(true); loadReports(); }}
-          className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]"
+          className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
         </Button>
       </div>
 
-      {/* Quick Stats */}
       {!loading && reports.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {[
@@ -119,9 +118,9 @@ export default function MyReports() {
             { label: "Active", value: reports.filter((r) => r.status !== "resolved").length },
             { label: "Resolved", value: reports.filter((r) => r.status === "resolved").length },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white border border-[#E5E7EB] rounded-[6px] p-3 text-center shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-              <p className="text-[28px] font-semibold text-[#111111]">{stat.value}</p>
-              <p className="text-[13px] text-[#6B7280]">{stat.label}</p>
+            <div key={stat.label} className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-3 text-center shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none">
+              <p className="text-[28px] font-semibold text-[#111111] dark:text-[#E5E7EB]">{stat.value}</p>
+              <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -137,9 +136,9 @@ export default function MyReports() {
 
       {!loading && reports.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-[14px] text-[#6B7280] mb-4">No reports yet</p>
+          <p className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF] mb-4">No reports yet</p>
           <Link href="/user">
-            <Button className="bg-[#00539F] hover:bg-[#003d75] text-white rounded-[6px] h-11 px-6 text-[14px] font-medium">
+            <Button className="bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white rounded-[6px] h-11 px-6 text-[14px] font-medium">
               <Camera className="mr-2 h-4 w-4" />
               Report an issue
             </Button>
@@ -153,22 +152,22 @@ export default function MyReports() {
           return (
             <div
               key={report.id}
-              className={`bg-white border border-[#E5E7EB] rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] overflow-hidden border-l-[3px] ${PRIORITY_COLORS[report.priority] || ""}`}
+              className={`bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none overflow-hidden border-l-[3px] ${PRIORITY_COLORS[report.priority] || ""}`}
             >
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[12px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-[4px] border border-[#E5E7EB]">
+                    <span className="text-[12px] font-medium text-[#6B7280] dark:text-[#9CA3AF] bg-[#F3F4F6] dark:bg-[#1C1C1E] px-2 py-0.5 rounded-[4px] border border-[#E5E7EB] dark:border-[#262626]">
                       {report.trade.replace("_", " ")}
                     </span>
                     {report.safety_concern && (
-                      <span className="text-[12px] font-medium text-[#DC2626] bg-[#FEF2F2] px-2 py-0.5 rounded-[4px] border border-[#DC2626]/20 flex items-center gap-1">
+                      <span className="text-[12px] font-medium text-[#DC2626] bg-[#FEF2F2] dark:bg-[#DC2626]/10 px-2 py-0.5 rounded-[4px] border border-[#DC2626]/20 flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" /> safety
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[12px] text-[#9CA3AF]">{getTimeAgo(report.created_at)}</span>
+                    <span className="text-[12px] text-[#9CA3AF] dark:text-[#6B7280]">{getTimeAgo(report.created_at)}</span>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[12px] font-medium border ${status.bg} ${status.text} ${status.border}`}>
                       {report.status === "resolved" && <CheckCircle2 className="h-3 w-3" />}
                       {report.status.replace("_", " ")}
@@ -176,11 +175,11 @@ export default function MyReports() {
                   </div>
                 </div>
 
-                <p className="text-[14px] font-medium text-[#111111] mb-1 leading-snug">
+                <p className="text-[14px] font-medium text-[#111111] dark:text-[#E5E7EB] mb-1 leading-snug">
                   {report.ai_description}
                 </p>
 
-                <div className="flex items-center gap-3 text-[13px] text-[#6B7280]">
+                <div className="flex items-center gap-3 text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
                     {report.building}

@@ -38,17 +38,17 @@ interface ReportsTableProps {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
-  submitted: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
-  analyzing: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
-  dispatched: { bg: "bg-[#FFFBEB]", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
-  in_progress: { bg: "bg-[#EFF6FF]", text: "text-[#00539F]", border: "border-[#00539F]/20" },
-  resolved: { bg: "bg-[#ECFDF5]", text: "text-[#10B981]", border: "border-[#10B981]/20" },
+  submitted: { bg: "bg-[#F3F4F6] dark:bg-[#1C1C1E]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  analyzing: { bg: "bg-[#F3F4F6] dark:bg-[#1C1C1E]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  dispatched: { bg: "bg-[#FFFBEB] dark:bg-[#F59E0B]/10", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
+  in_progress: { bg: "bg-[#EFF6FF] dark:bg-[#3B82F6]/10", text: "text-[#00539F] dark:text-[#60A5FA]", border: "border-[#00539F]/20 dark:border-[#3B82F6]/20" },
+  resolved: { bg: "bg-[#ECFDF5] dark:bg-[#10B981]/10", text: "text-[#10B981]", border: "border-[#10B981]/20" },
 };
 
 const PRIORITY_DOT: Record<string, string> = {
   critical: "bg-[#DC2626]",
   high: "bg-[#F59E0B]",
-  medium: "bg-[#00539F]",
+  medium: "bg-[#00539F] dark:bg-[#3B82F6]",
   low: "bg-[#10B981]",
 };
 
@@ -68,11 +68,11 @@ export function ReportsTable({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-[16px] font-medium text-[#111111]">Reports</h2>
-          <p className="text-[13px] text-[#6B7280]">{reports.length} total</p>
+          <h2 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB]">Reports</h2>
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">{reports.length} total</p>
         </div>
         <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-          <SelectTrigger className="w-40 rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] h-9 text-[14px]">
+          <SelectTrigger className="w-40 rounded-[6px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] h-9 text-[14px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -87,40 +87,36 @@ export function ReportsTable({
 
       {reports.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-[14px] text-[#6B7280]">No reports found</p>
+          <p className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF]">No reports found</p>
         </div>
       )}
 
-      {/* Table */}
       {reports.length > 0 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-2.5 border-b-2 border-[#E5E7EB]">
-            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em]">Issue</span>
-            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-24">Status</span>
-            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-28">Building</span>
-            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-20">Time</span>
-            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-20">Action</span>
+        <div className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none overflow-hidden">
+          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-2.5 border-b-2 border-[#E5E7EB] dark:border-[#262626]">
+            <span className="text-[13px] font-medium text-[#6B7280] dark:text-[#9CA3AF] uppercase tracking-[0.05em]">Issue</span>
+            <span className="text-[13px] font-medium text-[#6B7280] dark:text-[#9CA3AF] uppercase tracking-[0.05em] w-24">Status</span>
+            <span className="text-[13px] font-medium text-[#6B7280] dark:text-[#9CA3AF] uppercase tracking-[0.05em] w-28">Building</span>
+            <span className="text-[13px] font-medium text-[#6B7280] dark:text-[#9CA3AF] uppercase tracking-[0.05em] w-20">Time</span>
+            <span className="text-[13px] font-medium text-[#6B7280] dark:text-[#9CA3AF] uppercase tracking-[0.05em] w-20">Action</span>
           </div>
 
-          {/* Table Body */}
           {reports.map((report) => {
             const status = STATUS_CONFIG[report.status] || STATUS_CONFIG.submitted;
             const reportAssignment = assignmentByReport[report.id];
             const sla = getSLAInfo(report);
             return (
-              <div key={report.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-3 border-b border-[#E5E7EB] hover:bg-[#F9FAFB] transition-colors duration-150 items-center">
-                {/* Issue */}
+              <div key={report.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-3 border-b border-[#E5E7EB] dark:border-[#262626] hover:bg-[#F9FAFB] dark:hover:bg-[#1C1C1E] transition-colors duration-150 items-center">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[report.priority] || ""}`} />
-                    <span className="text-[14px] text-[#111111] truncate">{report.ai_description}</span>
+                    <span className="text-[14px] text-[#111111] dark:text-[#E5E7EB] truncate">{report.ai_description}</span>
                     {report.safety_concern && (
                       <AlertTriangle className="h-3.5 w-3.5 text-[#DC2626] flex-shrink-0" />
                     )}
                   </div>
                   {reportAssignment ? (
-                    <span className="text-[12px] text-[#6B7280] flex items-center gap-1 ml-4">
+                    <span className="text-[12px] text-[#6B7280] dark:text-[#9CA3AF] flex items-center gap-1 ml-4">
                       <UserCheck className="h-3 w-3 text-[#10B981]" />
                       {reportAssignment.technician?.name || "Assigned"}
                     </span>
@@ -129,28 +125,24 @@ export function ReportsTable({
                   )}
                 </div>
 
-                {/* Status */}
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium border w-24 justify-center ${status.bg} ${status.text} ${status.border}`}>
                   {report.status.replace("_", " ")}
                 </span>
 
-                {/* Building */}
-                <span className="text-[14px] text-[#111111] w-28 truncate">
+                <span className="text-[14px] text-[#111111] dark:text-[#E5E7EB] w-28 truncate">
                   {report.building}
                 </span>
 
-                {/* Time */}
                 <span className={`text-[13px] w-20 ${sla.color}`}>
                   {sla.label}
                 </span>
 
-                {/* Action */}
                 <div className="w-20">
                   {report.status === "submitted" && (
                     <Button
                       size="sm"
                       onClick={() => onAssign(report.id)}
-                      className="bg-[#00539F] hover:bg-[#003d75] text-white text-[12px] rounded-[4px] h-7 px-2"
+                      className="bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[12px] rounded-[4px] h-7 px-2"
                     >
                       <Sparkles className="h-3 w-3 mr-1" /> Assign
                     </Button>

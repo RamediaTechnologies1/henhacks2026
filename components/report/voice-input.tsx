@@ -62,10 +62,10 @@ export function VoiceInput({ onTranscript, disabled }: VoiceInputProps) {
       size="sm"
       onClick={toggle}
       disabled={disabled}
-      className={`rounded-[6px] h-9 px-3 border-[#E5E7EB] transition-colors duration-150 ${
+      className={`rounded-[6px] h-9 px-3 border-[#E5E7EB] dark:border-[#262626] transition-colors duration-150 ${
         listening
-          ? "bg-[#FEF2F2] border-[#DC2626]/30 text-[#DC2626]"
-          : "text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111]"
+          ? "bg-[#FEF2F2] dark:bg-[#DC2626]/10 border-[#DC2626]/30 text-[#DC2626]"
+          : "text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] hover:text-[#111111] dark:hover:text-[#E5E7EB]"
       }`}
     >
       {listening ? (

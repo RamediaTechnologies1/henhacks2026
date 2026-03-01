@@ -108,7 +108,6 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
     ? Math.round(buildingSafety.reduce((acc, b) => acc + b.score, 0) / buildingSafety.length)
     : 0;
 
-  // Predictive safety: cluster detection
   const buildingTradeMap = new Map<string, Map<string, number>>();
   for (const r of reports.filter((r) => r.status !== "resolved")) {
     const key = r.building;
@@ -139,7 +138,6 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
 
   return (
     <div className="space-y-6">
-      {/* Campus Safety Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Campus Safety", value: getScoreLabel(campusScore), borderColor: getScoreColor(campusScore) },
@@ -149,22 +147,21 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+            className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none"
             style={{ borderBottomWidth: '3px', borderBottomColor: stat.borderColor }}
           >
-            <p className="text-[28px] font-semibold text-[#111111]">{stat.value}</p>
-            <p className="text-[13px] text-[#6B7280]">{stat.label}</p>
+            <p className="text-[28px] font-semibold text-[#111111] dark:text-[#E5E7EB]">{stat.value}</p>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">{stat.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Predictive Safety Alerts */}
       {predictions.length > 0 && (
-        <div className="bg-white border border-[#DC2626]/20 rounded-[6px] p-4 space-y-3 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+        <div className="bg-white dark:bg-[#141415] border border-[#DC2626]/20 rounded-[6px] p-4 space-y-3 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-[#DC2626]" />
-            <span className="text-[14px] font-medium text-[#111111]">Predictive safety alerts</span>
-            <span className="text-[12px] bg-[#FEF2F2] text-[#DC2626] px-2 py-0.5 rounded-[4px] font-medium">
+            <span className="text-[14px] font-medium text-[#111111] dark:text-[#E5E7EB]">Predictive safety alerts</span>
+            <span className="text-[12px] bg-[#FEF2F2] dark:bg-[#DC2626]/10 text-[#DC2626] px-2 py-0.5 rounded-[4px] font-medium">
               {predictions.length} detected
             </span>
           </div>
@@ -172,15 +169,15 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
             {predictions.map((p, i) => (
               <div key={i} className={`flex gap-3 p-3 rounded-[6px] border ${
                 p.severity === "critical"
-                  ? "bg-[#FEF2F2] border-[#DC2626]/20"
-                  : "bg-[#FFFBEB] border-[#F59E0B]/20"
+                  ? "bg-[#FEF2F2] dark:bg-[#DC2626]/10 border-[#DC2626]/20"
+                  : "bg-[#FFFBEB] dark:bg-[#F59E0B]/10 border-[#F59E0B]/20"
               }`}>
                 <div className={`w-1.5 rounded-full flex-shrink-0 ${
                   p.severity === "critical" ? "bg-[#DC2626]" : "bg-[#F59E0B]"
                 }`} />
                 <div>
-                  <p className="text-[13px] font-medium text-[#111111]">{p.building}</p>
-                  <p className="text-[13px] text-[#6B7280] mt-0.5">{p.message}</p>
+                  <p className="text-[13px] font-medium text-[#111111] dark:text-[#E5E7EB]">{p.building}</p>
+                  <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">{p.message}</p>
                 </div>
               </div>
             ))}
@@ -188,15 +185,14 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
         </div>
       )}
 
-      {/* Building Safety Index */}
       <div>
-        <h2 className="text-[16px] font-medium text-[#111111] mb-1">Building safety index</h2>
-        <p className="text-[13px] text-[#6B7280] mb-3">Real-time safety scoring per building</p>
+        <h2 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB] mb-1">Building safety index</h2>
+        <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mb-3">Real-time safety scoring per building</p>
 
         {buildingSafety.length === 0 && (
           <div className="text-center py-12">
             <p className="text-[14px] text-[#10B981] font-medium">All clear</p>
-            <p className="text-[13px] text-[#6B7280] mt-1">No safety concerns detected across campus.</p>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">No safety concerns detected across campus.</p>
           </div>
         )}
 
@@ -204,9 +200,9 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
           {buildingSafety.map((b) => {
             const color = getScoreColor(b.score);
             return (
-              <div key={b.name} className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:border-[#D1D5DB] transition-colors duration-150">
+              <div key={b.name} className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none hover:border-[#D1D5DB] dark:hover:border-[#3F3F46] transition-colors duration-150">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[14px] font-medium text-[#111111]">{b.name}</p>
+                  <p className="text-[14px] font-medium text-[#111111] dark:text-[#E5E7EB]">{b.name}</p>
                   <span className="text-[12px] font-medium px-2 py-0.5 rounded-[4px]" style={{
                     backgroundColor: `${color}15`,
                     color,
@@ -214,16 +210,15 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
                     {getScoreLabel(b.score)} ({b.score}/10)
                   </span>
                 </div>
-                {/* Score bar */}
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="flex-1 h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-[#E5E7EB] dark:bg-[#262626] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${b.score * 10}%`, backgroundColor: color }}
                     />
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-[12px] text-[#6B7280]">
+                <div className="flex items-center gap-3 text-[12px] text-[#6B7280] dark:text-[#9CA3AF]">
                   <span>{b.totalOpen} open</span>
                   {b.openSafety > 0 && (
                     <span className="text-[#DC2626] font-medium">{b.openSafety} safety</span>
@@ -238,7 +233,7 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
                 {b.risks.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {b.risks.map((risk) => (
-                      <span key={risk} className="px-1.5 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/15">
+                      <span key={risk} className="px-1.5 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#FEF2F2] dark:bg-[#DC2626]/10 text-[#DC2626] border border-[#DC2626]/15">
                         {RISK_LABELS[risk] || risk}
                       </span>
                     ))}

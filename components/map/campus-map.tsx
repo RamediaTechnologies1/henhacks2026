@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { Report } from "@/lib/types";
 import { UDEL_MAP_CENTER, UDEL_MAP_ZOOM, UDEL_BUILDINGS } from "@/lib/constants";
 
@@ -15,11 +15,15 @@ const PRIORITY_COLORS: Record<string, string> = {
   low: "#10B981",
 };
 
+let mapInstanceCount = 0;
+
 export function CampusMap({ reports }: CampusMapProps) {
   const [mounted, setMounted] = useState(false);
   const [L, setL] = useState<typeof import("leaflet") | null>(null);
   const [mapRef, setMapRef] = useState<import("leaflet").Map | null>(null);
   const [markersLayer, setMarkersLayer] = useState<import("leaflet").LayerGroup | null>(null);
+  const containerIdRef = useRef(`campus-map-${++mapInstanceCount}`);
+  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 
   useEffect(() => {
     setMounted(true);
@@ -39,12 +43,17 @@ export function CampusMap({ reports }: CampusMapProps) {
       document.head.appendChild(link);
     }
 
-    const container = document.getElementById("campus-map");
+    const container = document.getElementById(containerIdRef.current);
     if (!container) return;
 
     const map = L.map(container).setView(UDEL_MAP_CENTER, UDEL_MAP_ZOOM);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
+
+    const tileUrl = isDark
+      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+    L.tileLayer(tileUrl, {
+      attribution: isDark ? "&copy; CartoDB &copy; OSM" : "&copy; OpenStreetMap contributors",
       maxZoom: 20,
     }).addTo(map);
 
@@ -63,6 +72,13 @@ export function CampusMap({ reports }: CampusMapProps) {
     if (!L || !mapRef || !markersLayer) return;
 
     markersLayer.clearLayers();
+
+    const isDarkNow = document.documentElement.classList.contains("dark");
+    const borderColor = isDarkNow ? "#262626" : "white";
+    const popupBg = isDarkNow ? "#141415" : "#FFFFFF";
+    const popupText = isDarkNow ? "#E5E7EB" : "#111111";
+    const popupSecondary = isDarkNow ? "#9CA3AF" : "#6B7280";
+    const popupBorder = isDarkNow ? "#262626" : "#E5E7EB";
 
     UDEL_BUILDINGS.forEach((building) => {
       const buildingReports = reports.filter((r) => r.building === building.name);
@@ -87,7 +103,7 @@ export function CampusMap({ reports }: CampusMapProps) {
           height: ${size}px;
           border-radius: 50%;
           background: ${color};
-          border: 2px solid white;
+          border: 2px solid ${borderColor};
           box-shadow: 0 1px 2px rgba(0,0,0,0.1);
           cursor: pointer;
         "></div>`,
@@ -97,11 +113,11 @@ export function CampusMap({ reports }: CampusMapProps) {
 
       const marker = L.marker([building.lat, building.lng], { icon });
 
-      const popupContent = `<div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 8px; min-width: 160px;">
-          <div style="font-weight: 500; font-size: 14px; margin-bottom: 4px; color: #111111;">${building.name}</div>
+      const popupContent = `<div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 8px; min-width: 160px; background: ${popupBg}; color: ${popupText};">
+          <div style="font-weight: 500; font-size: 14px; margin-bottom: 4px;">${building.name}</div>
           ${hasReports ? `
-            <div style="font-size: 13px; color: #6B7280; margin-bottom: 6px;">${openReports.length} active report${openReports.length !== 1 ? "s" : ""}</div>
-            ${openReports.slice(0, 3).map((r) => `<div style="font-size: 13px; color: #111111; padding: 3px 0; border-top: 1px solid #E5E7EB; display: flex; align-items: center; gap: 6px;">
+            <div style="font-size: 13px; color: ${popupSecondary}; margin-bottom: 6px;">${openReports.length} active report${openReports.length !== 1 ? "s" : ""}</div>
+            ${openReports.slice(0, 3).map((r) => `<div style="font-size: 13px; padding: 3px 0; border-top: 1px solid ${popupBorder}; display: flex; align-items: center; gap: 6px;">
               <span style="width: 8px; height: 8px; border-radius: 50%; background: ${PRIORITY_COLORS[r.priority] || '#6B7280'}; flex-shrink: 0;"></span>
               ${r.ai_description?.slice(0, 50)}${(r.ai_description?.length || 0) > 50 ? "..." : ""}
             </div>`).join("")}
@@ -120,9 +136,9 @@ export function CampusMap({ reports }: CampusMapProps) {
 
   if (!mounted) {
     return (
-      <div className="h-[450px] bg-[#FAFAFA] rounded-[6px] border border-[#E5E7EB] flex items-center justify-center">
-        <div className="w-48 h-1 rounded-full overflow-hidden bg-[#E5E7EB]">
-          <div className="h-full w-1/3 bg-[#00539F] rounded-full skeleton-pulse" />
+      <div className="h-[450px] bg-[#FAFAFA] dark:bg-[#0A0A0B] rounded-[6px] border border-[#E5E7EB] dark:border-[#262626] flex items-center justify-center">
+        <div className="w-48 h-1 rounded-full overflow-hidden bg-[#E5E7EB] dark:bg-[#262626]">
+          <div className="h-full w-1/3 bg-[#00539F] dark:bg-[#3B82F6] rounded-full skeleton-pulse" />
         </div>
       </div>
     );
@@ -131,11 +147,10 @@ export function CampusMap({ reports }: CampusMapProps) {
   return (
     <div className="space-y-2">
       <div
-        id="campus-map"
-        className="h-[450px] rounded-[6px] overflow-hidden border border-[#E5E7EB]"
+        id={containerIdRef.current}
+        className="h-[450px] rounded-[6px] overflow-hidden border border-[#E5E7EB] dark:border-[#262626]"
       />
-      {/* Map Legend */}
-      <div className="flex items-center gap-4 px-1 text-[12px] text-[#6B7280]">
+      <div className="flex items-center gap-4 px-1 text-[12px] text-[#6B7280] dark:text-[#9CA3AF]">
         <span className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" /> Safe
         </span>

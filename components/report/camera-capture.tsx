@@ -51,7 +51,7 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
 
   if (photoPreview) {
     return (
-      <div className="relative rounded-[6px] overflow-hidden border border-[#E5E7EB]">
+      <div className="relative rounded-[6px] overflow-hidden border border-[#E5E7EB] dark:border-[#262626]">
         <img
           src={photoPreview}
           alt="Captured maintenance issue"
@@ -60,7 +60,7 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
         <button
           type="button"
           onClick={onClear}
-          className="absolute top-2 right-2 bg-white border border-[#E5E7EB] px-2 py-1 rounded-[4px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[12px] font-medium text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150"
+          className="absolute top-2 right-2 bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] px-2 py-1 rounded-[4px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[12px] font-medium text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
         >
           Retake
         </button>
@@ -75,16 +75,16 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
         type="button"
         onClick={() => cameraInputRef.current?.click()}
         disabled={processing}
-        className="w-full flex flex-col items-center justify-center gap-2 h-[200px] rounded-[6px] border-2 border-dashed border-[#D1D5DB] bg-white hover:border-[#00539F] hover:bg-[#FAFAFA] transition-colors duration-150"
+        className="w-full flex flex-col items-center justify-center gap-2 h-[200px] rounded-[6px] border-2 border-dashed border-[#D1D5DB] dark:border-[#3F3F46] bg-white dark:bg-[#141415] hover:border-[#00539F] dark:hover:border-[#3B82F6] hover:bg-[#FAFAFA] dark:hover:bg-[#1C1C1E] transition-colors duration-150"
       >
-        <Camera className="h-6 w-6 text-[#9CA3AF]" />
-        <span className="text-[14px] text-[#6B7280]">Take a photo or upload</span>
+        <Camera className="h-6 w-6 text-[#9CA3AF] dark:text-[#6B7280]" />
+        <span className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF]">Take a photo or upload</span>
       </button>
 
       {processing && (
         <div className="flex items-center justify-center gap-2 py-2">
-          <div className="w-4 h-4 rounded-full border-2 border-[#E5E7EB] border-t-[#00539F] animate-spin" />
-          <span className="text-[13px] text-[#6B7280]">Processing...</span>
+          <div className="w-4 h-4 rounded-full border-2 border-[#E5E7EB] dark:border-[#262626] border-t-[#00539F] dark:border-t-[#3B82F6] animate-spin" />
+          <span className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">Processing...</span>
         </div>
       )}
 

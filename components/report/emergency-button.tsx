@@ -74,17 +74,17 @@ export function EmergencyButton() {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 w-72 bg-white border border-[#E5E7EB] rounded-[6px] p-4 space-y-3 shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+    <div className="fixed bottom-20 right-4 z-50 w-72 bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 space-y-3 shadow-[0_4px_12px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
       <div className="flex items-center gap-2">
         <AlertTriangle className="h-4 w-4 text-[#DC2626]" />
         <div>
           <p className="text-[14px] font-medium text-[#DC2626]">Emergency report</p>
-          <p className="text-[13px] text-[#6B7280]">Quick safety hazard report</p>
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">Quick safety hazard report</p>
         </div>
       </div>
 
       <Select value={building} onValueChange={setBuilding}>
-        <SelectTrigger className="rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] h-10 text-[14px]">
+        <SelectTrigger className="rounded-[6px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] h-10 text-[14px]">
           <SelectValue placeholder="Select building" />
         </SelectTrigger>
         <SelectContent>
@@ -99,7 +99,7 @@ export function EmergencyButton() {
           variant="outline"
           size="sm"
           onClick={() => { setOpen(false); setBuilding(""); }}
-          className="flex-1 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] h-10 text-[14px]"
+          className="flex-1 rounded-[6px] border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] h-10 text-[14px]"
         >
           Cancel
         </Button>

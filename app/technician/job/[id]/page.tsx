@@ -19,10 +19,10 @@ import { toast } from "sonner";
 import type { Assignment } from "@/lib/types";
 
 const PRIORITY_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
-  critical: { bg: "bg-[#FEF2F2]", text: "text-[#DC2626]", border: "border-[#DC2626]/20" },
-  high: { bg: "bg-[#FFFBEB]", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
-  medium: { bg: "bg-[#EFF6FF]", text: "text-[#00539F]", border: "border-[#00539F]/20" },
-  low: { bg: "bg-[#ECFDF5]", text: "text-[#10B981]", border: "border-[#10B981]/20" },
+  critical: { bg: "bg-[#FEF2F2] dark:bg-[#DC2626]/10", text: "text-[#DC2626]", border: "border-[#DC2626]/20" },
+  high: { bg: "bg-[#FFFBEB] dark:bg-[#F59E0B]/10", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
+  medium: { bg: "bg-[#EFF6FF] dark:bg-[#3B82F6]/10", text: "text-[#00539F] dark:text-[#60A5FA]", border: "border-[#00539F]/20 dark:border-[#3B82F6]/20" },
+  low: { bg: "bg-[#ECFDF5] dark:bg-[#10B981]/10", text: "text-[#10B981]", border: "border-[#10B981]/20" },
 };
 
 export default function JobDetailPage() {
@@ -92,8 +92,8 @@ export default function JobDetailPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <div className="w-8 h-8 rounded-full border-2 border-[#E5E7EB] border-t-[#00539F] animate-spin" />
-        <p className="text-[13px] text-[#6B7280]">Loading job details...</p>
+        <div className="w-8 h-8 rounded-full border-2 border-[#E5E7EB] dark:border-[#262626] border-t-[#00539F] dark:border-t-[#3B82F6] animate-spin" />
+        <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">Loading job details...</p>
       </div>
     );
   }
@@ -101,9 +101,9 @@ export default function JobDetailPage() {
   if (!assignment || !assignment.report) {
     return (
       <div className="p-6 text-center py-16">
-        <p className="text-[14px] text-[#6B7280] mb-1">Job not found</p>
-        <p className="text-[13px] text-[#9CA3AF] mb-4">This assignment may have been removed.</p>
-        <Button variant="outline" onClick={() => router.back()} className="rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]">
+        <p className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF] mb-1">Job not found</p>
+        <p className="text-[13px] text-[#9CA3AF] dark:text-[#6B7280] mb-4">This assignment may have been removed.</p>
+        <Button variant="outline" onClick={() => router.back()} className="rounded-[6px] border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]">
           <ArrowLeft className="mr-2 h-4 w-4" /> Go back
         </Button>
       </div>
@@ -121,34 +121,31 @@ export default function JobDetailPage() {
 
   return (
     <div className="p-6 space-y-4">
-      {/* Breadcrumb */}
-      <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-[6px] text-[13px] text-[#6B7280] hover:text-[#111111] hover:bg-[#F3F4F6] -ml-2">
+      <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-[6px] text-[13px] text-[#6B7280] dark:text-[#9CA3AF] hover:text-[#111111] dark:hover:text-[#E5E7EB] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] -ml-2">
         <ArrowLeft className="h-4 w-4 mr-1" /> Back to jobs
       </Button>
 
-      {/* Header badges */}
       <div>
         <div className="flex items-center gap-2 mb-2 flex-wrap">
           <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium border ${priority.bg} ${priority.text} ${priority.border}`}>
             {report.priority}
           </span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium bg-[#F3F4F6] text-[#6B7280] border border-[#E5E7EB]">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium bg-[#F3F4F6] dark:bg-[#1C1C1E] text-[#6B7280] dark:text-[#9CA3AF] border border-[#E5E7EB] dark:border-[#262626]">
             {report.trade.replace("_", " ")}
           </span>
           {report.safety_concern && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[12px] font-medium bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[12px] font-medium bg-[#FEF2F2] dark:bg-[#DC2626]/10 text-[#DC2626] border border-[#DC2626]/20">
               <AlertTriangle className="h-3 w-3" /> safety hazard
             </span>
           )}
         </div>
-        <h1 className="text-[16px] font-medium text-[#111111] leading-snug">{report.ai_description}</h1>
+        <h1 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB] leading-snug">{report.ai_description}</h1>
       </div>
 
-      {/* Location + Floor Plan */}
-      <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] space-y-3">
+      <div className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none space-y-3">
         <div className="flex items-center gap-2 text-[14px]">
-          <MapPin className="h-4 w-4 text-[#6B7280]" />
-          <span className="text-[#111111]">
+          <MapPin className="h-4 w-4 text-[#6B7280] dark:text-[#9CA3AF]" />
+          <span className="text-[#111111] dark:text-[#E5E7EB]">
             {report.building}
             {report.floor ? `, Floor ${report.floor}` : ""}
             {report.room ? `, Room ${report.room}` : ""}
@@ -164,49 +161,46 @@ export default function JobDetailPage() {
         )}
       </div>
 
-      {/* Details */}
-      <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] space-y-4">
+      <div className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none space-y-4">
         <div>
-          <p className="text-[13px] text-[#6B7280] mb-1">Recommended action</p>
-          <p className="text-[14px] text-[#111111] leading-relaxed">
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mb-1">Recommended action</p>
+          <p className="text-[14px] text-[#111111] dark:text-[#E5E7EB] leading-relaxed">
             {report.suggested_action}
           </p>
         </div>
 
-        <div className="border-t border-[#E5E7EB] pt-3">
+        <div className="border-t border-[#E5E7EB] dark:border-[#262626] pt-3">
           <div className="flex items-center gap-2 text-[14px]">
-            <Clock className="h-4 w-4 text-[#6B7280]" />
-            <span className="text-[13px] text-[#6B7280]">Est. time:</span>
-            <span className="text-[14px] font-medium text-[#111111]">{report.estimated_time}</span>
+            <Clock className="h-4 w-4 text-[#6B7280] dark:text-[#9CA3AF]" />
+            <span className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">Est. time:</span>
+            <span className="text-[14px] font-medium text-[#111111] dark:text-[#E5E7EB]">{report.estimated_time}</span>
           </div>
         </div>
 
         {report.description && (
-          <div className="border-t border-[#E5E7EB] pt-3">
-            <p className="text-[13px] text-[#6B7280] mb-1">Reporter notes</p>
-            <p className="text-[14px] text-[#111111] leading-relaxed">{report.description}</p>
+          <div className="border-t border-[#E5E7EB] dark:border-[#262626] pt-3">
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mb-1">Reporter notes</p>
+            <p className="text-[14px] text-[#111111] dark:text-[#E5E7EB] leading-relaxed">{report.description}</p>
           </div>
         )}
       </div>
 
-      {/* Photo */}
       {report.photo_base64 && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-          <p className="text-[13px] text-[#6B7280] mb-2">Reported photo</p>
+        <div className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none">
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mb-2">Reported photo</p>
           <img
             src={report.photo_base64}
             alt="Maintenance issue"
-            className="w-full rounded-[6px] border border-[#E5E7EB]"
+            className="w-full rounded-[6px] border border-[#E5E7EB] dark:border-[#262626]"
           />
         </div>
       )}
 
-      {/* Actions */}
       {assignment.status === "pending" && (
         <Button
           onClick={handleAccept}
           disabled={accepting}
-          className="w-full h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium disabled:opacity-50"
+          className="w-full h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium disabled:opacity-50"
         >
           {accepting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Accept job"}
         </Button>
@@ -215,14 +209,14 @@ export default function JobDetailPage() {
       {assignment.status === "accepted" && (
         <Button
           onClick={handleStartWork}
-          className="w-full h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium"
+          className="w-full h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium"
         >
           <PlayCircle className="mr-2 h-4 w-4" /> Start work
         </Button>
       )}
 
       {assignment.status === "in_progress" && (
-        <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+        <div className="bg-white dark:bg-[#141415] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-none">
           <CompletionForm
             assignmentId={assignment.id}
             onComplete={() => router.push("/technician")}
@@ -231,11 +225,11 @@ export default function JobDetailPage() {
       )}
 
       {assignment.status === "completed" && (
-        <div className="bg-[#ECFDF5] border border-[#10B981]/20 rounded-[6px] p-4 text-center">
+        <div className="bg-[#ECFDF5] dark:bg-[#10B981]/10 border border-[#10B981]/20 rounded-[6px] p-4 text-center">
           <CheckCircle2 className="h-6 w-6 text-[#10B981] mx-auto mb-2" />
           <p className="text-[14px] font-medium text-[#10B981]">Job completed</p>
           {assignment.completion_notes && (
-            <p className="text-[13px] text-[#6B7280] mt-1">{assignment.completion_notes}</p>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">{assignment.completion_notes}</p>
           )}
         </div>
       )}

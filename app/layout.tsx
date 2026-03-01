@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/lib/theme";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -25,12 +26,27 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FAFAFA",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FAFAFA" },
+    { media: "(prefers-color-scheme: dark)", color: "#0A0A0B" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
 };
+
+const themeScript = `
+(function(){
+  try {
+    var t = localStorage.getItem('fixit-theme') || 'system';
+    var d = t === 'system'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      : t === 'dark';
+    if (d) document.documentElement.classList.add('dark');
+  } catch(e) {}
+})();
+`;
 
 export default function RootLayout({
   children,
@@ -38,23 +54,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
-        className={`${geistMono.variable} antialiased bg-[#FAFAFA] text-[#111111] min-h-screen`}
+        className={`${geistMono.variable} antialiased bg-[#FAFAFA] dark:bg-[#0A0A0B] text-[#111111] dark:text-[#E5E7EB] min-h-screen`}
         style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}
       >
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <Toaster
           position="top-center"
           richColors
           toastOptions={{
-            style: {
-              background: "#FFFFFF",
-              border: "1px solid #E5E7EB",
-              color: "#111111",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-              borderRadius: "6px",
-            },
+            className: "!bg-white dark:!bg-[#141415] !border-[#E5E7EB] dark:!border-[#262626] !text-[#111111] dark:!text-[#E5E7EB] !shadow-[0_4px_12px_rgba(0,0,0,0.1)] !rounded-[6px]",
           }}
         />
       </body>

@@ -76,8 +76,8 @@ export default function TechnicianPortal() {
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">My Jobs</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">
+          <h1 className="text-[20px] font-medium text-[#111111] dark:text-[#E5E7EB] tracking-[-0.01em]">My Jobs</h1>
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">
             {activeCount > 0 ? `${activeCount} active assignment${activeCount !== 1 ? "s" : ""}` : "No active assignments"}
           </p>
         </div>
@@ -85,21 +85,21 @@ export default function TechnicianPortal() {
           variant="outline"
           size="sm"
           onClick={() => { setRefreshing(true); loadAssignments(); }}
-          className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]"
+          className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
         </Button>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>
-        <TabsList className="w-full rounded-[6px] h-9 bg-[#F3F4F6] border border-[#E5E7EB] p-0.5">
-          <TabsTrigger value="active" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280]">
+        <TabsList className="w-full rounded-[6px] h-9 bg-[#F3F4F6] dark:bg-[#1C1C1E] border border-[#E5E7EB] dark:border-[#262626] p-0.5">
+          <TabsTrigger value="active" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-[#141415] data-[state=active]:text-[#111111] dark:data-[state=active]:text-[#E5E7EB] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] dark:text-[#9CA3AF]">
             Active ({activeCount})
           </TabsTrigger>
-          <TabsTrigger value="completed" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280]">
+          <TabsTrigger value="completed" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-[#141415] data-[state=active]:text-[#111111] dark:data-[state=active]:text-[#E5E7EB] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] dark:text-[#9CA3AF]">
             Done ({completedCount})
           </TabsTrigger>
-          <TabsTrigger value="all" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280]">
+          <TabsTrigger value="all" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-[#141415] data-[state=active]:text-[#111111] dark:data-[state=active]:text-[#E5E7EB] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] dark:text-[#9CA3AF]">
             All ({assignments.length})
           </TabsTrigger>
         </TabsList>
@@ -115,10 +115,10 @@ export default function TechnicianPortal() {
 
       {!loading && filtered.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-[14px] text-[#6B7280]">
+          <p className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF]">
             {filter === "completed" ? "No completed jobs" : filter === "active" ? "No active jobs" : "No jobs found"}
           </p>
-          <p className="text-[13px] text-[#9CA3AF] mt-1">
+          <p className="text-[13px] text-[#9CA3AF] dark:text-[#6B7280] mt-1">
             {filter === "active" ? "New assignments will appear here automatically." : "Jobs will appear here when assigned."}
           </p>
         </div>

@@ -139,8 +139,8 @@ export default function ManagerDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">Dashboard</h1>
-          <p className="text-[13px] text-[#6B7280] mt-0.5">
+          <h1 className="text-[20px] font-medium text-[#111111] dark:text-[#E5E7EB] tracking-[-0.01em]">Dashboard</h1>
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">
             Automated maintenance assignment & oversight
           </p>
         </div>
@@ -148,7 +148,7 @@ export default function ManagerDashboard() {
           {unassignedCount > 0 && (
             <Button
               onClick={handleAutoAssignAll}
-              className="bg-[#00539F] hover:bg-[#003d75] text-white rounded-[6px] h-9 px-4 text-[14px] font-medium"
+              className="bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white rounded-[6px] h-9 px-4 text-[14px] font-medium"
             >
               <Sparkles className="h-4 w-4 mr-2" />
               AI assign all ({unassignedCount})
@@ -161,7 +161,7 @@ export default function ManagerDashboard() {
               setRefreshing(true);
               loadData();
             }}
-            className="rounded-[6px] h-9 w-9 p-0 border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]"
+            className="rounded-[6px] h-9 w-9 p-0 border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           </Button>
@@ -173,17 +173,17 @@ export default function ManagerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="reports">
-        <TabsList className="rounded-[6px] h-9 bg-[#F3F4F6] border border-[#E5E7EB] p-0.5">
-          <TabsTrigger value="reports" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
+        <TabsList className="rounded-[6px] h-9 bg-[#F3F4F6] dark:bg-[#1C1C1E] border border-[#E5E7EB] dark:border-[#262626] p-0.5">
+          <TabsTrigger value="reports" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-[#141415] data-[state=active]:text-[#111111] dark:data-[state=active]:text-[#E5E7EB] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] dark:text-[#9CA3AF] px-4">
             Reports
           </TabsTrigger>
-          <TabsTrigger value="assignments" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
+          <TabsTrigger value="assignments" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-[#141415] data-[state=active]:text-[#111111] dark:data-[state=active]:text-[#E5E7EB] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] dark:text-[#9CA3AF] px-4">
             Assignments
           </TabsTrigger>
-          <TabsTrigger value="safety" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
+          <TabsTrigger value="safety" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-[#141415] data-[state=active]:text-[#111111] dark:data-[state=active]:text-[#E5E7EB] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] dark:text-[#9CA3AF] px-4">
             Safety
           </TabsTrigger>
-          <TabsTrigger value="map" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
+          <TabsTrigger value="map" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-[#141415] data-[state=active]:text-[#111111] dark:data-[state=active]:text-[#E5E7EB] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] dark:text-[#9CA3AF] px-4">
             Campus Map
           </TabsTrigger>
         </TabsList>

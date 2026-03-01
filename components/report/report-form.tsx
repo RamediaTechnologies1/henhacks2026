@@ -120,22 +120,21 @@ export function ReportForm({ prefill }: ReportFormProps) {
     const isCritical = aiAnalysis?.priority === "critical";
     return (
       <div className="p-6 text-center py-10 space-y-5">
-        <div className="w-12 h-12 rounded-full bg-[#ECFDF5] flex items-center justify-center mx-auto">
+        <div className="w-12 h-12 rounded-full bg-[#ECFDF5] dark:bg-[#10B981]/10 flex items-center justify-center mx-auto">
           <CheckCircle2 className="h-6 w-6 text-[#10B981]" />
         </div>
-        <h2 className="text-[20px] font-medium text-[#111111]">Report submitted</h2>
-        <p className="text-[14px] text-[#6B7280] max-w-xs mx-auto leading-relaxed">
+        <h2 className="text-[20px] font-medium text-[#111111] dark:text-[#E5E7EB]">Report submitted</h2>
+        <p className="text-[14px] text-[#6B7280] dark:text-[#9CA3AF] max-w-xs mx-auto leading-relaxed">
           Our AI has analyzed and dispatched your report to the maintenance team.
         </p>
 
-        {/* Safety escalation */}
         {isSafety && (
-          <div className="text-left mx-auto max-w-xs bg-[#FEF2F2] border border-[#DC2626]/20 rounded-[6px] p-4 space-y-2">
+          <div className="text-left mx-auto max-w-xs bg-[#FEF2F2] dark:bg-[#DC2626]/10 border border-[#DC2626]/20 rounded-[6px] p-4 space-y-2">
             <div className="flex items-center gap-2">
               <ShieldAlert className="h-4 w-4 text-[#DC2626]" />
               <span className="text-[13px] font-medium text-[#DC2626]">Safety alert triggered</span>
             </div>
-            <div className="space-y-1.5 text-[13px] text-[#6B7280]">
+            <div className="space-y-1.5 text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">
               <p className="flex items-center gap-2">
                 <CheckCircle2 className="h-3 w-3 text-[#10B981] flex-shrink-0" />
                 Safety team notified immediately
@@ -158,23 +157,21 @@ export function ReportForm({ prefill }: ReportFormProps) {
           </div>
         )}
 
-        {/* Privacy confirmation */}
         {anonymous && (
-          <div className="text-left mx-auto max-w-xs bg-[#ECFDF5] border border-[#10B981]/20 rounded-[6px] p-4">
+          <div className="text-left mx-auto max-w-xs bg-[#ECFDF5] dark:bg-[#10B981]/10 border border-[#10B981]/20 rounded-[6px] p-4">
             <div className="flex items-center gap-2 mb-1.5">
               <EyeOff className="h-4 w-4 text-[#10B981]" />
               <span className="text-[13px] font-medium text-[#10B981]">Identity protected</span>
             </div>
-            <p className="text-[13px] text-[#6B7280] leading-relaxed">
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] leading-relaxed">
               Your report was submitted anonymously. Your name and email are not stored or visible to anyone.
             </p>
           </div>
         )}
 
-        {/* Data transparency */}
-        <div className="text-left mx-auto max-w-xs bg-[#FAFAFA] border border-[#E5E7EB] rounded-[6px] p-4">
-          <p className="text-[13px] font-medium text-[#6B7280] mb-2">What happens with your data</p>
-          <div className="space-y-1 text-[12px] text-[#6B7280]">
+        <div className="text-left mx-auto max-w-xs bg-[#FAFAFA] dark:bg-[#1C1C1E] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] p-4">
+          <p className="text-[13px] font-medium text-[#6B7280] dark:text-[#9CA3AF] mb-2">What happens with your data</p>
+          <div className="space-y-1 text-[12px] text-[#6B7280] dark:text-[#9CA3AF]">
             <p>Your photo is analyzed by AI and stored securely for the work order.</p>
             <p>Location data is used only to dispatch the correct maintenance team.</p>
             {!anonymous && <p>Your contact info may be used for follow-up on this report only.</p>}
@@ -182,7 +179,7 @@ export function ReportForm({ prefill }: ReportFormProps) {
           </div>
         </div>
 
-        <Button onClick={resetForm} className="bg-[#00539F] hover:bg-[#003d75] text-white rounded-[6px] h-11 px-8 text-[14px] font-medium">
+        <Button onClick={resetForm} className="bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white rounded-[6px] h-11 px-8 text-[14px] font-medium">
           Report another issue
         </Button>
       </div>
@@ -201,10 +198,10 @@ export function ReportForm({ prefill }: ReportFormProps) {
               <div className="flex flex-col items-center gap-1 flex-1">
                 <div
                   className={`w-8 h-1 rounded-full transition-colors duration-150 ${
-                    isActive ? "bg-[#00539F]" : "bg-[#E5E7EB]"
+                    isActive ? "bg-[#00539F] dark:bg-[#3B82F6]" : "bg-[#E5E7EB] dark:bg-[#262626]"
                   }`}
                 />
-                <span className={`text-[11px] ${isCurrent ? "font-medium text-[#00539F]" : isActive ? "text-[#111111]" : "text-[#9CA3AF]"}`}>
+                <span className={`text-[11px] ${isCurrent ? "font-medium text-[#00539F] dark:text-[#60A5FA]" : isActive ? "text-[#111111] dark:text-[#E5E7EB]" : "text-[#9CA3AF] dark:text-[#6B7280]"}`}>
                   {s.label}
                 </span>
               </div>
@@ -217,8 +214,8 @@ export function ReportForm({ prefill }: ReportFormProps) {
       {step === "photo" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-[16px] font-medium text-[#111111]">Capture the issue</h2>
-            <p className="text-[13px] text-[#6B7280] mt-1">Take a clear photo so our AI can analyze it.</p>
+            <h2 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB]">Capture the issue</h2>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">Take a clear photo so our AI can analyze it.</p>
           </div>
           <CameraCapture
             onCapture={(base64) => setPhotoBase64(base64)}
@@ -228,7 +225,7 @@ export function ReportForm({ prefill }: ReportFormProps) {
           <Button
             onClick={() => setStep("location")}
             disabled={!photoBase64}
-            className="w-full h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium transition-colors duration-150 disabled:opacity-50"
+            className="w-full h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium transition-colors duration-150 disabled:opacity-50"
           >
             Next: Select location <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -239,14 +236,14 @@ export function ReportForm({ prefill }: ReportFormProps) {
       {step === "location" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-[16px] font-medium text-[#111111]">Where is the issue?</h2>
-            <p className="text-[13px] text-[#6B7280] mt-1">Select the building and tap the room.</p>
+            <h2 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB]">Where is the issue?</h2>
+            <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">Select the building and tap the room.</p>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[13px] text-[#6B7280]">Building</label>
+            <label className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">Building</label>
             <Select value={building} onValueChange={(val) => { setBuilding(val); setSelectedRoom(null); }}>
-              <SelectTrigger className="h-10 rounded-[6px] text-[14px] border-[#E5E7EB] bg-white text-[#111111]">
+              <SelectTrigger className="h-10 rounded-[6px] text-[14px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB]">
                 <SelectValue placeholder="Select building" />
               </SelectTrigger>
               <SelectContent>
@@ -264,22 +261,22 @@ export function ReportForm({ prefill }: ReportFormProps) {
           )}
 
           {selectedRoom && (
-            <div className="flex items-center gap-2 bg-[#EFF6FF] border border-[#00539F]/20 rounded-[6px] p-3">
-              <MapPin className="h-4 w-4 text-[#00539F]" />
-              <span className="text-[14px] text-[#111111]">
+            <div className="flex items-center gap-2 bg-[#EFF6FF] dark:bg-[#1E293B] border border-[#00539F]/20 dark:border-[#3B82F6]/20 rounded-[6px] p-3">
+              <MapPin className="h-4 w-4 text-[#00539F] dark:text-[#60A5FA]" />
+              <span className="text-[14px] text-[#111111] dark:text-[#E5E7EB]">
                 {building}, Floor {selectedRoom.floor}, Room {selectedRoom.label}
               </span>
             </div>
           )}
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("photo")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111] text-[14px]">
+            <Button variant="outline" onClick={() => setStep("photo")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] hover:text-[#111111] dark:hover:text-[#E5E7EB] text-[14px]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={() => setStep("details")}
               disabled={!building || !selectedRoom}
-              className="flex-1 h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium disabled:opacity-50"
+              className="flex-1 h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium disabled:opacity-50"
             >
               Next <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -292,8 +289,8 @@ export function ReportForm({ prefill }: ReportFormProps) {
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-[16px] font-medium text-[#111111]">Describe the issue</h2>
-              <p className="text-[13px] text-[#6B7280] mt-1">Type or use voice input.</p>
+              <h2 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB]">Describe the issue</h2>
+              <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-1">Type or use voice input.</p>
             </div>
             <VoiceInput
               onTranscript={(text) => setDescription((prev) => prev ? `${prev} ${text}` : text)}
@@ -304,50 +301,48 @@ export function ReportForm({ prefill }: ReportFormProps) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the issue..."
-            className="w-full h-[100px] px-3 py-2.5 text-[14px] border border-[#E5E7EB] rounded-[6px] resize-none bg-white text-[#111111] placeholder:text-[#9CA3AF]"
+            className="w-full h-[100px] px-3 py-2.5 text-[14px] border border-[#E5E7EB] dark:border-[#262626] rounded-[6px] resize-none bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280]"
           />
 
-          {/* Anonymous Reporting Toggle */}
           <button
             type="button"
             onClick={() => setAnonymous(!anonymous)}
             className={`flex items-center gap-2.5 w-full p-3 rounded-[6px] border transition-colors duration-150 ${
               anonymous
-                ? "bg-[#ECFDF5] border-[#10B981]/30"
-                : "bg-white border-[#E5E7EB] hover:bg-[#F3F4F6]"
+                ? "bg-[#ECFDF5] dark:bg-[#10B981]/10 border-[#10B981]/30"
+                : "bg-white dark:bg-[#141415] border-[#E5E7EB] dark:border-[#262626] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]"
             }`}
           >
             {anonymous ? (
               <EyeOff className="h-4 w-4 text-[#10B981]" />
             ) : (
-              <Eye className="h-4 w-4 text-[#6B7280]" />
+              <Eye className="h-4 w-4 text-[#6B7280] dark:text-[#9CA3AF]" />
             )}
             <div className="text-left">
-              <p className={`text-[13px] font-medium ${anonymous ? "text-[#10B981]" : "text-[#111111]"}`}>
+              <p className={`text-[13px] font-medium ${anonymous ? "text-[#10B981]" : "text-[#111111] dark:text-[#E5E7EB]"}`}>
                 {anonymous ? "Anonymous report — identity protected" : "Report anonymously"}
               </p>
-              <p className="text-[12px] text-[#6B7280]">
+              <p className="text-[12px] text-[#6B7280] dark:text-[#9CA3AF]">
                 {anonymous ? "Your identity will not be shared with anyone" : "Toggle to hide your identity from technicians and reports"}
               </p>
             </div>
           </button>
 
-          {/* Mini summary */}
-          <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] rounded-[6px] border border-[#E5E7EB]">
+          <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] dark:bg-[#1C1C1E] rounded-[6px] border border-[#E5E7EB] dark:border-[#262626]">
             {photoBase64 && <img src={photoBase64} alt="Preview" className="w-10 h-10 rounded-[4px] object-cover" />}
-            <div className="text-[13px] text-[#6B7280]">
-              <p className="font-medium text-[#111111]">{building}</p>
+            <div className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF]">
+              <p className="font-medium text-[#111111] dark:text-[#E5E7EB]">{building}</p>
               <p>Floor {selectedRoom?.floor || floor}, Room {selectedRoom?.label || room}</p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("location")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111] text-[14px]">
+            <Button variant="outline" onClick={() => setStep("location")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] hover:text-[#111111] dark:hover:text-[#E5E7EB] text-[14px]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={handleAnalyze}
-              className="flex-1 h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium"
+              className="flex-1 h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium"
             >
               Analyze with AI
             </Button>
@@ -359,10 +354,10 @@ export function ReportForm({ prefill }: ReportFormProps) {
       {step === "analyzing" && (
         <div className="text-center py-12">
           <div className="w-10 h-10 mx-auto mb-4">
-            <div className="w-10 h-10 rounded-full border-2 border-[#E5E7EB] border-t-[#00539F] animate-spin" />
+            <div className="w-10 h-10 rounded-full border-2 border-[#E5E7EB] dark:border-[#262626] border-t-[#00539F] dark:border-t-[#3B82F6] animate-spin" />
           </div>
-          <h3 className="text-[16px] font-medium text-[#111111]">Analyzing your photo</h3>
-          <p className="text-[13px] text-[#6B7280] mt-2 max-w-xs mx-auto">
+          <h3 className="text-[16px] font-medium text-[#111111] dark:text-[#E5E7EB]">Analyzing your photo</h3>
+          <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-2 max-w-xs mx-auto">
             Identifying trade type, assessing priority, and generating recommended actions...
           </p>
         </div>
@@ -373,24 +368,23 @@ export function ReportForm({ prefill }: ReportFormProps) {
         <div className="space-y-4">
           <AIAnalysisDisplay analysis={aiAnalysis} />
 
-          {/* Location summary */}
-          <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] rounded-[6px] border border-[#E5E7EB]">
+          <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] dark:bg-[#1C1C1E] rounded-[6px] border border-[#E5E7EB] dark:border-[#262626]">
             {photoBase64 && <img src={photoBase64} alt="Preview" className="w-12 h-12 rounded-[4px] object-cover" />}
             <div className="text-[13px]">
-              <p className="font-medium text-[#111111]">{building}, Room {selectedRoom?.label || room}</p>
-              <p className="text-[#6B7280]">Floor {selectedRoom?.floor || floor}</p>
-              {description && <p className="text-[#9CA3AF] mt-0.5 line-clamp-1">{description}</p>}
+              <p className="font-medium text-[#111111] dark:text-[#E5E7EB]">{building}, Room {selectedRoom?.label || room}</p>
+              <p className="text-[#6B7280] dark:text-[#9CA3AF]">Floor {selectedRoom?.floor || floor}</p>
+              {description && <p className="text-[#9CA3AF] dark:text-[#6B7280] mt-0.5 line-clamp-1">{description}</p>}
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("details")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111] text-[14px]">
+            <Button variant="outline" onClick={() => setStep("details")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] hover:text-[#111111] dark:hover:text-[#E5E7EB] text-[14px]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex-1 h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium disabled:opacity-50"
+              className="flex-1 h-11 rounded-[6px] bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white text-[14px] font-medium disabled:opacity-50"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (
                 <>Submit report</>
