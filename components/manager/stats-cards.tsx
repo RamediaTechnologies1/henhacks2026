@@ -1,7 +1,6 @@
 "use client";
 
 import { ClipboardList, AlertTriangle, CheckCircle2, Clock, Users, Bot } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import type { Report, Assignment } from "@/lib/types";
 
 interface StatsCardsProps {
@@ -33,59 +32,68 @@ export function StatsCards({ reports, assignments }: StatsCardsProps) {
       value: openReports,
       icon: ClipboardList,
       color: "text-blue-600",
-      bg: "bg-blue-50",
+      iconBg: "bg-blue-100",
+      cardClass: "stat-card-blue",
     },
     {
       label: "Safety Issues",
       value: safetyIssues,
       icon: AlertTriangle,
       color: "text-red-600",
-      bg: "bg-red-50",
+      iconBg: "bg-red-100",
+      cardClass: "stat-card-red",
     },
     {
       label: "Resolved",
       value: resolved,
       icon: CheckCircle2,
-      color: "text-green-600",
-      bg: "bg-green-50",
+      color: "text-emerald-600",
+      iconBg: "bg-emerald-100",
+      cardClass: "stat-card-green",
     },
     {
       label: "AI Assigned",
       value: aiAssigned,
       icon: Bot,
       color: "text-purple-600",
-      bg: "bg-purple-50",
+      iconBg: "bg-purple-100",
+      cardClass: "stat-card-purple",
     },
     {
       label: "Active Jobs",
       value: activeJobs,
       icon: Users,
       color: "text-orange-600",
-      bg: "bg-orange-50",
+      iconBg: "bg-orange-100",
+      cardClass: "stat-card-orange",
     },
     {
       label: "Avg Response",
       value: `${avgResponse}m`,
       icon: Clock,
       color: "text-gray-600",
-      bg: "bg-gray-50",
+      iconBg: "bg-gray-100",
+      cardClass: "stat-card-gray",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 stagger-enter">
       {stats.map((stat) => (
-        <Card key={stat.label}>
-          <CardContent className="p-3 flex items-center gap-3">
-            <div className={`${stat.bg} p-2 rounded-lg`}>
+        <div
+          key={stat.label}
+          className={`${stat.cardClass} rounded-2xl p-4 card-hover-lift`}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`${stat.iconBg} p-2.5 rounded-xl`}>
               <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </div>
             <div>
-              <p className="text-lg font-bold">{stat.value}</p>
-              <p className="text-[10px] text-gray-500">{stat.label}</p>
+              <p className="text-xl font-bold text-gray-900 tracking-tight">{stat.value}</p>
+              <p className="text-[10px] text-gray-500 font-medium">{stat.label}</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ))}
     </div>
   );

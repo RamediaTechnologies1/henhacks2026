@@ -160,7 +160,7 @@ export default function LoginPage() {
                     key={r.value}
                     type="button"
                     onClick={() => setRole(r.value)}
-                    className={`w-full flex items-center gap-4 rounded-2xl p-4 border-2 transition-all duration-200 text-left ${
+                    className={`w-full flex items-center gap-4 rounded-2xl p-4 border-2 transition-all duration-200 text-left press-scale ${
                       isActive
                         ? `${ROLE_BORDER[r.value]} bg-gradient-to-r ${r.activeGradient} shadow-lg`
                         : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50"

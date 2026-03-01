@@ -30,7 +30,6 @@ export function CampusMap({ reports }: CampusMapProps) {
   useEffect(() => {
     if (!mounted || !L || mapRef) return;
 
-    // Add CSS
     if (!document.getElementById("leaflet-css")) {
       const link = document.createElement("link");
       link.id = "leaflet-css";
@@ -47,51 +46,70 @@ export function CampusMap({ reports }: CampusMapProps) {
       attribution: "&copy; OpenStreetMap contributors",
     }).addTo(map);
 
-    // Building markers
     UDEL_BUILDINGS.forEach((building) => {
       const buildingReports = reports.filter(
         (r) => r.building === building.name && r.status !== "resolved"
       );
 
-      const color = buildingReports.length > 0
+      const hasReports = buildingReports.length > 0;
+      const color = hasReports
         ? PRIORITY_COLORS[
             buildingReports.sort(
-              (a, b) =>
-                (b.urgency_score || 0) - (a.urgency_score || 0)
+              (a, b) => (b.urgency_score || 0) - (a.urgency_score || 0)
             )[0].priority
           ]
-        : "#6b7280";
+        : "#94a3b8";
+
+      const size = hasReports ? 32 : 22;
 
       const icon = L.divIcon({
         className: "custom-marker",
         html: `<div style="
-          width: ${buildingReports.length > 0 ? 28 : 20}px;
-          height: ${buildingReports.length > 0 ? 28 : 20}px;
+          width: ${size}px;
+          height: ${size}px;
           border-radius: 50%;
           background: ${color};
           border: 3px solid white;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
-          font-size: 11px;
-          font-weight: bold;
-        ">${buildingReports.length > 0 ? buildingReports.length : ""}</div>`,
-        iconSize: [buildingReports.length > 0 ? 28 : 20, buildingReports.length > 0 ? 28 : 20],
-        iconAnchor: [
-          buildingReports.length > 0 ? 14 : 10,
-          buildingReports.length > 0 ? 14 : 10,
-        ],
+          font-size: ${hasReports ? 12 : 10}px;
+          font-weight: 700;
+          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+          transition: transform 0.2s ease;
+          cursor: pointer;
+          ${hasReports ? "animation: pulse 2s ease-in-out infinite;" : ""}
+        ">${hasReports ? buildingReports.length : ""}</div>
+        <style>
+          @keyframes pulse {
+            0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 0 ${color}40; }
+            50% { box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 6px ${color}00; }
+          }
+        </style>`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
       });
 
       const marker = L.marker([building.lat, building.lng], { icon }).addTo(map);
 
-      const popupContent = buildingReports.length > 0
-        ? `<b>${building.name}</b><br/>${buildingReports.length} active report(s)<br/>${buildingReports.map((r) => `• ${r.ai_description?.slice(0, 40)}...`).join("<br/>")}`
-        : `<b>${building.name}</b><br/>No active reports`;
+      const popupContent = hasReports
+        ? `<div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 4px 0;">
+            <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #111827;">${building.name}</div>
+            <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">${buildingReports.length} active report${buildingReports.length !== 1 ? "s" : ""}</div>
+            ${buildingReports.slice(0, 3).map((r) => `<div style="font-size: 11px; color: #374151; padding: 3px 0; border-top: 1px solid #f3f4f6;">&#8226; ${r.ai_description?.slice(0, 45)}${(r.ai_description?.length || 0) > 45 ? "..." : ""}</div>`).join("")}
+           </div>`
+        : `<div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 4px 0;">
+            <div style="font-weight: 700; font-size: 14px; color: #111827;">${building.name}</div>
+            <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">No active reports</div>
+           </div>`;
 
-      marker.bindPopup(popupContent);
+      marker.bindPopup(popupContent, {
+        className: "custom-popup",
+        maxWidth: 280,
+        closeButton: false,
+      });
     });
 
     setMapRef(map);
@@ -102,12 +120,21 @@ export function CampusMap({ reports }: CampusMapProps) {
     };
   }, [mounted, L, reports]);
 
-  if (!mounted) return <div className="h-[400px] bg-gray-100 rounded-xl animate-pulse" />;
+  if (!mounted) {
+    return (
+      <div className="h-[450px] bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl animate-pulse flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 rounded-full border-3 border-gray-200 border-t-gray-400 animate-spin mx-auto mb-3" />
+          <p className="text-xs text-gray-400 font-medium">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       id="campus-map"
-      className="h-[400px] rounded-xl overflow-hidden border border-gray-200"
+      className="h-[450px] rounded-2xl overflow-hidden"
     />
   );
 }

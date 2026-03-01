@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Camera, CheckCircle2, Loader2 } from "lucide-react";
+import { Camera, CheckCircle2, Loader2, RotateCcw, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -69,51 +69,66 @@ export function CompletionForm({ assignmentId, onComplete }: CompletionFormProps
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold text-sm">Complete This Job</h3>
+      <div className="section-header">
+        <h3 className="font-semibold text-sm text-gray-900">Complete This Job</h3>
+        <p className="text-[11px] text-gray-400 mt-0.5">Add a completion photo and notes</p>
+      </div>
 
       {/* Completion photo */}
       <div>
         {photo ? (
-          <div className="relative rounded-lg overflow-hidden">
-            <img src={photo} alt="Completion" className="w-full h-32 object-cover" />
+          <div className="relative rounded-2xl overflow-hidden shadow-md">
+            <img src={photo} alt="Completion" className="w-full h-36 object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <button
               onClick={() => setPhoto(null)}
-              className="absolute top-2 right-2 bg-white/90 rounded-full p-1 text-xs"
+              className="absolute top-2.5 right-2.5 bg-white/90 backdrop-blur-sm rounded-xl p-2 shadow-md hover:bg-white transition"
             >
-              Change
+              <RotateCcw className="h-3.5 w-3.5 text-gray-700" />
             </button>
+            <div className="absolute bottom-2.5 left-2.5">
+              <div className="flex items-center gap-1.5 bg-emerald-500 text-white text-[10px] px-2.5 py-1 rounded-full font-semibold shadow">
+                <CheckCircle2 className="h-3 w-3" />
+                Photo added
+              </div>
+            </div>
           </div>
         ) : (
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="w-full h-24 rounded-lg border-2 border-dashed border-green-300 bg-green-50 flex flex-col items-center justify-center gap-1 hover:bg-green-100 transition"
+            className="w-full h-28 rounded-2xl border-2 border-dashed border-emerald-300/70 bg-gradient-to-br from-emerald-50/80 to-green-50/50 flex flex-col items-center justify-center gap-2 hover:from-emerald-50 hover:to-green-50 hover:border-emerald-400/70 transition-all active:scale-[0.98]"
           >
-            <Camera className="h-6 w-6 text-green-600" />
-            <span className="text-xs text-green-700 font-medium">Take Completion Photo</span>
+            <div className="bg-emerald-100 p-2.5 rounded-xl">
+              <Camera className="h-6 w-6 text-emerald-600" />
+            </div>
+            <span className="text-xs text-emerald-700 font-semibold">Take Completion Photo</span>
           </button>
         )}
         <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
       </div>
 
       {/* Notes */}
-      <textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        placeholder="Completion notes (e.g., replaced filter, adjusted thermostat)..."
-        className="w-full h-20 px-3 py-2 text-sm border rounded-lg resize-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 outline-none"
-      />
+      <div className="relative">
+        <FileText className="absolute left-3.5 top-3 h-4 w-4 text-gray-300" />
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Completion notes (e.g., replaced filter, adjusted thermostat)..."
+          className="w-full h-24 pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-2xl resize-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 outline-none bg-gray-50/50 placeholder:text-gray-400"
+        />
+      </div>
 
       <Button
         onClick={handleSubmit}
         disabled={submitting}
-        className="w-full bg-green-600 hover:bg-green-700"
+        className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/20 text-[15px] font-semibold transition-all"
       >
         {submitting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin" />
         ) : (
           <>
-            <CheckCircle2 className="mr-2 h-4 w-4" />
+            <CheckCircle2 className="mr-2 h-5 w-5" />
             Mark as Complete
           </>
         )}

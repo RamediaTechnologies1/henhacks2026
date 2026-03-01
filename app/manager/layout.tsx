@@ -24,9 +24,9 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
   if (!ready) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen portal-bg">
       <PortalHeader role="manager" email={email} />
-      <main className="max-w-7xl mx-auto">{children}</main>
+      <main className="max-w-7xl mx-auto pb-8">{children}</main>
     </div>
   );
 }

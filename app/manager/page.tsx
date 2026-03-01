@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { RefreshCw, Bot, Loader2 } from "lucide-react";
+import { RefreshCw, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +16,7 @@ const CampusMap = dynamic(
   () => import("@/components/map/campus-map").then((mod) => mod.CampusMap),
   {
     ssr: false,
-    loading: () => <div className="h-[400px] bg-gray-100 rounded-xl animate-pulse" />,
+    loading: () => <div className="h-[450px] bg-gray-100 rounded-2xl animate-pulse" />,
   }
 );
 
@@ -26,6 +26,7 @@ export default function ManagerDashboard() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [assigning, setAssigning] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -47,6 +48,7 @@ export default function ManagerDashboard() {
       // ignore
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -102,14 +104,14 @@ export default function ManagerDashboard() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-20 rounded-xl" />
-        <div className="grid grid-cols-6 gap-3">
+      <div className="p-6 space-y-5 page-enter">
+        <Skeleton className="h-16 rounded-2xl" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-20 rounded-xl" />
+            <Skeleton key={i} className="h-20 rounded-2xl" />
           ))}
         </div>
-        <Skeleton className="h-96 rounded-xl" />
+        <Skeleton className="h-96 rounded-2xl" />
       </div>
     );
   }
@@ -117,19 +119,22 @@ export default function ManagerDashboard() {
   const unassignedCount = reports.filter((r) => r.status === "submitted").length;
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6 page-enter">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">AI Manager Dashboard</h1>
-          <p className="text-sm text-gray-500">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="section-header">
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">AI Manager Dashboard</h1>
+          <p className="text-sm text-gray-400 mt-0.5">
             Automated maintenance assignment & oversight
           </p>
         </div>
         <div className="flex items-center gap-2">
           {unassignedCount > 0 && (
-            <Button onClick={handleAutoAssignAll} className="bg-purple-600 hover:bg-purple-700">
-              <Bot className="h-4 w-4 mr-2" />
+            <Button
+              onClick={handleAutoAssignAll}
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl shadow-lg shadow-violet-500/20 h-10 px-5"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
               AI Assign All ({unassignedCount})
             </Button>
           )}
@@ -137,11 +142,12 @@ export default function ManagerDashboard() {
             variant="outline"
             size="sm"
             onClick={() => {
-              setLoading(true);
+              setRefreshing(true);
               loadData();
             }}
+            className="rounded-xl h-10 w-10 p-0 border-gray-200"
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           </Button>
         </div>
       </div>
@@ -151,13 +157,19 @@ export default function ManagerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="reports">
-        <TabsList>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="assignments">Assignments</TabsTrigger>
-          <TabsTrigger value="map">Campus Map</TabsTrigger>
+        <TabsList className="rounded-xl h-11 bg-gray-100/80 p-1">
+          <TabsTrigger value="reports" className="rounded-lg text-sm font-semibold data-[state=active]:shadow-sm px-6">
+            Reports
+          </TabsTrigger>
+          <TabsTrigger value="assignments" className="rounded-lg text-sm font-semibold data-[state=active]:shadow-sm px-6">
+            Assignments
+          </TabsTrigger>
+          <TabsTrigger value="map" className="rounded-lg text-sm font-semibold data-[state=active]:shadow-sm px-6">
+            Campus Map
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="reports" className="mt-4">
+        <TabsContent value="reports" className="mt-5">
           <ReportsTable
             reports={filteredReports}
             onAssign={handleAIAssign}
@@ -166,12 +178,14 @@ export default function ManagerDashboard() {
           />
         </TabsContent>
 
-        <TabsContent value="assignments" className="mt-4">
+        <TabsContent value="assignments" className="mt-5">
           <AssignmentPanel assignments={assignments} />
         </TabsContent>
 
-        <TabsContent value="map" className="mt-4">
-          <CampusMap reports={reports} />
+        <TabsContent value="map" className="mt-5">
+          <div className="map-container">
+            <CampusMap reports={reports} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
