@@ -17,22 +17,44 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const speechQueueRef = useRef<string[]>([]);
   const speakingRef = useRef(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const listeningRef = useRef(false);
   const micStreamRef = useRef<MediaStream | null>(null);
 
-  // Use ref for onCommand to avoid stale closures
+  // Persistent audio element — unlocked once on user gesture, reused for all TTS
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
+  const audioUnlockedRef = useRef(false);
+
   const onCommandRef = useRef(options.onCommand);
   onCommandRef.current = options.onCommand;
 
-  // Resume listening helper
+  // Unlock audio on mobile — call this from a user gesture (tap)
+  const unlockAudio = useCallback(() => {
+    if (audioUnlockedRef.current) return;
+
+    // Create persistent audio element
+    const audio = new Audio();
+    audio.volume = 1.0;
+    audioElRef.current = audio;
+
+    // Play silent audio to unlock
+    audio.src = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRBqpAAAAAAD/+1DEAAAGAAGn9AAAIgAANP8AAAQAAP8A/wAABB//7UMQBgAEAAGf4AAAIAAA0/wAABAAAAA//tQxAIAAADSAAAAAAAAANIAAAAA";
+    audio.play().then(() => {
+      audioUnlockedRef.current = true;
+    }).catch(() => {
+      // ignore — will retry on next gesture
+    });
+
+    // Also unlock Web Speech
+    const utterance = new SpeechSynthesisUtterance("");
+    utterance.volume = 0;
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
   const resumeListening = useCallback(() => {
     if (listeningRef.current && recognitionRef.current) {
       try {
         recognitionRef.current.start();
-      } catch {
-        // already started
-      }
+      } catch { /* already started */ }
     }
   }, []);
 
@@ -63,7 +85,6 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
       if (event.error !== "no-speech" && event.error !== "aborted") {
         console.error("Speech recognition error:", event.error);
       }
-      // Auto-restart on recoverable errors
       if (event.error === "no-speech" && listeningRef.current && !speakingRef.current) {
         try { recognition.start(); } catch { /* ignore */ }
       }
@@ -71,11 +92,7 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
 
     recognition.onend = () => {
       if (listeningRef.current && !speakingRef.current) {
-        try {
-          recognition.start();
-        } catch {
-          // ignore
-        }
+        try { recognition.start(); } catch { /* ignore */ }
       }
     };
 
@@ -87,25 +104,18 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
     };
   }, [continuous]);
 
-  // Request mic access to activate Bluetooth audio route
+  // Activate Bluetooth mic
   const activateMic = useCallback(async () => {
     try {
-      // Release any existing stream
       if (micStreamRef.current) {
         micStreamRef.current.getTracks().forEach((t) => t.stop());
       }
-      // Request mic — this forces the OS to route Bluetooth audio correctly
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       });
       micStreamRef.current = stream;
       return true;
-    } catch (err) {
-      console.error("Mic access error:", err);
+    } catch {
       return false;
     }
   }, []);
@@ -113,32 +123,32 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   const startListening = useCallback(async () => {
     if (!recognitionRef.current) return;
 
-    // Activate Bluetooth mic first
+    // Unlock audio on this user gesture
+    unlockAudio();
+
+    // Activate Bluetooth mic
     await activateMic();
 
     listeningRef.current = true;
     try {
       recognitionRef.current.start();
       setIsListening(true);
-    } catch {
-      // already started
-    }
-  }, [activateMic]);
+    } catch { /* already started */ }
+  }, [activateMic, unlockAudio]);
 
   const stopListening = useCallback(() => {
     listeningRef.current = false;
     if (!recognitionRef.current) return;
     recognitionRef.current.abort();
     setIsListening(false);
-    // Release mic stream
     if (micStreamRef.current) {
       micStreamRef.current.getTracks().forEach((t) => t.stop());
       micStreamRef.current = null;
     }
   }, []);
 
-  // ElevenLabs TTS
-  const speakElevenLabs = useCallback(async (text: string) => {
+  // ElevenLabs TTS — reuses unlocked audio element
+  const speakElevenLabs = useCallback(async (text: string): Promise<boolean> => {
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
@@ -149,30 +159,33 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
 
       const audioBlob = await res.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
+
+      // Use the persistent unlocked audio element
+      const audio = audioElRef.current || new Audio();
+      audioElRef.current = audio;
 
       return new Promise<boolean>((resolve) => {
-        audio.onended = () => {
+        const cleanup = () => {
           URL.revokeObjectURL(audioUrl);
-          audioRef.current = null;
-          resolve(true);
+          audio.onended = null;
+          audio.onerror = null;
         };
-        audio.onerror = () => {
-          URL.revokeObjectURL(audioUrl);
-          audioRef.current = null;
-          resolve(false);
-        };
-        audio.play().catch(() => resolve(false));
+        audio.onended = () => { cleanup(); resolve(true); };
+        audio.onerror = () => { cleanup(); resolve(false); };
+        audio.src = audioUrl;
+        audio.play().catch(() => { cleanup(); resolve(false); });
       });
     } catch {
       return false;
     }
   }, []);
 
-  // Fallback Web Speech TTS
+  // Web Speech TTS fallback
   const speakWebSpeech = useCallback((text: string): Promise<boolean> => {
     return new Promise((resolve) => {
+      // Cancel any pending speech first
+      window.speechSynthesis.cancel();
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 1.05;
       utterance.pitch = 1.0;
@@ -180,20 +193,25 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
       utterance.lang = "en-US";
       utterance.onend = () => resolve(true);
       utterance.onerror = () => resolve(false);
-      window.speechSynthesis.speak(utterance);
+
+      // Small delay helps mobile browsers
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 50);
+
+      // Safety timeout — if speech doesn't finish in 30s, resolve anyway
+      setTimeout(() => resolve(true), 30000);
     });
   }, []);
 
-  // Main speak function with queue
+  // Main speak function
   const speak = useCallback(
     (text: string, priority = false) => {
       if (priority) {
         speechQueueRef.current = [text];
         window.speechSynthesis.cancel();
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
+        const audio = audioElRef.current;
+        if (audio) { audio.pause(); audio.currentTime = 0; }
       } else {
         speechQueueRef.current.push(text);
       }
@@ -213,11 +231,7 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
         setIsSpeaking(true);
 
         // Pause recognition while speaking
-        try {
-          recognitionRef.current?.abort();
-        } catch {
-          // ignore
-        }
+        try { recognitionRef.current?.abort(); } catch { /* ignore */ }
 
         // Try ElevenLabs first, fall back to Web Speech
         let success = false;
@@ -225,9 +239,10 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
           success = await speakElevenLabs(next);
         }
         if (!success) {
-          await speakWebSpeech(next);
+          success = await speakWebSpeech(next);
         }
 
+        // Continue queue regardless
         processQueue();
       }
 
@@ -239,10 +254,8 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   const stopSpeaking = useCallback(() => {
     speechQueueRef.current = [];
     window.speechSynthesis.cancel();
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    const audio = audioElRef.current;
+    if (audio) { audio.pause(); audio.currentTime = 0; }
     speakingRef.current = false;
     setIsSpeaking(false);
   }, []);
