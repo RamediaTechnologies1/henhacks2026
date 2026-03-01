@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { PortalHeader } from "@/components/layout/portal-header";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { Camera, ClipboardList } from "lucide-react";
+import { EmergencyButton } from "@/components/report/emergency-button";
+import { SafetyAlerts } from "@/components/report/safety-alerts";
 
 const NAV_ITEMS = [
   { href: "/user", label: "Report", icon: Camera },
@@ -33,7 +35,9 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen portal-bg">
       <PortalHeader role="user" email={email} />
+      <SafetyAlerts />
       <main className="pb-20 max-w-lg mx-auto">{children}</main>
+      <EmergencyButton />
       <BottomNav items={NAV_ITEMS} />
     </div>
   );

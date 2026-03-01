@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PortalHeader } from "@/components/layout/portal-header";
+import { BottomNav } from "@/components/layout/bottom-nav";
+import { LayoutDashboard, QrCode } from "lucide-react";
+
+const NAV_ITEMS = [
+  { href: "/manager", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/manager/qr-codes", label: "QR Codes", icon: QrCode },
+];
 
 export default function ManagerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -26,7 +33,8 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
   return (
     <div className="min-h-screen portal-bg">
       <PortalHeader role="manager" email={email} />
-      <main className="max-w-7xl mx-auto pb-8">{children}</main>
+      <main className="max-w-7xl mx-auto pb-20">{children}</main>
+      <BottomNav items={NAV_ITEMS} />
     </div>
   );
 }

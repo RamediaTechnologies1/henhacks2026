@@ -124,13 +124,13 @@ export function getFloorPlan(building: string): BuildingFloorPlan | null {
 
 // Room type colors for display
 export const ROOM_TYPE_COLORS: Record<string, string> = {
-  classroom: "#e8f4fd",
-  seminar: "#e0f2fe",
-  "lecture-hall": "#dbeafe",
-  office: "#f0fdf4",
-  restroom: "#fef3c7",
-  utility: "#f3e8ff",
-  common: "#fce7f3",
-  hallway: "#f5f5f5",
-  stairwell: "#f1f5f9",
+  classroom: "rgba(255,255,255,0.15)",
+  seminar: "rgba(255,255,255,0.12)",
+  "lecture-hall": "rgba(255,255,255,0.10)",
+  office: "rgba(255,255,255,0.08)",
+  restroom: "rgba(255,255,255,0.06)",
+  utility: "rgba(255,255,255,0.05)",
+  common: "rgba(255,255,255,0.07)",
+  hallway: "rgba(255,255,255,0.03)",
+  stairwell: "rgba(255,255,255,0.05)",
 };

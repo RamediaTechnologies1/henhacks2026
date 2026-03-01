@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { sendAssignmentEmail } from "@/lib/email";
 import type { Report, Technician } from "@/lib/types";
 

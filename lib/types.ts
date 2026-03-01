@@ -16,6 +16,17 @@ export type ReportStatus =
   | "in_progress"
   | "resolved";
 
+export type SafetyRisk =
+  | "slip_fall"
+  | "fire_hazard"
+  | "electrical_shock"
+  | "structural_failure"
+  | "water_damage"
+  | "air_quality"
+  | "security_vulnerability"
+  | "chemical_exposure"
+  | "none";
+
 export interface AIAnalysis {
   trade: Trade;
   priority: Priority;
@@ -25,6 +36,11 @@ export interface AIAnalysis {
   estimated_cost: string;
   estimated_time: string;
   confidence_score: number;
+  // Safety intelligence fields
+  safety_risks?: SafetyRisk[];
+  safety_score?: number; // 0-10
+  affected_population?: "high_traffic" | "residential" | "laboratory" | "office" | "common_area";
+  risk_escalation?: string; // what happens if not fixed
 }
 
 export interface Report {
@@ -81,6 +97,7 @@ export interface SubmitReportPayload {
   reporter_email?: string;
   reporter_name?: string;
   ai_analysis: AIAnalysis;
+  anonymous?: boolean;
 }
 
 // Auth

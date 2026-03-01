@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHash, randomInt } from "crypto";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { sendPinEmail } from "@/lib/email";
 import { PIN_LENGTH, PIN_EXPIRY_MINUTES } from "@/lib/constants";
 import type { UserRole } from "@/lib/types";

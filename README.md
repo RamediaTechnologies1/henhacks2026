@@ -1,36 +1,308 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FixIt AI — Smart Campus Safety & Maintenance Platform
+
+> **HenHacks 2026** | University of Delaware
+>
+> **Categories:** Automation Systems & Public Infrastructure | Security & Safety
+>
+> **Live Demo:** [https://fixitai-gamma.vercel.app](https://fixitai-gamma.vercel.app)
+
+---
+
+## The Problem
+
+UDel students report maintenance issues by emailing **fixit@udel.edu**. A human dispatcher manually reads each email, classifies the trade type, assesses priority, creates a work order in IBM Maximo, and routes it to the correct team. This process is slow, error-prone, and creates a dangerous bottleneck — especially for safety-critical issues like exposed wiring, flooded stairwells, or broken fire exits where every minute matters.
+
+Meanwhile, students walking through campus have **zero visibility** into known hazards. A broken handrail on the 3rd floor of Gore Hall could injure someone before the email even gets triaged.
+
+## Our Solution
+
+**FixIt AI turns every student into a safety sensor and uses AI to transform reactive maintenance into proactive safety prevention.**
+
+A student snaps a photo of an issue. Within seconds, our AI analyzes it — classifying the trade type, assessing safety risks (slip/fall, fire hazard, electrical shock, structural failure, and more), scoring severity on a 0-10 scale, and predicting what happens if it goes unfixed. The report is auto-dispatched to the correct department. Critical safety hazards are auto-escalated to the campus safety director. And every other student on campus can now see the hazard before they walk into it.
+
+No emails. No dispatcher. No delays. **Photo in, safety out.**
+
+![Student Report Flow](docs/screenshots/report-flow.png)
+
+---
+
+## Three-Portal Architecture
+
+### Portal 1: Student (Report & Stay Safe)
+
+Students capture maintenance issues and get real-time safety awareness.
+
+| Feature | Description |
+|---------|-------------|
+| **Photo + AI Analysis** | Snap a photo, AI classifies trade, priority, and safety risks in seconds |
+| **Interactive Floor Plans** | Tap the exact room on SVG floor plans (Gore Hall, Smith Hall) |
+| **Voice Input** | Dictate descriptions via Web Speech API — hands-free accessibility |
+| **Anonymous Reporting** | Toggle anonymous mode — identity stripped before storage, encouraging safety reports |
+| **Safety Alerts** | See active campus hazards when opening the app — make safer choices |
+| **Emergency Button** | One-tap critical safety report — dispatches safety team immediately |
+| **QR Code Scan** | Scan room QR codes to pre-fill location — zero friction reporting |
+| **Report Tracking** | Live status timeline with auto-refresh and progress visualization |
+
+![Student Portal](docs/screenshots/student-portal.png)
+![AI Safety Analysis](docs/screenshots/ai-analysis.png)
+![Safety Alerts Banner](docs/screenshots/safety-alerts.png)
+
+### Portal 2: Technician (Field Operations)
+
+Technicians receive assignments, navigate to issues, and complete work orders.
+
+| Feature | Description |
+|---------|-------------|
+| **Job Queue** | Active/completed/all tabs with auto-refresh |
+| **Floor Plan Navigation** | See exact room location on interactive floor plans |
+| **Push Notifications** | Browser notifications when new jobs are assigned |
+| **Accept & Start** | Step-by-step job workflow (pending → accepted → in_progress → completed) |
+| **Completion Evidence** | Photo + notes on job completion |
+| **Real-time Updates** | Supabase Realtime subscription — instant assignment updates |
+
+![Technician Portal](docs/screenshots/technician-portal.png)
+![Job Detail](docs/screenshots/job-detail.png)
+
+### Portal 3: Manager (AI Command Center)
+
+Managers get full visibility with AI-powered analytics and safety intelligence.
+
+| Feature | Description |
+|---------|-------------|
+| **AI Auto-Assignment** | Scores technicians by availability, building proximity, trade match, workload |
+| **Safety Intelligence Tab** | Building Safety Index, predictive alerts, campus safety score |
+| **SLA Tracking** | Color-coded time elapsed on every report and assignment |
+| **Safety Heatmap** | Campus map with buildings colored by safety score |
+| **Predictive Alerts** | Detects report clusters and predicts systemic risks |
+| **Clickable Stats** | Filter reports by clicking stat cards |
+| **QR Code Generator** | Generate printable QR codes for every room |
+| **Real-time Dashboard** | Supabase Realtime — data updates without refresh |
+
+![Manager Dashboard](docs/screenshots/manager-dashboard.png)
+![Safety Intelligence](docs/screenshots/safety-intelligence.png)
+![Campus Safety Map](docs/screenshots/campus-map.png)
+
+---
+
+## How It Answers the Categories
+
+### Automation Systems & Public Infrastructure
+
+> *"How might we use technology to make public systems more reliable, accessible, and adaptive to real human needs?"*
+
+- **Eliminates the human dispatcher** — AI classifies and routes in seconds, not hours
+- **Auto-assignment algorithm** scores technicians on 4 factors and dispatches optimally
+- **Smart deduplication** — multiple reports of the same issue become a single work order with upvotes
+- **Pattern detection** — 3+ reports of the same trade in 90 days triggers preventive maintenance alerts
+- **QR codes on rooms** — infrastructure becomes self-reporting
+
+### Security & Safety
+
+> *"How might we create systems that keep information secure, safeguard communities, or help individuals make safer choices?"*
+
+**Keep information secure:**
+- Anonymous reporting with identity stripping — no name/email stored for anonymous reports
+- PIN-based auth with 10-minute expiry, sessions expire in 24 hours
+- Data transparency — students see exactly what's collected and how it's used
+- Reporter identity hidden from technicians on anonymous reports
+
+**Safeguard communities:**
+- AI Safety Risk Taxonomy — every report is assessed for 8 risk categories (slip/fall, fire, electrical shock, structural failure, water damage, air quality, security vulnerability, chemical exposure)
+- Building Safety Index — real-time per-building safety scores (0-10)
+- Predictive Safety Alerts — report clusters trigger systemic risk warnings
+- Auto-escalation — critical safety hazards auto-email the campus safety director
+- One-tap emergency reporting — 2 taps to dispatch the safety team
+
+**Help individuals make safer choices:**
+- Campus Safety Alerts — students see active hazards when they open the app
+- Risk Escalation Warnings — AI tells you what happens if the issue goes unfixed
+- Safety heatmap on campus map — buildings color-coded by danger level
+- Frictionless reporting (photo + voice + QR) lowers barriers to protecting the community
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Framework** | Next.js 16 (App Router) + TypeScript |
+| **Styling** | Tailwind CSS + shadcn/ui |
+| **Database** | Supabase (PostgreSQL) + Realtime subscriptions |
+| **AI Vision** | Multi-provider fallback: OpenAI GPT-4o → Claude → Gemini → Groq |
+| **Email** | Nodemailer + Gmail SMTP (dispatch + escalation) |
+| **Maps** | React-Leaflet with CARTO dark tiles |
+| **Floor Plans** | Custom SVG — zero dependencies, touch-friendly |
+| **Voice** | Web Speech API (SpeechRecognition) |
+| **Notifications** | Browser Notifications API (PWA) |
+| **Auth** | PIN via email (6-digit, 10-min expiry) |
+| **Deployment** | Vercel (auto-deploy from main) |
+
+---
+
+## AI Pipeline
+
+```
+Photo → [OpenAI GPT-4o / Claude / Gemini / Groq]
+                    ↓
+        ┌──────────────────────────┐
+        │  Trade Classification     │  plumbing, electrical, hvac, structural...
+        │  Priority Assessment      │  critical, high, medium, low
+        │  Safety Risk Taxonomy     │  8 risk categories scored 0-10
+        │  Risk Escalation          │  "If unfixed: ceiling could collapse..."
+        │  Recommended Action       │  "Replace corroded pipe section..."
+        │  Confidence Score         │  0.0 - 1.0
+        └──────────────────────────┘
+                    ↓
+        Auto-dispatch email → Department
+        Auto-assign → Best technician
+        Auto-escalate → Safety director (if critical)
+```
+
+The system tries up to 4 AI providers in sequence. If OpenAI quota is exhausted, it falls back to Claude, then Gemini, then Groq — ensuring the system never goes down.
+
+---
+
+## Smart Features
+
+| Feature | How It Works |
+|---------|-------------|
+| **Deduplication** | Same building + same trade within 7 days → upvote original instead of duplicate |
+| **Urgency Score** | `base_priority + (upvotes × 1.5) + (safety ? 3 : 0)` — safety issues bubble to top |
+| **Pattern Detection** | 3+ reports of same trade in 90 days → preventive maintenance alert |
+| **Building Safety Index** | `safety_issues × 3 + critical × 2.5 + high × 1.5 + open × 0.3` → 0-10 score |
+| **SLA Tracking** | Color-coded elapsed time — green (ok), yellow (4h+), orange (warning), red (SLA breach) |
+| **Predictive Alerts** | Clusters of same-trade reports → "Possible pipe deterioration. Risk: water damage, mold" |
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- Supabase project with tables: `reports`, `assignments`, `technicians`, `auth_pins`, `sessions`
+- At least one AI API key (OpenAI, Anthropic, Google Gemini, or Groq)
+- Gmail account with App Password for SMTP
+
+### Environment Variables
+
+Create `.env.local`:
+
+```env
+# AI Providers (at least one required)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=AI...
+GROQ_API_KEY=gsk_...
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Email (Gmail SMTP)
+GMAIL_USER=your-email@gmail.com
+GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Run Locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+### Build for Production
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+app/
+  layout.tsx              # Root layout with Outfit + DM Sans fonts
+  page.tsx                # Loading/redirect screen
+  login/page.tsx          # PIN-based auth (3 roles)
+  verify/page.tsx         # PIN verification
+  user/
+    page.tsx              # Report form with QR prefill support
+    reports/page.tsx      # My Reports with status timeline
+    layout.tsx            # Student layout + safety alerts + emergency button
+  technician/
+    page.tsx              # Job queue with realtime + notifications
+    job/[id]/page.tsx     # Job detail with floor plans
+    layout.tsx            # Technician layout
+  manager/
+    page.tsx              # Dashboard with reports, assignments, safety, map
+    qr-codes/page.tsx     # QR code generator for rooms
+    layout.tsx            # Manager layout
+  api/
+    analyze/route.ts      # AI vision analysis (4-provider fallback)
+    report/route.ts       # Submit report + dedup + auto-assign + escalate
+    reports/route.ts      # Fetch reports + pattern detection
+    assignments/route.ts  # List/create assignments
+    assignments/[id]/     # Update assignment status
+    ai-assign/route.ts    # AI technician scoring algorithm
+    auth/                 # PIN send, verify, session management
+    qr/route.ts           # QR code URL generator
+    technicians/route.ts  # Technician management
+components/
+  report/                 # ReportForm, CameraCapture, AIAnalysisDisplay, VoiceInput, EmergencyButton, SafetyAlerts
+  technician/             # JobCard, CompletionForm
+  manager/                # StatsCards, ReportsTable, AssignmentPanel, SafetyDashboard
+  map/                    # CampusMap with safety heatmap
+  floor-plan/             # SVG FloorPlanViewer
+  layout/                 # PortalHeader, BottomNav
+hooks/
+  use-realtime.ts         # Supabase Realtime subscription hook
+  use-notifications.ts    # Browser push notification hook
+lib/
+  openai.ts               # Multi-provider AI with safety taxonomy prompt
+  supabase.ts             # Supabase clients (anon + admin)
+  email.ts                # Gmail SMTP dispatch + escalation emails
+  types.ts                # TypeScript interfaces (Report, Assignment, AIAnalysis, SafetyRisk...)
+  constants.ts            # UDel buildings, departments, scoring weights
+  floor-plans.ts          # SVG floor plan data
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Screenshots
+
+> **To add screenshots:** Take screenshots of each portal and save them in `docs/screenshots/`. The filenames referenced above are:
+>
+> - `report-flow.png` — The 4-step report submission flow
+> - `student-portal.png` — Student portal home (report form)
+> - `ai-analysis.png` — AI Safety Analysis result with risk taxonomy
+> - `safety-alerts.png` — Safety alerts banner at top of student portal
+> - `technician-portal.png` — Technician job queue
+> - `job-detail.png` — Job detail page with floor plan
+> - `manager-dashboard.png` — Manager dashboard overview
+> - `safety-intelligence.png` — Safety Intelligence tab with building index
+> - `campus-map.png` — Campus map with safety heatmap
+
+---
+
+## Demo Scope
+
+- **Buildings:** Gore Hall + Smith Hall (with interactive floor plans)
+- **Technicians:** 3 seeded HVAC techs (Mike Johnson, Sarah Chen, James Williams)
+- **AI Providers:** Groq (primary), with fallback to OpenAI/Claude/Gemini
+
+---
+
+## Team
+
+Built for HenHacks 2026 at the University of Delaware.
+
+---
+
+## License
+
+MIT

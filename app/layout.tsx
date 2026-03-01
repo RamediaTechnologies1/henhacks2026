@@ -1,22 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Rye } from "next/font/google";
+import { Geist_Mono, Outfit, DM_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const rye = Rye({
-  weight: "400",
-  variable: "--font-western",
   subsets: ["latin"],
 });
 
@@ -37,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1a1410",
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -52,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${rye.variable} antialiased bg-[#0d0a07] text-[#f4e4c1] min-h-screen grain-overlay`}
+        className={`${outfit.variable} ${dmSans.variable} ${geistMono.variable} antialiased bg-black text-[#a1a1a1] min-h-screen`}
       >
         {children}
         <Toaster
@@ -60,9 +58,10 @@ export default function RootLayout({
           richColors
           toastOptions={{
             style: {
-              background: "#231c14",
-              border: "1px solid #3d3124",
-              color: "#f4e4c1",
+              background: "rgba(10, 10, 10, 0.95)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "#ededed",
+              backdropFilter: "blur(12px)",
             },
           }}
         />

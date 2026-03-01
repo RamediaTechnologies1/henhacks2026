@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { PATTERN_THRESHOLD, PATTERN_WINDOW_DAYS } from "@/lib/constants";
 import type { Trade } from "@/lib/types";
 

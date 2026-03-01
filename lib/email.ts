@@ -234,6 +234,21 @@ export async function sendAssignmentEmail(
   });
 }
 
+export async function sendEscalationEmail(opts: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}): Promise<void> {
+  await transporter.sendMail({
+    from: `"FixIt AI — UDel Facilities" <${process.env.GMAIL_USER}>`,
+    to: opts.to,
+    subject: opts.subject,
+    text: opts.text,
+    html: opts.html,
+  });
+}
+
 export async function sendDispatchEmail(report: Report): Promise<void> {
   const to = DEPARTMENT_EMAIL[report.trade];
   const priorityLabel = getPriorityLabel(report.priority);

@@ -46,15 +46,15 @@ const ROLES: {
 ];
 
 const ROLE_ACTIVE: Record<UserRole, string> = {
-  user: "border-[#4a6fa5] bg-[#4a6fa5]/10 shadow-[#4a6fa5]/20",
-  technician: "border-[#6b7c5e] bg-[#6b7c5e]/10 shadow-[#6b7c5e]/20",
-  manager: "border-[#c8a55c] bg-[#c8a55c]/10 shadow-[#c8a55c]/20",
+  user: "border-white bg-white/10 shadow-white/20",
+  technician: "border-white bg-white/10 shadow-white/20",
+  manager: "border-[#888888] bg-[#888888]/10 shadow-[#888888]/20",
 };
 
 const ROLE_ICON_ACTIVE: Record<UserRole, string> = {
-  user: "text-[#4a6fa5] bg-[#4a6fa5]/15",
-  technician: "text-[#6b7c5e] bg-[#6b7c5e]/15",
-  manager: "text-[#c8a55c] bg-[#c8a55c]/15",
+  user: "text-white bg-white/15",
+  technician: "text-white bg-white/15",
+  manager: "text-[#888888] bg-[#888888]/15",
 };
 
 export default function LoginPage() {
@@ -92,26 +92,21 @@ export default function LoginPage() {
 
   return (
     <div className="fixit-gradient-bg min-h-screen flex flex-col items-center justify-center p-4 relative">
-      {/* Floating ember orbs */}
-      <div className="floating-orb w-72 h-72 bg-[#c8a55c] top-10 -left-20" />
-      <div className="floating-orb w-96 h-96 bg-[#b87333] bottom-10 -right-20" style={{ animationDelay: "-7s" }} />
-      <div className="floating-orb w-48 h-48 bg-[#8b3a1a] top-1/3 right-1/4" style={{ animationDelay: "-12s" }} />
-
       <div className="relative z-10 w-full max-w-md page-enter">
         {/* Logo + Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            <div className="relative star-badge">
-              <div className="absolute inset-0 bg-[#c8a55c] rounded-2xl blur-lg opacity-30" />
-              <div className="relative bg-gradient-to-br from-[#c8a55c] to-[#9a7d3f] p-4 rounded-2xl shadow-lg shadow-[#c8a55c]/20">
-                <Wrench className="h-10 w-10 text-[#0d0a07]" />
+            <div className="relative">
+              <div className="absolute inset-0 bg-white rounded-2xl blur-lg opacity-30" />
+              <div className="relative bg-gradient-to-br from-white to-[#cccccc] p-4 rounded-2xl shadow-lg shadow-white/20">
+                <Wrench className="h-10 w-10 text-black" />
               </div>
             </div>
           </div>
-          <h1 className="font-[family-name:var(--font-western)] text-4xl text-[#c8a55c] tracking-wide">
+          <h1 className="font-[family-name:var(--font-outfit)] text-4xl text-white tracking-wide">
             FixIt AI
           </h1>
-          <p className="text-[#9c8e7c] mt-1 text-sm font-medium">
+          <p className="text-[#666666] mt-1 text-sm font-medium">
             University of Delaware &middot; Campus Maintenance
           </p>
 
@@ -124,9 +119,9 @@ export default function LoginPage() {
             ].map((f) => (
               <div
                 key={f.label}
-                className="glass-card-dark flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-[#e8d5a3]"
+                className="glass-card-dark flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-[#a1a1a1]"
               >
-                <f.icon className="h-3 w-3 text-[#c8a55c]" />
+                <f.icon className="h-3 w-3 text-white" />
                 {f.label}
               </div>
             ))}
@@ -139,9 +134,9 @@ export default function LoginPage() {
           <div className="western-divider" />
 
           <div className="text-center">
-            <h2 className="text-xl font-bold text-[#f4e4c1]">Welcome, Partner</h2>
-            <p className="text-sm text-[#9c8e7c] mt-1">
-              Select your role to ride in
+            <h2 className="text-xl font-bold text-[#ededed]">Welcome back</h2>
+            <p className="text-sm text-[#666666] mt-1">
+              Select your role to continue
             </p>
           </div>
 
@@ -158,31 +153,31 @@ export default function LoginPage() {
                     className={`w-full flex items-center gap-4 rounded-xl p-4 border transition-all duration-200 text-left press-scale ${
                       isActive
                         ? `${ROLE_ACTIVE[r.value]} shadow-lg border-2`
-                        : "border-[#3d3124] hover:border-[#4d3f30] hover:bg-[#2d2418]/50"
+                        : "border-white/[0.08] hover:border-white/[0.15] hover:bg-white/5"
                     }`}
                   >
                     <div
                       className={`p-2.5 rounded-xl transition-colors ${
-                        isActive ? ROLE_ICON_ACTIVE[r.value] : "text-[#9c8e7c] bg-[#2d2418]"
+                        isActive ? ROLE_ICON_ACTIVE[r.value] : "text-[#666666] bg-white/[0.04]"
                       }`}
                     >
                       {r.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`font-semibold text-[15px] ${isActive ? "text-[#f4e4c1]" : "text-[#e8d5a3]"}`}>
+                      <p className={`font-semibold text-[15px] ${isActive ? "text-[#ededed]" : "text-[#a1a1a1]"}`}>
                         {r.label}
                       </p>
-                      <p className="text-xs text-[#9c8e7c] mt-0.5">{r.desc}</p>
+                      <p className="text-xs text-[#666666] mt-0.5">{r.desc}</p>
                     </div>
                     <div
                       className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${
                         isActive
-                          ? "border-[#c8a55c] bg-[#c8a55c]"
-                          : "border-[#3d3124]"
+                          ? "border-white bg-white"
+                          : "border-white/[0.08]"
                       }`}
                     >
                       {isActive && (
-                        <div className="w-2 h-2 rounded-full bg-[#0d0a07]" />
+                        <div className="w-2 h-2 rounded-full bg-black" />
                       )}
                     </div>
                   </button>
@@ -192,14 +187,14 @@ export default function LoginPage() {
 
             {/* Email Input */}
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9c8e7c]" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666666]" />
               <Input
                 type="email"
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-13 pl-11 text-[15px] rounded-xl border-[#3d3124] bg-[#1a1410] text-[#f4e4c1] placeholder:text-[#6b5e4f]"
+                className="h-13 pl-11 text-[15px] rounded-xl border-white/[0.08] bg-white/5 text-[#ededed] placeholder:text-[#484f58]"
               />
             </div>
 
@@ -210,7 +205,7 @@ export default function LoginPage() {
               className={`w-full h-13 rounded-xl text-[15px] font-bold transition-all duration-300 ${
                 role
                   ? "btn-western"
-                  : "bg-[#2d2418] text-[#6b5e4f] border border-[#3d3124]"
+                  : "bg-white/5 text-[#484f58] border border-white/[0.08]"
               }`}
             >
               {loading ? (
@@ -228,7 +223,7 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-6 text-xs text-[#6b5e4f] font-medium tracking-wide">
+        <p className="text-center mt-6 text-xs text-[#484f58] font-medium tracking-wide">
           HenHacks 2026 &middot; Automation Systems & Public Infrastructure
         </p>
       </div>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { sendDispatchEmail } from "@/lib/email";
-import { PRIORITY_BASE_SCORE, DEDUP_WINDOW_DAYS } from "@/lib/constants";
+import { PRIORITY_BASE_SCORE, DEDUP_WINDOW_DAYS, UDEL_BUILDINGS } from "@/lib/constants";
 import type { Report, SubmitReportPayload } from "@/lib/types";
 
 function calcUrgencyScore(report: {
@@ -28,7 +28,12 @@ export async function POST(req: NextRequest) {
       reporter_email,
       reporter_name,
       ai_analysis,
+      anonymous,
     } = payload;
+
+    // If anonymous, strip reporter identity
+    const effectiveReporterEmail = anonymous ? null : (reporter_email ?? null);
+    const effectiveReporterName = anonymous ? "Anonymous Reporter" : (reporter_name ?? null);
 
     if (!building || !ai_analysis) {
       return NextResponse.json(
@@ -37,11 +42,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Look up building coordinates if not provided
+    const bldg = UDEL_BUILDINGS.find((b) => b.name === building);
+    const lat = latitude ?? bldg?.lat ?? 39.6795;
+    const lng = longitude ?? bldg?.lng ?? -75.7528;
+
     // --- Deduplication check ---
     const dedupCutoff = new Date();
     dedupCutoff.setDate(dedupCutoff.getDate() - DEDUP_WINDOW_DAYS);
 
-    const { data: existing } = await supabaseAdmin
+    const { data: existingRows } = await supabaseAdmin
       .from("reports")
       .select("id, upvote_count")
       .eq("building", building)
@@ -50,8 +60,9 @@ export async function POST(req: NextRequest) {
       .gte("created_at", dedupCutoff.toISOString())
       .is("duplicate_of", null)
       .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
+
+    const existing = existingRows?.[0] ?? null;
 
     if (existing) {
       // Increment upvote on the original
@@ -76,8 +87,8 @@ export async function POST(req: NextRequest) {
           building,
           room: room ?? "",
           floor: floor ?? "",
-          latitude: latitude ?? null,
-          longitude: longitude ?? null,
+          latitude: lat,
+          longitude: lng,
           description,
           photo_base64,
           trade: ai_analysis.trade,
@@ -93,8 +104,8 @@ export async function POST(req: NextRequest) {
           urgency_score: 0,
           duplicate_of: existing.id,
           email_sent: false,
-          reporter_email: reporter_email ?? null,
-          reporter_name: reporter_name ?? null,
+          reporter_email: effectiveReporterEmail,
+          reporter_name: effectiveReporterName,
         })
         .select()
         .single();
@@ -121,8 +132,8 @@ export async function POST(req: NextRequest) {
         building,
         room: room ?? "",
         floor: floor ?? "",
-        latitude: latitude ?? null,
-        longitude: longitude ?? null,
+        latitude: lat,
+        longitude: lng,
         description,
         photo_base64,
         trade: ai_analysis.trade,
@@ -138,8 +149,8 @@ export async function POST(req: NextRequest) {
         urgency_score,
         duplicate_of: null,
         email_sent: false,
-        reporter_email: reporter_email ?? null,
-        reporter_name: reporter_name ?? null,
+        reporter_email: effectiveReporterEmail,
+        reporter_name: effectiveReporterName,
       })
       .select()
       .single();
@@ -159,7 +170,51 @@ export async function POST(req: NextRequest) {
       console.error("[/api/report] Email failed:", emailError);
     }
 
-    return NextResponse.json({ report, deduplicated: false, email_sent: emailSent });
+    // --- AI auto-assign to best technician ---
+    let assignment = null;
+    try {
+      const baseUrl = req.nextUrl.origin;
+      const assignRes = await fetch(`${baseUrl}/api/ai-assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ report_id: report.id }),
+      });
+      if (assignRes.ok) {
+        assignment = await assignRes.json();
+      }
+    } catch (assignError) {
+      console.error("[/api/report] Auto-assign failed:", assignError);
+    }
+
+    // Auto-escalation for critical safety issues
+    if (ai_analysis.safety_concern && ai_analysis.priority === "critical") {
+      try {
+        const { sendEscalationEmail } = await import("@/lib/email");
+        await sendEscalationEmail({
+          to: "safety@facilities.udel.edu",
+          subject: `🚨 CRITICAL SAFETY ESCALATION: ${building}${room ? ` Room ${room}` : ""}`,
+          text: `CRITICAL SAFETY ALERT — IMMEDIATE ACTION REQUIRED\n\nBuilding: ${building}\nRoom: ${room || "N/A"}\nFloor: ${floor || "N/A"}\n\nAI Assessment: ${ai_analysis.description}\nRecommended Action: ${ai_analysis.suggested_action}\n${ai_analysis.risk_escalation ? `\nRisk if unfixed: ${ai_analysis.risk_escalation}` : ""}\n\nThis report was automatically escalated because it was classified as a critical safety hazard by our AI system.\n\nReport ID: ${report.id}`,
+          html: `<div style="font-family: -apple-system, sans-serif; max-width: 600px;">
+            <div style="background: #ef4444; color: white; padding: 16px 20px; border-radius: 8px 8px 0 0;">
+              <h2 style="margin: 0; font-size: 18px;">🚨 CRITICAL SAFETY ESCALATION</h2>
+            </div>
+            <div style="background: #111; color: #ccc; padding: 20px; border: 1px solid #333; border-top: none; border-radius: 0 0 8px 8px;">
+              <p style="color: #ef4444; font-weight: bold; font-size: 16px; margin-top: 0;">${building}${room ? `, Room ${room}` : ""}</p>
+              <p><strong>AI Assessment:</strong> ${ai_analysis.description}</p>
+              <p><strong>Recommended Action:</strong> ${ai_analysis.suggested_action}</p>
+              ${ai_analysis.risk_escalation ? `<p style="color: #f97316;"><strong>⚠ Risk if unfixed:</strong> ${ai_analysis.risk_escalation}</p>` : ""}
+              <hr style="border-color: #333;">
+              <p style="font-size: 12px; color: #666;">Auto-escalated by FixIt AI Safety System • Report #${report.id.slice(0, 8)}</p>
+            </div>
+          </div>`,
+        });
+        console.log("[/api/report] Critical safety escalation email sent");
+      } catch (escErr) {
+        console.error("[/api/report] Escalation email failed:", escErr);
+      }
+    }
+
+    return NextResponse.json({ report, deduplicated: false, email_sent: emailSent, assignment });
   } catch (error) {
     console.error("[/api/report]", error);
     return NextResponse.json(

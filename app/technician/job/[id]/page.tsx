@@ -7,7 +7,6 @@ import {
   MapPin,
   Clock,
   AlertTriangle,
-  DollarSign,
   PlayCircle,
   Loader2,
   Wrench,
@@ -25,10 +24,10 @@ import { toast } from "sonner";
 import type { Assignment } from "@/lib/types";
 
 const PRIORITY_STYLES: Record<string, { bg: string; text: string }> = {
-  critical: { bg: "bg-[#c44536]/15 border-[#c44536]/30", text: "text-[#e85a4a]" },
-  high: { bg: "bg-[#b87333]/15 border-[#b87333]/30", text: "text-[#d89343]" },
-  medium: { bg: "bg-[#c8a55c]/15 border-[#c8a55c]/30", text: "text-[#c8a55c]" },
-  low: { bg: "bg-[#6b7c5e]/15 border-[#6b7c5e]/30", text: "text-[#8b9c7e]" },
+  critical: { bg: "bg-[#ef4444]/15 border-[#ef4444]/30", text: "text-[#ef4444]" },
+  high: { bg: "bg-[#f97316]/15 border-[#f97316]/30", text: "text-[#f97316]" },
+  medium: { bg: "bg-[#eab308]/15 border-[#eab308]/30", text: "text-[#eab308]" },
+  low: { bg: "bg-[#22c55e]/15 border-[#22c55e]/30", text: "text-[#22c55e]" },
 };
 
 export default function JobDetailPage() {
@@ -99,10 +98,10 @@ export default function JobDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-full border-4 border-[#3d3124]" />
-          <div className="absolute inset-0 rounded-full border-4 border-t-[#c8a55c] animate-spin" />
+          <div className="absolute inset-0 rounded-full border-4 border-white/[0.08]" />
+          <div className="absolute inset-0 rounded-full border-4 border-t-white animate-spin" />
         </div>
-        <p className="text-sm text-[#9c8e7c]">Loading job details...</p>
+        <p className="text-sm text-[#666666]">Loading job details...</p>
       </div>
     );
   }
@@ -110,12 +109,12 @@ export default function JobDetailPage() {
   if (!assignment || !assignment.report) {
     return (
       <div className="p-4 text-center py-16">
-        <div className="w-16 h-16 rounded-full bg-[#2d2418] flex items-center justify-center mx-auto mb-4">
-          <Wrench className="h-7 w-7 text-[#6b5e4f]" />
+        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+          <Wrench className="h-7 w-7 text-[#64748b]" />
         </div>
-        <p className="text-[#9c8e7c] font-medium mb-1">Job not found</p>
-        <p className="text-[#6b5e4f] text-sm mb-4">This assignment may have been removed.</p>
-        <Button variant="outline" onClick={() => router.back()} className="rounded-xl border-[#3d3124] text-[#9c8e7c] hover:bg-[#2d2418]">
+        <p className="text-[#666666] font-medium mb-1">Job not found</p>
+        <p className="text-[#64748b] text-sm mb-4">This assignment may have been removed.</p>
+        <Button variant="outline" onClick={() => router.back()} className="rounded-xl border-white/[0.08] text-[#666666] hover:bg-white/5">
           <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
         </Button>
       </div>
@@ -128,13 +127,13 @@ export default function JobDetailPage() {
   const highlightedRooms: Record<string, string> = {};
   if (report.room) {
     const roomId = `${report.building === "Gore Hall" ? "GOR" : "SMI"}-${report.room}`;
-    highlightedRooms[roomId] = report.priority === "critical" ? "#c44536" : report.priority === "high" ? "#b87333" : "#c8a55c";
+    highlightedRooms[roomId] = report.priority === "critical" ? "#ef4444" : report.priority === "high" ? "#f97316" : "#ffffff";
   }
 
   return (
     <div className="p-4 space-y-4 page-enter">
       {/* Back button */}
-      <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-xl text-[#9c8e7c] hover:text-[#e8d5a3] hover:bg-[#2d2418]">
+      <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-xl text-[#666666] hover:text-[#a1a1a1] hover:bg-white/10">
         <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Jobs
       </Button>
 
@@ -145,26 +144,26 @@ export default function JobDetailPage() {
             {report.priority === "critical" && <Zap className="h-3 w-3 mr-0.5" />}
             {report.priority.toUpperCase()}
           </Badge>
-          <Badge variant="secondary" className="font-bold text-[11px] bg-[#2d2418] text-[#e8d5a3] border-[#3d3124]">
+          <Badge variant="secondary" className="font-bold text-[11px] bg-white/5 text-[#a1a1a1] border-white/[0.08]">
             {report.trade.replace("_", " ").toUpperCase()}
           </Badge>
           {report.safety_concern && (
-            <Badge className="font-bold text-[11px] bg-[#c44536] text-[#f4e4c1] border-none">
+            <Badge className="font-bold text-[11px] bg-[#ef4444] text-[#ededed] border-none">
               <AlertTriangle className="h-3 w-3 mr-1" /> Safety Hazard
             </Badge>
           )}
         </div>
-        <h1 className="text-lg font-bold text-[#f4e4c1] leading-snug">{report.ai_description}</h1>
+        <h1 className="text-lg font-bold text-[#ededed] leading-snug">{report.ai_description}</h1>
       </div>
 
       {/* Location + Floor Plan */}
-      <Card className="rounded-2xl overflow-hidden border-[#3d3124] bg-[#231c14]">
+      <Card className="rounded-2xl overflow-hidden border-white/[0.08] bg-white/[0.04]">
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2.5 text-sm">
-            <div className="bg-[#c8a55c]/15 p-2 rounded-xl">
-              <MapPin className="h-4 w-4 text-[#c8a55c]" />
+            <div className="bg-white/15 p-2 rounded-xl">
+              <MapPin className="h-4 w-4 text-white" />
             </div>
-            <span className="font-semibold text-[#e8d5a3]">
+            <span className="font-semibold text-[#a1a1a1]">
               {report.building}
               {report.floor ? `, Floor ${report.floor}` : ""}
               {report.room ? `, Room ${report.room}` : ""}
@@ -182,40 +181,31 @@ export default function JobDetailPage() {
       </Card>
 
       {/* Details */}
-      <Card className="rounded-2xl overflow-hidden border-[#3d3124] bg-[#231c14]">
+      <Card className="rounded-2xl overflow-hidden border-white/[0.08] bg-white/[0.04]">
         <CardContent className="p-4 space-y-4">
           <div>
-            <p className="text-[11px] font-bold text-[#c8a55c] uppercase tracking-wider mb-2">Recommended Action</p>
-            <p className="text-sm text-[#e8d5a3] bg-[#c8a55c]/10 rounded-xl p-3.5 border border-[#c8a55c]/20 leading-relaxed">
+            <p className="text-[11px] font-bold text-white uppercase tracking-wider mb-2">Recommended Action</p>
+            <p className="text-sm text-[#a1a1a1] bg-white/10 rounded-xl p-3.5 border border-white/20 leading-relaxed">
               {report.suggested_action}
             </p>
           </div>
 
-          <Separator className="bg-[#3d3124]" />
+          <Separator className="bg-white/[0.08]" />
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#6b7c5e]/10 rounded-xl p-3 text-center border border-[#6b7c5e]/20">
-              <div className="bg-[#6b7c5e]/15 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5">
-                <DollarSign className="h-4 w-4 text-[#6b7c5e]" />
-              </div>
-              <p className="text-[10px] text-[#6b5e4f] font-medium">Est. Cost</p>
-              <p className="text-xs font-bold text-[#f4e4c1] mt-0.5">{report.estimated_cost}</p>
+          <div className="bg-white/10 rounded-xl p-3 text-center border border-white/20">
+            <div className="bg-white/15 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5">
+              <Clock className="h-4 w-4 text-white" />
             </div>
-            <div className="bg-[#4a6fa5]/10 rounded-xl p-3 text-center border border-[#4a6fa5]/20">
-              <div className="bg-[#4a6fa5]/15 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5">
-                <Clock className="h-4 w-4 text-[#4a6fa5]" />
-              </div>
-              <p className="text-[10px] text-[#6b5e4f] font-medium">Est. Time</p>
-              <p className="text-xs font-bold text-[#f4e4c1] mt-0.5">{report.estimated_time}</p>
-            </div>
+            <p className="text-[10px] text-[#64748b] font-medium">Est. Time</p>
+            <p className="text-xs font-bold text-[#ededed] mt-0.5">{report.estimated_time}</p>
           </div>
 
           {report.description && (
             <>
-              <Separator className="bg-[#3d3124]" />
+              <Separator className="bg-white/[0.08]" />
               <div>
-                <p className="text-[11px] font-bold text-[#9c8e7c] uppercase tracking-wider mb-1.5">Reporter Notes</p>
-                <p className="text-sm text-[#e8d5a3] leading-relaxed">{report.description}</p>
+                <p className="text-[11px] font-bold text-[#666666] uppercase tracking-wider mb-1.5">Reporter Notes</p>
+                <p className="text-sm text-[#a1a1a1] leading-relaxed">{report.description}</p>
               </div>
             </>
           )}
@@ -224,9 +214,9 @@ export default function JobDetailPage() {
 
       {/* Photo */}
       {report.photo_base64 && (
-        <Card className="rounded-2xl overflow-hidden border-[#3d3124] bg-[#231c14]">
+        <Card className="rounded-2xl overflow-hidden border-white/[0.08] bg-white/[0.04]">
           <CardContent className="p-4">
-            <p className="text-[11px] font-bold text-[#9c8e7c] uppercase tracking-wider mb-2.5">Reported Photo</p>
+            <p className="text-[11px] font-bold text-[#666666] uppercase tracking-wider mb-2.5">Reported Photo</p>
             <img
               src={report.photo_base64}
               alt="Maintenance issue"
@@ -254,14 +244,14 @@ export default function JobDetailPage() {
       {assignment.status === "accepted" && (
         <Button
           onClick={handleStartWork}
-          className="w-full h-13 rounded-xl bg-gradient-to-r from-[#b87333] to-[#c8a55c] hover:from-[#a86323] hover:to-[#b8953c] text-[#0d0a07] font-bold shadow-lg shadow-[#b87333]/20 text-[15px] transition-all"
+          className="w-full h-13 rounded-xl bg-gradient-to-r from-white to-[#cccccc] hover:from-[#e5e5e5] hover:to-[#b3b3b3] text-black font-bold shadow-lg shadow-white/20 text-[15px] transition-all"
         >
           <PlayCircle className="mr-2 h-5 w-5" /> Start Work
         </Button>
       )}
 
       {assignment.status === "in_progress" && (
-        <Card className="rounded-2xl overflow-hidden border-[#6b7c5e]/30 bg-[#6b7c5e]/5">
+        <Card className="rounded-2xl overflow-hidden border-white/30 bg-white/5">
           <CardContent className="p-5">
             <CompletionForm
               assignmentId={assignment.id}
@@ -272,13 +262,13 @@ export default function JobDetailPage() {
       )}
 
       {assignment.status === "completed" && (
-        <div className="bg-[#6b7c5e]/10 border border-[#6b7c5e]/30 rounded-2xl p-5 text-center">
-          <div className="bg-[#6b7c5e]/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CheckCircle2 className="h-6 w-6 text-[#6b7c5e]" />
+        <div className="bg-white/10 border border-white/30 rounded-2xl p-5 text-center">
+          <div className="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CheckCircle2 className="h-6 w-6 text-white" />
           </div>
-          <p className="text-[#8b9c7e] font-semibold text-sm">Job Completed</p>
+          <p className="text-[#cccccc] font-semibold text-sm">Job Completed</p>
           {assignment.completion_notes && (
-            <p className="text-sm text-[#6b7c5e] mt-1">{assignment.completion_notes}</p>
+            <p className="text-sm text-white mt-1">{assignment.completion_notes}</p>
           )}
         </div>
       )}

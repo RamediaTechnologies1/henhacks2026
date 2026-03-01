@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { SESSION_EXPIRY_HOURS } from "@/lib/constants";
 import type { UserRole } from "@/lib/types";
 
