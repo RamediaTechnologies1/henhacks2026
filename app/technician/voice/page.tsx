@@ -43,6 +43,7 @@ function VoiceAssistantContent() {
   const connectedRef = useRef(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const dataLoadedRef = useRef(false);
+  const initialLoadDoneRef = useRef(false);
 
   assignmentsRef.current = assignments;
 
@@ -353,11 +354,12 @@ function VoiceAssistantContent() {
           setTechName(list[0].technician.name);
         }
 
-        // Detect new pending
+        // Detect new pending assignments
         const currentPendingIds = new Set(list.filter((a) => a.status === "pending").map((a) => a.id));
         const newJobs = list.filter((a) => a.status === "pending" && !prevIdsRef.current.has(a.id));
 
-        if (prevIdsRef.current.size > 0 && newJobs.length > 0 && connectedRef.current) {
+        // Announce new jobs (skip only the very first load to avoid re-announcing existing jobs)
+        if (initialLoadDoneRef.current && newJobs.length > 0 && connectedRef.current) {
           for (const job of newJobs) {
             const r = job.report;
             const msg = `Attention. New job assigned. ${r?.priority || ""} priority ${r?.trade || ""} issue at ${r?.building || "building"}${r?.room ? ", room " + r.room : ""}. ${r?.ai_description || r?.description || ""}. Say accept to take this job.`;
@@ -367,6 +369,7 @@ function VoiceAssistantContent() {
         }
 
         prevIdsRef.current = currentPendingIds;
+        initialLoadDoneRef.current = true;
         dataLoadedRef.current = true;
       }
     } catch {
