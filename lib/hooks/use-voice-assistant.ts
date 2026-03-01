@@ -19,6 +19,7 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   const speakingRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const listeningRef = useRef(false);
+  const micStreamRef = useRef<MediaStream | null>(null);
 
   // Use ref for onCommand to avoid stale closures
   const onCommandRef = useRef(options.onCommand);
@@ -54,7 +55,6 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
       if (last.isFinal) {
         const transcript = last[0].transcript.trim();
         setLastTranscript(transcript);
-        // Always call the latest callback via ref
         onCommandRef.current?.(transcript);
       }
     };
@@ -63,10 +63,13 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
       if (event.error !== "no-speech" && event.error !== "aborted") {
         console.error("Speech recognition error:", event.error);
       }
+      // Auto-restart on recoverable errors
+      if (event.error === "no-speech" && listeningRef.current && !speakingRef.current) {
+        try { recognition.start(); } catch { /* ignore */ }
+      }
     };
 
     recognition.onend = () => {
-      // Auto-restart if we should still be listening and not speaking
       if (listeningRef.current && !speakingRef.current) {
         try {
           recognition.start();
@@ -84,8 +87,35 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
     };
   }, [continuous]);
 
-  const startListening = useCallback(() => {
+  // Request mic access to activate Bluetooth audio route
+  const activateMic = useCallback(async () => {
+    try {
+      // Release any existing stream
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      // Request mic — this forces the OS to route Bluetooth audio correctly
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      micStreamRef.current = stream;
+      return true;
+    } catch (err) {
+      console.error("Mic access error:", err);
+      return false;
+    }
+  }, []);
+
+  const startListening = useCallback(async () => {
     if (!recognitionRef.current) return;
+
+    // Activate Bluetooth mic first
+    await activateMic();
+
     listeningRef.current = true;
     try {
       recognitionRef.current.start();
@@ -93,50 +123,52 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
     } catch {
       // already started
     }
-  }, []);
+  }, [activateMic]);
 
   const stopListening = useCallback(() => {
     listeningRef.current = false;
     if (!recognitionRef.current) return;
     recognitionRef.current.abort();
     setIsListening(false);
+    // Release mic stream
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
   }, []);
 
   // ElevenLabs TTS
-  const speakElevenLabs = useCallback(
-    async (text: string) => {
-      try {
-        const res = await fetch("/api/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
-        });
-        if (!res.ok) return false;
+  const speakElevenLabs = useCallback(async (text: string) => {
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) return false;
 
-        const audioBlob = await res.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
+      const audioBlob = await res.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
 
-        return new Promise<boolean>((resolve) => {
-          audio.onended = () => {
-            URL.revokeObjectURL(audioUrl);
-            audioRef.current = null;
-            resolve(true);
-          };
-          audio.onerror = () => {
-            URL.revokeObjectURL(audioUrl);
-            audioRef.current = null;
-            resolve(false);
-          };
-          audio.play().catch(() => resolve(false));
-        });
-      } catch {
-        return false;
-      }
-    },
-    []
-  );
+      return new Promise<boolean>((resolve) => {
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+          audioRef.current = null;
+          resolve(true);
+        };
+        audio.onerror = () => {
+          URL.revokeObjectURL(audioUrl);
+          audioRef.current = null;
+          resolve(false);
+        };
+        audio.play().catch(() => resolve(false));
+      });
+    } catch {
+      return false;
+    }
+  }, []);
 
   // Fallback Web Speech TTS
   const speakWebSpeech = useCallback((text: string): Promise<boolean> => {
