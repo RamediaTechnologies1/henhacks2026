@@ -31,49 +31,43 @@ export function StatsCards({ reports, assignments }: StatsCardsProps) {
       label: "Open Reports",
       value: openReports,
       icon: ClipboardList,
-      color: "text-blue-600",
-      iconBg: "bg-blue-100",
-      cardClass: "stat-card-blue",
+      color: "text-[#4a6fa5]",
+      iconBg: "bg-[#4a6fa5]/15",
     },
     {
       label: "Safety Issues",
       value: safetyIssues,
       icon: AlertTriangle,
-      color: "text-red-600",
-      iconBg: "bg-red-100",
-      cardClass: "stat-card-red",
+      color: "text-[#c44536]",
+      iconBg: "bg-[#c44536]/15",
     },
     {
       label: "Resolved",
       value: resolved,
       icon: CheckCircle2,
-      color: "text-emerald-600",
-      iconBg: "bg-emerald-100",
-      cardClass: "stat-card-green",
+      color: "text-[#6b7c5e]",
+      iconBg: "bg-[#6b7c5e]/15",
     },
     {
       label: "AI Assigned",
       value: aiAssigned,
       icon: Bot,
-      color: "text-purple-600",
-      iconBg: "bg-purple-100",
-      cardClass: "stat-card-purple",
+      color: "text-[#c8a55c]",
+      iconBg: "bg-[#c8a55c]/15",
     },
     {
       label: "Active Jobs",
       value: activeJobs,
       icon: Users,
-      color: "text-orange-600",
-      iconBg: "bg-orange-100",
-      cardClass: "stat-card-orange",
+      color: "text-[#b87333]",
+      iconBg: "bg-[#b87333]/15",
     },
     {
       label: "Avg Response",
       value: `${avgResponse}m`,
       icon: Clock,
-      color: "text-gray-600",
-      iconBg: "bg-gray-100",
-      cardClass: "stat-card-gray",
+      color: "text-[#9c8e7c]",
+      iconBg: "bg-[#9c8e7c]/15",
     },
   ];
 
@@ -82,15 +76,15 @@ export function StatsCards({ reports, assignments }: StatsCardsProps) {
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className={`${stat.cardClass} rounded-2xl p-4 card-hover-lift`}
+          className="dark-stat-card rounded-2xl p-4 card-hover-lift"
         >
           <div className="flex items-center gap-3">
             <div className={`${stat.iconBg} p-2.5 rounded-xl`}>
               <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-900 tracking-tight">{stat.value}</p>
-              <p className="text-[10px] text-gray-500 font-medium">{stat.label}</p>
+              <p className="text-xl font-bold text-[#f4e4c1] tracking-tight">{stat.value}</p>
+              <p className="text-[10px] text-[#6b5e4f] font-medium">{stat.label}</p>
             </div>
           </div>
         </div>

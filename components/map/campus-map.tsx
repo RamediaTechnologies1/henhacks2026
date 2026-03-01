@@ -9,10 +9,10 @@ interface CampusMapProps {
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
-  critical: "#dc2626",
-  high: "#ea580c",
-  medium: "#ca8a04",
-  low: "#16a34a",
+  critical: "#c44536",
+  high: "#b87333",
+  medium: "#c8a55c",
+  low: "#6b7c5e",
 };
 
 export function CampusMap({ reports }: CampusMapProps) {
@@ -58,7 +58,7 @@ export function CampusMap({ reports }: CampusMapProps) {
               (a, b) => (b.urgency_score || 0) - (a.urgency_score || 0)
             )[0].priority
           ]
-        : "#94a3b8";
+        : "#6b5e4f";
 
       const size = hasReports ? 32 : 22;
 
@@ -69,12 +69,12 @@ export function CampusMap({ reports }: CampusMapProps) {
           height: ${size}px;
           border-radius: 50%;
           background: ${color};
-          border: 3px solid white;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
+          border: 3px solid #f4e4c1;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.1);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #0d0a07;
           font-size: ${hasReports ? 12 : 10}px;
           font-weight: 700;
           font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -84,8 +84,8 @@ export function CampusMap({ reports }: CampusMapProps) {
         ">${hasReports ? buildingReports.length : ""}</div>
         <style>
           @keyframes pulse {
-            0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 0 ${color}40; }
-            50% { box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 0 0 6px ${color}00; }
+            0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 0 ${color}40; }
+            50% { box-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 0 6px ${color}00; }
           }
         </style>`,
         iconSize: [size, size],
@@ -122,10 +122,10 @@ export function CampusMap({ reports }: CampusMapProps) {
 
   if (!mounted) {
     return (
-      <div className="h-[450px] bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl animate-pulse flex items-center justify-center">
+      <div className="h-[450px] bg-[#1a1410] rounded-2xl animate-pulse flex items-center justify-center border border-[#3d3124]">
         <div className="text-center">
-          <div className="w-10 h-10 rounded-full border-3 border-gray-200 border-t-gray-400 animate-spin mx-auto mb-3" />
-          <p className="text-xs text-gray-400 font-medium">Loading map...</p>
+          <div className="w-10 h-10 rounded-full border-3 border-[#3d3124] border-t-[#c8a55c] animate-spin mx-auto mb-3" />
+          <p className="text-xs text-[#6b5e4f] font-medium">Loading map...</p>
         </div>
       </div>
     );
@@ -134,7 +134,7 @@ export function CampusMap({ reports }: CampusMapProps) {
   return (
     <div
       id="campus-map"
-      className="h-[450px] rounded-2xl overflow-hidden"
+      className="h-[450px] rounded-2xl overflow-hidden border border-[#3d3124]"
     />
   );
 }

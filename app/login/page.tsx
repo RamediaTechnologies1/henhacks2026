@@ -24,45 +24,37 @@ const ROLES: {
   label: string;
   icon: React.ReactNode;
   desc: string;
-  gradient: string;
-  activeGradient: string;
 }[] = [
   {
     value: "user",
     label: "Student",
-    icon: <User className="h-7 w-7" />,
+    icon: <User className="h-6 w-6" />,
     desc: "Report a maintenance issue",
-    gradient: "from-blue-500/10 to-cyan-500/10",
-    activeGradient: "from-blue-500/20 to-cyan-500/20",
   },
   {
     value: "technician",
     label: "Technician",
-    icon: <HardHat className="h-7 w-7" />,
+    icon: <HardHat className="h-6 w-6" />,
     desc: "View & complete work orders",
-    gradient: "from-emerald-500/10 to-teal-500/10",
-    activeGradient: "from-emerald-500/20 to-teal-500/20",
   },
   {
     value: "manager",
     label: "Manager",
-    icon: <Shield className="h-7 w-7" />,
+    icon: <Shield className="h-6 w-6" />,
     desc: "AI dashboard & oversight",
-    gradient: "from-violet-500/10 to-purple-500/10",
-    activeGradient: "from-violet-500/20 to-purple-500/20",
   },
 ];
 
-const ROLE_BORDER: Record<UserRole, string> = {
-  user: "border-blue-500 shadow-blue-500/20",
-  technician: "border-emerald-500 shadow-emerald-500/20",
-  manager: "border-violet-500 shadow-violet-500/20",
+const ROLE_ACTIVE: Record<UserRole, string> = {
+  user: "border-[#4a6fa5] bg-[#4a6fa5]/10 shadow-[#4a6fa5]/20",
+  technician: "border-[#6b7c5e] bg-[#6b7c5e]/10 shadow-[#6b7c5e]/20",
+  manager: "border-[#c8a55c] bg-[#c8a55c]/10 shadow-[#c8a55c]/20",
 };
 
-const ROLE_TEXT: Record<UserRole, string> = {
-  user: "text-blue-600",
-  technician: "text-emerald-600",
-  manager: "text-violet-600",
+const ROLE_ICON_ACTIVE: Record<UserRole, string> = {
+  user: "text-[#4a6fa5] bg-[#4a6fa5]/15",
+  technician: "text-[#6b7c5e] bg-[#6b7c5e]/15",
+  manager: "text-[#c8a55c] bg-[#c8a55c]/15",
 };
 
 export default function LoginPage() {
@@ -100,27 +92,27 @@ export default function LoginPage() {
 
   return (
     <div className="fixit-gradient-bg min-h-screen flex flex-col items-center justify-center p-4 relative">
-      {/* Floating decorative orbs */}
-      <div className="floating-orb w-72 h-72 bg-[#FFD200] top-10 -left-20" />
-      <div className="floating-orb w-96 h-96 bg-blue-400 bottom-10 -right-20" style={{ animationDelay: "-7s" }} />
-      <div className="floating-orb w-48 h-48 bg-cyan-400 top-1/3 right-1/4" style={{ animationDelay: "-12s" }} />
+      {/* Floating ember orbs */}
+      <div className="floating-orb w-72 h-72 bg-[#c8a55c] top-10 -left-20" />
+      <div className="floating-orb w-96 h-96 bg-[#b87333] bottom-10 -right-20" style={{ animationDelay: "-7s" }} />
+      <div className="floating-orb w-48 h-48 bg-[#8b3a1a] top-1/3 right-1/4" style={{ animationDelay: "-12s" }} />
 
       <div className="relative z-10 w-full max-w-md page-enter">
         {/* Logo + Branding */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#FFD200] rounded-2xl blur-lg opacity-40" />
-              <div className="relative bg-[#FFD200] p-4 rounded-2xl shadow-lg">
-                <Wrench className="h-10 w-10 text-[#00296b]" />
+            <div className="relative star-badge">
+              <div className="absolute inset-0 bg-[#c8a55c] rounded-2xl blur-lg opacity-30" />
+              <div className="relative bg-gradient-to-br from-[#c8a55c] to-[#9a7d3f] p-4 rounded-2xl shadow-lg shadow-[#c8a55c]/20">
+                <Wrench className="h-10 w-10 text-[#0d0a07]" />
               </div>
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white tracking-tight">
+          <h1 className="font-[family-name:var(--font-western)] text-4xl text-[#c8a55c] tracking-wide">
             FixIt AI
           </h1>
-          <p className="text-blue-200/80 mt-1 text-sm font-medium">
-            University of Delaware Campus Maintenance
+          <p className="text-[#9c8e7c] mt-1 text-sm font-medium">
+            University of Delaware &middot; Campus Maintenance
           </p>
 
           {/* Feature pills */}
@@ -129,12 +121,12 @@ export default function LoginPage() {
               { icon: Camera, label: "Snap" },
               { icon: Brain, label: "AI Analyze" },
               { icon: Zap, label: "Auto-Fix" },
-            ].map((f, i) => (
+            ].map((f) => (
               <div
                 key={f.label}
-                className="glass-card-dark flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-blue-100"
+                className="glass-card-dark flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-[#e8d5a3]"
               >
-                <f.icon className="h-3 w-3 text-[#FFD200]" />
+                <f.icon className="h-3 w-3 text-[#c8a55c]" />
                 {f.label}
               </div>
             ))}
@@ -142,15 +134,18 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="glass-card rounded-3xl p-6 space-y-6">
+        <div className="glass-card rounded-2xl p-6 space-y-6">
+          {/* Decorative stitching */}
+          <div className="western-divider" />
+
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-900">Welcome back</h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Select your role to get started
+            <h2 className="text-xl font-bold text-[#f4e4c1]">Welcome, Partner</h2>
+            <p className="text-sm text-[#9c8e7c] mt-1">
+              Select your role to ride in
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Role Selection */}
             <div className="space-y-2.5 stagger-enter">
               {ROLES.map((r) => {
@@ -160,38 +155,34 @@ export default function LoginPage() {
                     key={r.value}
                     type="button"
                     onClick={() => setRole(r.value)}
-                    className={`w-full flex items-center gap-4 rounded-2xl p-4 border-2 transition-all duration-200 text-left press-scale ${
+                    className={`w-full flex items-center gap-4 rounded-xl p-4 border transition-all duration-200 text-left press-scale ${
                       isActive
-                        ? `${ROLE_BORDER[r.value]} bg-gradient-to-r ${r.activeGradient} shadow-lg`
-                        : "border-gray-100 hover:border-gray-200 hover:bg-gray-50/50"
+                        ? `${ROLE_ACTIVE[r.value]} shadow-lg border-2`
+                        : "border-[#3d3124] hover:border-[#4d3f30] hover:bg-[#2d2418]/50"
                     }`}
                   >
                     <div
-                      className={`p-2.5 rounded-xl bg-gradient-to-br ${r.gradient} transition-colors ${
-                        isActive ? ROLE_TEXT[r.value] : "text-gray-400"
+                      className={`p-2.5 rounded-xl transition-colors ${
+                        isActive ? ROLE_ICON_ACTIVE[r.value] : "text-[#9c8e7c] bg-[#2d2418]"
                       }`}
                     >
                       {r.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className={`font-semibold text-[15px] ${
-                          isActive ? "text-gray-900" : "text-gray-700"
-                        }`}
-                      >
+                      <p className={`font-semibold text-[15px] ${isActive ? "text-[#f4e4c1]" : "text-[#e8d5a3]"}`}>
                         {r.label}
                       </p>
-                      <p className="text-xs text-gray-400 mt-0.5">{r.desc}</p>
+                      <p className="text-xs text-[#9c8e7c] mt-0.5">{r.desc}</p>
                     </div>
                     <div
                       className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${
                         isActive
-                          ? `${ROLE_BORDER[r.value].split(" ")[0]} bg-current`
-                          : "border-gray-200"
+                          ? "border-[#c8a55c] bg-[#c8a55c]"
+                          : "border-[#3d3124]"
                       }`}
                     >
                       {isActive && (
-                        <div className="w-2 h-2 rounded-full bg-white" />
+                        <div className="w-2 h-2 rounded-full bg-[#0d0a07]" />
                       )}
                     </div>
                   </button>
@@ -201,14 +192,14 @@ export default function LoginPage() {
 
             {/* Email Input */}
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9c8e7c]" />
               <Input
                 type="email"
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-13 pl-11 text-[15px] rounded-xl border-gray-200 focus:border-[#00539F] focus:ring-2 focus:ring-[#00539F]/20 bg-gray-50/50"
+                className="h-13 pl-11 text-[15px] rounded-xl border-[#3d3124] bg-[#1a1410] text-[#f4e4c1] placeholder:text-[#6b5e4f]"
               />
             </div>
 
@@ -216,10 +207,10 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={!email || !role || loading}
-              className={`w-full h-13 rounded-xl text-[15px] font-semibold transition-all duration-300 shadow-lg ${
+              className={`w-full h-13 rounded-xl text-[15px] font-bold transition-all duration-300 ${
                 role
-                  ? "bg-gradient-to-r from-[#00539F] to-[#0066cc] hover:from-[#004080] hover:to-[#00539F] shadow-blue-500/25"
-                  : "bg-gray-300"
+                  ? "btn-western"
+                  : "bg-[#2d2418] text-[#6b5e4f] border border-[#3d3124]"
               }`}
             >
               {loading ? (
@@ -232,10 +223,12 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
+
+          <div className="western-divider" />
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-6 text-xs text-blue-300/60 font-medium">
+        <p className="text-center mt-6 text-xs text-[#6b5e4f] font-medium tracking-wide">
           HenHacks 2026 &middot; Automation Systems & Public Infrastructure
         </p>
       </div>

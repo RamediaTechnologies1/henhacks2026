@@ -25,10 +25,10 @@ import { toast } from "sonner";
 import type { Assignment } from "@/lib/types";
 
 const PRIORITY_STYLES: Record<string, { bg: string; text: string }> = {
-  critical: { bg: "bg-red-50 border-red-200", text: "text-red-700" },
-  high: { bg: "bg-orange-50 border-orange-200", text: "text-orange-700" },
-  medium: { bg: "bg-amber-50 border-amber-200", text: "text-amber-700" },
-  low: { bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700" },
+  critical: { bg: "bg-[#c44536]/15 border-[#c44536]/30", text: "text-[#e85a4a]" },
+  high: { bg: "bg-[#b87333]/15 border-[#b87333]/30", text: "text-[#d89343]" },
+  medium: { bg: "bg-[#c8a55c]/15 border-[#c8a55c]/30", text: "text-[#c8a55c]" },
+  low: { bg: "bg-[#6b7c5e]/15 border-[#6b7c5e]/30", text: "text-[#8b9c7e]" },
 };
 
 export default function JobDetailPage() {
@@ -99,10 +99,10 @@ export default function JobDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
         <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-full border-4 border-blue-100" />
-          <div className="absolute inset-0 rounded-full border-4 border-t-[#00539F] animate-spin" />
+          <div className="absolute inset-0 rounded-full border-4 border-[#3d3124]" />
+          <div className="absolute inset-0 rounded-full border-4 border-t-[#c8a55c] animate-spin" />
         </div>
-        <p className="text-sm text-gray-400">Loading job details...</p>
+        <p className="text-sm text-[#9c8e7c]">Loading job details...</p>
       </div>
     );
   }
@@ -110,12 +110,12 @@ export default function JobDetailPage() {
   if (!assignment || !assignment.report) {
     return (
       <div className="p-4 text-center py-16">
-        <div className="empty-state-circle w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Wrench className="h-7 w-7 text-gray-300" />
+        <div className="w-16 h-16 rounded-full bg-[#2d2418] flex items-center justify-center mx-auto mb-4">
+          <Wrench className="h-7 w-7 text-[#6b5e4f]" />
         </div>
-        <p className="text-gray-500 font-medium mb-1">Job not found</p>
-        <p className="text-gray-400 text-sm mb-4">This assignment may have been removed.</p>
-        <Button variant="outline" onClick={() => router.back()} className="rounded-xl">
+        <p className="text-[#9c8e7c] font-medium mb-1">Job not found</p>
+        <p className="text-[#6b5e4f] text-sm mb-4">This assignment may have been removed.</p>
+        <Button variant="outline" onClick={() => router.back()} className="rounded-xl border-[#3d3124] text-[#9c8e7c] hover:bg-[#2d2418]">
           <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
         </Button>
       </div>
@@ -128,13 +128,13 @@ export default function JobDetailPage() {
   const highlightedRooms: Record<string, string> = {};
   if (report.room) {
     const roomId = `${report.building === "Gore Hall" ? "GOR" : "SMI"}-${report.room}`;
-    highlightedRooms[roomId] = report.priority === "critical" ? "#fca5a5" : report.priority === "high" ? "#fed7aa" : "#fef08a";
+    highlightedRooms[roomId] = report.priority === "critical" ? "#c44536" : report.priority === "high" ? "#b87333" : "#c8a55c";
   }
 
   return (
     <div className="p-4 space-y-4 page-enter">
       {/* Back button */}
-      <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-xl text-gray-500 hover:text-gray-700">
+      <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-xl text-[#9c8e7c] hover:text-[#e8d5a3] hover:bg-[#2d2418]">
         <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Jobs
       </Button>
 
@@ -145,26 +145,26 @@ export default function JobDetailPage() {
             {report.priority === "critical" && <Zap className="h-3 w-3 mr-0.5" />}
             {report.priority.toUpperCase()}
           </Badge>
-          <Badge variant="secondary" className="font-bold text-[11px]">
+          <Badge variant="secondary" className="font-bold text-[11px] bg-[#2d2418] text-[#e8d5a3] border-[#3d3124]">
             {report.trade.replace("_", " ").toUpperCase()}
           </Badge>
           {report.safety_concern && (
-            <Badge variant="destructive" className="font-bold text-[11px] badge-glow-red">
+            <Badge className="font-bold text-[11px] bg-[#c44536] text-[#f4e4c1] border-none">
               <AlertTriangle className="h-3 w-3 mr-1" /> Safety Hazard
             </Badge>
           )}
         </div>
-        <h1 className="text-lg font-bold text-gray-900 leading-snug">{report.ai_description}</h1>
+        <h1 className="text-lg font-bold text-[#f4e4c1] leading-snug">{report.ai_description}</h1>
       </div>
 
       {/* Location + Floor Plan */}
-      <Card className="rounded-2xl overflow-hidden border-gray-100">
+      <Card className="rounded-2xl overflow-hidden border-[#3d3124] bg-[#231c14]">
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center gap-2.5 text-sm">
-            <div className="bg-blue-50 p-2 rounded-xl">
-              <MapPin className="h-4 w-4 text-[#00539F]" />
+            <div className="bg-[#c8a55c]/15 p-2 rounded-xl">
+              <MapPin className="h-4 w-4 text-[#c8a55c]" />
             </div>
-            <span className="font-semibold text-gray-800">
+            <span className="font-semibold text-[#e8d5a3]">
               {report.building}
               {report.floor ? `, Floor ${report.floor}` : ""}
               {report.room ? `, Room ${report.room}` : ""}
@@ -182,40 +182,40 @@ export default function JobDetailPage() {
       </Card>
 
       {/* Details */}
-      <Card className="rounded-2xl overflow-hidden border-gray-100">
+      <Card className="rounded-2xl overflow-hidden border-[#3d3124] bg-[#231c14]">
         <CardContent className="p-4 space-y-4">
           <div>
-            <p className="text-[11px] font-bold text-[#00539F] uppercase tracking-wider mb-2">Recommended Action</p>
-            <p className="text-sm text-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3.5 border border-blue-100/60 leading-relaxed">
+            <p className="text-[11px] font-bold text-[#c8a55c] uppercase tracking-wider mb-2">Recommended Action</p>
+            <p className="text-sm text-[#e8d5a3] bg-[#c8a55c]/10 rounded-xl p-3.5 border border-[#c8a55c]/20 leading-relaxed">
               {report.suggested_action}
             </p>
           </div>
 
-          <Separator />
+          <Separator className="bg-[#3d3124]" />
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-emerald-50/60 rounded-xl p-3 text-center border border-emerald-100/60">
-              <div className="bg-emerald-100 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5">
-                <DollarSign className="h-4 w-4 text-emerald-600" />
+            <div className="bg-[#6b7c5e]/10 rounded-xl p-3 text-center border border-[#6b7c5e]/20">
+              <div className="bg-[#6b7c5e]/15 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5">
+                <DollarSign className="h-4 w-4 text-[#6b7c5e]" />
               </div>
-              <p className="text-[10px] text-gray-400 font-medium">Est. Cost</p>
-              <p className="text-xs font-bold text-gray-800 mt-0.5">{report.estimated_cost}</p>
+              <p className="text-[10px] text-[#6b5e4f] font-medium">Est. Cost</p>
+              <p className="text-xs font-bold text-[#f4e4c1] mt-0.5">{report.estimated_cost}</p>
             </div>
-            <div className="bg-blue-50/60 rounded-xl p-3 text-center border border-blue-100/60">
-              <div className="bg-blue-100 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5">
-                <Clock className="h-4 w-4 text-blue-600" />
+            <div className="bg-[#4a6fa5]/10 rounded-xl p-3 text-center border border-[#4a6fa5]/20">
+              <div className="bg-[#4a6fa5]/15 w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5">
+                <Clock className="h-4 w-4 text-[#4a6fa5]" />
               </div>
-              <p className="text-[10px] text-gray-400 font-medium">Est. Time</p>
-              <p className="text-xs font-bold text-gray-800 mt-0.5">{report.estimated_time}</p>
+              <p className="text-[10px] text-[#6b5e4f] font-medium">Est. Time</p>
+              <p className="text-xs font-bold text-[#f4e4c1] mt-0.5">{report.estimated_time}</p>
             </div>
           </div>
 
           {report.description && (
             <>
-              <Separator />
+              <Separator className="bg-[#3d3124]" />
               <div>
-                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Reporter Notes</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{report.description}</p>
+                <p className="text-[11px] font-bold text-[#9c8e7c] uppercase tracking-wider mb-1.5">Reporter Notes</p>
+                <p className="text-sm text-[#e8d5a3] leading-relaxed">{report.description}</p>
               </div>
             </>
           )}
@@ -224,9 +224,9 @@ export default function JobDetailPage() {
 
       {/* Photo */}
       {report.photo_base64 && (
-        <Card className="rounded-2xl overflow-hidden border-gray-100">
+        <Card className="rounded-2xl overflow-hidden border-[#3d3124] bg-[#231c14]">
           <CardContent className="p-4">
-            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2.5">Reported Photo</p>
+            <p className="text-[11px] font-bold text-[#9c8e7c] uppercase tracking-wider mb-2.5">Reported Photo</p>
             <img
               src={report.photo_base64}
               alt="Maintenance issue"
@@ -241,7 +241,7 @@ export default function JobDetailPage() {
         <Button
           onClick={handleAccept}
           disabled={accepting}
-          className="w-full h-13 rounded-xl bg-gradient-to-r from-[#00539F] to-[#0066cc] hover:from-[#004080] hover:to-[#00539F] shadow-lg shadow-blue-500/20 text-[15px] font-semibold transition-all"
+          className="w-full h-13 rounded-xl btn-western text-[15px] font-semibold transition-all"
         >
           {accepting ? <Loader2 className="h-5 w-5 animate-spin" /> : (
             <>
@@ -254,14 +254,14 @@ export default function JobDetailPage() {
       {assignment.status === "accepted" && (
         <Button
           onClick={handleStartWork}
-          className="w-full h-13 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 shadow-lg shadow-orange-500/20 text-[15px] font-semibold transition-all"
+          className="w-full h-13 rounded-xl bg-gradient-to-r from-[#b87333] to-[#c8a55c] hover:from-[#a86323] hover:to-[#b8953c] text-[#0d0a07] font-bold shadow-lg shadow-[#b87333]/20 text-[15px] transition-all"
         >
           <PlayCircle className="mr-2 h-5 w-5" /> Start Work
         </Button>
       )}
 
       {assignment.status === "in_progress" && (
-        <Card className="rounded-2xl overflow-hidden border-emerald-100 bg-gradient-to-br from-emerald-50/30 to-green-50/20">
+        <Card className="rounded-2xl overflow-hidden border-[#6b7c5e]/30 bg-[#6b7c5e]/5">
           <CardContent className="p-5">
             <CompletionForm
               assignmentId={assignment.id}
@@ -272,13 +272,13 @@ export default function JobDetailPage() {
       )}
 
       {assignment.status === "completed" && (
-        <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200/60 rounded-2xl p-5 text-center">
-          <div className="bg-emerald-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-            <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+        <div className="bg-[#6b7c5e]/10 border border-[#6b7c5e]/30 rounded-2xl p-5 text-center">
+          <div className="bg-[#6b7c5e]/20 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+            <CheckCircle2 className="h-6 w-6 text-[#6b7c5e]" />
           </div>
-          <p className="text-emerald-700 font-semibold text-sm">Job Completed</p>
+          <p className="text-[#8b9c7e] font-semibold text-sm">Job Completed</p>
           {assignment.completion_notes && (
-            <p className="text-sm text-emerald-600/80 mt-1">{assignment.completion_notes}</p>
+            <p className="text-sm text-[#6b7c5e] mt-1">{assignment.completion_notes}</p>
           )}
         </div>
       )}

@@ -4,8 +4,8 @@
   "description": "AI-powered campus maintenance reporting for University of Delaware",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#00539F",
-  "theme_color": "#00539F",
+  "background_color": "#0d0a07",
+  "theme_color": "#1a1410",
   "orientation": "portrait",
   "categories": ["utilities", "productivity"],
   "icons": [

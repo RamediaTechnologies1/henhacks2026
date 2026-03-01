@@ -9,7 +9,7 @@ interface FloorPlanViewerProps {
   building: string;
   onRoomSelect?: (room: FloorPlanRoom) => void;
   selectedRoomId?: string | null;
-  highlightedRooms?: Record<string, string>; // roomId -> color (for showing active issues)
+  highlightedRooms?: Record<string, string>;
   initialFloor?: string;
 }
 
@@ -29,15 +29,15 @@ export function FloorPlanViewer({
   const hallways = floorPlan.hallways;
 
   function getRoomFill(room: FloorPlanRoom): string {
-    if (selectedRoomId === room.id) return "#FFD200";
+    if (selectedRoomId === room.id) return "#c8a55c";
     if (highlightedRooms?.[room.id]) return highlightedRooms[room.id];
-    return ROOM_TYPE_COLORS[room.type] || "#ffffff";
+    return ROOM_TYPE_COLORS[room.type] || "#231c14";
   }
 
   function getRoomStroke(room: FloorPlanRoom): string {
-    if (selectedRoomId === room.id) return "#00539F";
-    if (highlightedRooms?.[room.id]) return "#991b1b";
-    return "#cbd5e1";
+    if (selectedRoomId === room.id) return "#9a7d3f";
+    if (highlightedRooms?.[room.id]) return "#c44536";
+    return "#3d3124";
   }
 
   function getRoomStrokeWidth(room: FloorPlanRoom): number {
@@ -50,9 +50,9 @@ export function FloorPlanViewer({
     <div className="space-y-3">
       {/* Floor Tabs */}
       <Tabs value={activeFloor} onValueChange={setActiveFloor}>
-        <TabsList className="w-full">
+        <TabsList className="w-full bg-[#1a1410] border border-[#3d3124]">
           {floorPlan.floors.map((floor) => (
-            <TabsTrigger key={floor} value={floor} className="flex-1">
+            <TabsTrigger key={floor} value={floor} className="flex-1 data-[state=active]:bg-[#2d2418] data-[state=active]:text-[#c8a55c] text-[#6b5e4f]">
               Floor {floor}
             </TabsTrigger>
           ))}
@@ -60,7 +60,7 @@ export function FloorPlanViewer({
       </Tabs>
 
       {/* SVG Floor Plan */}
-      <div className="border rounded-xl overflow-hidden bg-white p-2">
+      <div className="border border-[#3d3124] rounded-xl overflow-hidden bg-[#1a1410] p-2">
         <svg
           viewBox={floorPlan.svgViewBox}
           className="w-full h-auto touch-manipulation"
@@ -74,7 +74,7 @@ export function FloorPlanViewer({
             width={parseInt(floorPlan.svgViewBox.split(" ")[2]) - 10}
             height={parseInt(floorPlan.svgViewBox.split(" ")[3]) - 10}
             fill="none"
-            stroke="#00539F"
+            stroke="#c8a55c"
             strokeWidth="2"
             rx="6"
           />
@@ -87,8 +87,8 @@ export function FloorPlanViewer({
               y={h.y}
               width={h.width}
               height={h.height}
-              fill="#f1f5f9"
-              stroke="#e2e8f0"
+              fill="#231c14"
+              stroke="#3d3124"
               strokeWidth="0.5"
             />
           ))}
@@ -101,8 +101,8 @@ export function FloorPlanViewer({
                 y={160}
                 width={380}
                 height={170}
-                fill="#f8fafc"
-                stroke="#94a3b8"
+                fill="#0d0a07"
+                stroke="#4d3f30"
                 strokeWidth="1"
                 strokeDasharray="4 2"
                 rx="8"
@@ -113,7 +113,7 @@ export function FloorPlanViewer({
                 textAnchor="middle"
                 dominantBaseline="central"
                 fontSize="14"
-                fill="#94a3b8"
+                fill="#6b5e4f"
                 fontWeight="500"
               >
                 Central Atrium
@@ -154,7 +154,7 @@ export function FloorPlanViewer({
                 textAnchor="middle"
                 dominantBaseline="central"
                 fontSize={room.width < 130 ? "11" : "13"}
-                fill={selectedRoomId === room.id ? "#00539F" : "#475569"}
+                fill={selectedRoomId === room.id ? "#0d0a07" : "#e8d5a3"}
                 fontWeight={selectedRoomId === room.id ? "700" : "500"}
                 className="pointer-events-none select-none"
               >
@@ -167,7 +167,7 @@ export function FloorPlanViewer({
                 textAnchor="middle"
                 dominantBaseline="central"
                 fontSize="8"
-                fill="#94a3b8"
+                fill="#6b5e4f"
                 className="pointer-events-none select-none"
               >
                 {room.type === "lecture-hall"
@@ -189,7 +189,7 @@ export function FloorPlanViewer({
               width={rooms.find((r) => r.id === selectedRoomId)!.width + 4}
               height={rooms.find((r) => r.id === selectedRoomId)!.height + 4}
               fill="none"
-              stroke="#FFD200"
+              stroke="#c8a55c"
               strokeWidth="2"
               rx="6"
               opacity="0.6"
@@ -211,11 +211,11 @@ export function FloorPlanViewer({
           { label: "Classroom", color: "#e8f4fd" },
           { label: "Lecture Hall", color: "#dbeafe" },
           { label: "Office", color: "#f0fdf4" },
-          { label: "Selected", color: "#FFD200" },
+          { label: "Selected", color: "#c8a55c" },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1 text-[10px] text-gray-500">
+          <div key={item.label} className="flex items-center gap-1 text-[10px] text-[#9c8e7c]">
             <div
-              className="w-3 h-3 rounded border border-gray-300"
+              className="w-3 h-3 rounded border border-[#3d3124]"
               style={{ backgroundColor: item.color }}
             />
             {item.label}

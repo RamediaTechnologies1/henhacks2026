@@ -8,10 +8,10 @@ interface AIAnalysisDisplayProps {
 }
 
 const PRIORITY_CONFIG: Record<string, { bg: string; text: string; icon: string; glow: string }> = {
-  critical: { bg: "bg-red-50 border-red-200", text: "text-red-700", icon: "🔴", glow: "shadow-red-200/50" },
-  high: { bg: "bg-orange-50 border-orange-200", text: "text-orange-700", icon: "🟠", glow: "shadow-orange-200/50" },
-  medium: { bg: "bg-amber-50 border-amber-200", text: "text-amber-700", icon: "🟡", glow: "shadow-amber-200/50" },
-  low: { bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", icon: "🟢", glow: "shadow-emerald-200/50" },
+  critical: { bg: "bg-[#c44536]/15 border-[#c44536]/30", text: "text-[#e85a4a]", icon: "!!", glow: "shadow-[#c44536]/20" },
+  high: { bg: "bg-[#b87333]/15 border-[#b87333]/30", text: "text-[#d89343]", icon: "!", glow: "shadow-[#b87333]/20" },
+  medium: { bg: "bg-[#c8a55c]/15 border-[#c8a55c]/30", text: "text-[#c8a55c]", icon: "~", glow: "shadow-[#c8a55c]/20" },
+  low: { bg: "bg-[#6b7c5e]/15 border-[#6b7c5e]/30", text: "text-[#8b9c7e]", icon: "-", glow: "shadow-[#6b7c5e]/20" },
 };
 
 export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
@@ -19,18 +19,18 @@ export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
   const confidence = Math.round(analysis.confidence_score * 100);
 
   return (
-    <div className="rounded-2xl border border-[#00539F]/10 bg-gradient-to-br from-blue-50/30 via-white to-violet-50/20 overflow-hidden page-enter">
+    <div className="rounded-2xl border border-[#3d3124] bg-[#1a1410] overflow-hidden page-enter">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#00539F] to-[#0066cc] px-5 py-3.5 flex items-center justify-between">
+      <div className="bg-gradient-to-r from-[#c8a55c] to-[#9a7d3f] px-5 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="bg-white/20 p-1.5 rounded-lg">
-            <Sparkles className="h-4 w-4 text-[#FFD200]" />
+          <div className="bg-[#0d0a07]/20 p-1.5 rounded-lg">
+            <Sparkles className="h-4 w-4 text-[#0d0a07]" />
           </div>
-          <span className="font-semibold text-sm text-white">AI Analysis Complete</span>
+          <span className="font-semibold text-sm text-[#0d0a07]">AI Analysis Complete</span>
         </div>
-        <div className="flex items-center gap-1.5 bg-white/15 px-2.5 py-1 rounded-full">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[11px] font-medium text-blue-100">{confidence}% confident</span>
+        <div className="flex items-center gap-1.5 bg-[#0d0a07]/15 px-2.5 py-1 rounded-full">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#6b7c5e] animate-pulse" />
+          <span className="text-[11px] font-medium text-[#0d0a07]/80">{confidence}% confident</span>
         </div>
       </div>
 
@@ -40,38 +40,38 @@ export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
           <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border ${priority.bg} ${priority.text} shadow-sm ${priority.glow}`}>
             {priority.icon} {analysis.priority.toUpperCase()}
           </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#2d2418] text-[#e8d5a3] border border-[#3d3124]">
             {analysis.trade.replace("_", " ").toUpperCase()}
           </span>
           {analysis.safety_concern && (
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg shadow-red-500/20">
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-[#c44536] text-[#f4e4c1] shadow-lg shadow-[#c44536]/20">
               <AlertTriangle className="h-3 w-3" /> SAFETY HAZARD
             </span>
           )}
         </div>
 
         {/* Description */}
-        <p className="text-sm text-gray-700 leading-relaxed">{analysis.description}</p>
+        <p className="text-sm text-[#e8d5a3] leading-relaxed">{analysis.description}</p>
 
         {/* Suggested Action */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100/80">
-          <p className="text-[11px] font-bold text-[#00539F] uppercase tracking-wider mb-1.5">Recommended Action</p>
-          <p className="text-sm text-blue-900 leading-relaxed">{analysis.suggested_action}</p>
+        <div className="bg-[#c8a55c]/10 rounded-xl p-4 border border-[#c8a55c]/20">
+          <p className="text-[11px] font-bold text-[#c8a55c] uppercase tracking-wider mb-1.5">Recommended Action</p>
+          <p className="text-sm text-[#e8d5a3] leading-relaxed">{analysis.suggested_action}</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { icon: DollarSign, label: "Est. Cost", value: analysis.estimated_cost, color: "text-emerald-600", bg: "bg-emerald-50" },
-            { icon: Clock, label: "Est. Time", value: analysis.estimated_time, color: "text-blue-600", bg: "bg-blue-50" },
-            { icon: Gauge, label: "Confidence", value: `${confidence}%`, color: "text-violet-600", bg: "bg-violet-50" },
+            { icon: DollarSign, label: "Est. Cost", value: analysis.estimated_cost, color: "text-[#6b7c5e]", bg: "bg-[#6b7c5e]/15" },
+            { icon: Clock, label: "Est. Time", value: analysis.estimated_time, color: "text-[#4a6fa5]", bg: "bg-[#4a6fa5]/15" },
+            { icon: Gauge, label: "Confidence", value: `${confidence}%`, color: "text-[#c8a55c]", bg: "bg-[#c8a55c]/15" },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white rounded-xl p-3 border border-gray-100 text-center">
+            <div key={stat.label} className="bg-[#231c14] rounded-xl p-3 border border-[#3d3124] text-center">
               <div className={`${stat.bg} w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5`}>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </div>
-              <p className="text-[10px] text-gray-400 font-medium">{stat.label}</p>
-              <p className="text-xs font-bold text-gray-800 mt-0.5">{stat.value}</p>
+              <p className="text-[10px] text-[#6b5e4f] font-medium">{stat.label}</p>
+              <p className="text-xs font-bold text-[#f4e4c1] mt-0.5">{stat.value}</p>
             </div>
           ))}
         </div>

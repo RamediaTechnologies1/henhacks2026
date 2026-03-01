@@ -1,34 +1,31 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Wrench, LogOut, Sparkles } from "lucide-react";
+import { Wrench, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { UserRole } from "@/lib/types";
 
 const ROLE_CONFIG: Record<
   UserRole,
-  { label: string; color: string; bg: string; dot: string; gradient: string }
+  { label: string; color: string; bg: string; dot: string }
 > = {
   user: {
     label: "Student",
-    color: "text-blue-700",
-    bg: "bg-blue-50 border-blue-200/60",
-    dot: "bg-blue-500",
-    gradient: "from-blue-500 to-cyan-500",
+    color: "text-[#4a6fa5]",
+    bg: "bg-[#4a6fa5]/10 border-[#4a6fa5]/30",
+    dot: "bg-[#4a6fa5]",
   },
   technician: {
     label: "Technician",
-    color: "text-emerald-700",
-    bg: "bg-emerald-50 border-emerald-200/60",
-    dot: "bg-emerald-500",
-    gradient: "from-emerald-500 to-teal-500",
+    color: "text-[#6b7c5e]",
+    bg: "bg-[#6b7c5e]/10 border-[#6b7c5e]/30",
+    dot: "bg-[#6b7c5e]",
   },
   manager: {
     label: "Manager",
-    color: "text-violet-700",
-    bg: "bg-violet-50 border-violet-200/60",
-    dot: "bg-violet-500",
-    gradient: "from-violet-500 to-purple-500",
+    color: "text-[#c8a55c]",
+    bg: "bg-[#c8a55c]/10 border-[#c8a55c]/30",
+    dot: "bg-[#c8a55c]",
   },
 };
 
@@ -51,13 +48,13 @@ export function PortalHeader({ role, email }: PortalHeaderProps) {
       <div className="flex items-center justify-between max-w-5xl mx-auto px-4 h-14">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="absolute inset-0 bg-[#FFD200] rounded-xl blur-sm opacity-30" />
-            <div className="relative bg-gradient-to-br from-[#FFD200] to-[#f5c400] p-1.5 rounded-xl shadow-sm shadow-yellow-500/20">
-              <Wrench className="h-4 w-4 text-[#00296b]" />
+            <div className="absolute inset-0 bg-[#c8a55c] rounded-xl blur-sm opacity-30" />
+            <div className="relative bg-gradient-to-br from-[#c8a55c] to-[#9a7d3f] p-1.5 rounded-xl shadow-sm shadow-[#c8a55c]/20">
+              <Wrench className="h-4 w-4 text-[#0d0a07]" />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#00539F] text-lg tracking-tight">
+            <span className="font-[family-name:var(--font-western)] text-[#c8a55c] text-lg tracking-wide">
               FixIt
             </span>
             <div
@@ -69,14 +66,14 @@ export function PortalHeader({ role, email }: PortalHeaderProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-gray-400 hidden sm:block max-w-[140px] truncate">
+          <span className="text-[11px] text-[#6b5e4f] hidden sm:block max-w-[140px] truncate">
             {email}
           </span>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="h-8 w-8 p-0 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+            className="h-8 w-8 p-0 rounded-xl text-[#9c8e7c] hover:text-[#c44536] hover:bg-[#c44536]/10 transition-colors"
           >
             <LogOut className="h-3.5 w-3.5" />
           </Button>

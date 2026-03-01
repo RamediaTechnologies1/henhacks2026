@@ -54,8 +54,8 @@ export default function TechnicianPortal() {
     <div className="p-4 space-y-4 page-enter">
       <div className="flex items-center justify-between">
         <div className="section-header">
-          <h1 className="text-xl font-bold text-gray-900">My Jobs</h1>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <h1 className="text-xl font-bold text-[#f4e4c1]">My Jobs</h1>
+          <p className="text-xs text-[#6b5e4f] mt-0.5">
             {activeCount > 0 ? `${activeCount} active assignment${activeCount !== 1 ? "s" : ""}` : "No active assignments"}
           </p>
         </div>
@@ -63,21 +63,21 @@ export default function TechnicianPortal() {
           variant="outline"
           size="sm"
           onClick={() => { setRefreshing(true); loadAssignments(); }}
-          className="rounded-xl h-9 w-9 p-0 border-gray-200"
+          className="rounded-xl h-9 w-9 p-0 border-[#3d3124] text-[#9c8e7c] hover:bg-[#2d2418]"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
         </Button>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>
-        <TabsList className="w-full rounded-xl h-11 bg-gray-100/80 p-1">
-          <TabsTrigger value="active" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">
+        <TabsList className="w-full rounded-xl h-11 bg-[#1a1410] border border-[#3d3124] p-1">
+          <TabsTrigger value="active" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-[#2d2418] data-[state=active]:text-[#c8a55c] text-[#6b5e4f]">
             Active ({activeCount})
           </TabsTrigger>
-          <TabsTrigger value="completed" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">
+          <TabsTrigger value="completed" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-[#2d2418] data-[state=active]:text-[#c8a55c] text-[#6b5e4f]">
             Done ({completedCount})
           </TabsTrigger>
-          <TabsTrigger value="all" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:shadow-sm">
+          <TabsTrigger value="all" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-[#2d2418] data-[state=active]:text-[#c8a55c] text-[#6b5e4f]">
             All ({assignments.length})
           </TabsTrigger>
         </TabsList>
@@ -86,20 +86,20 @@ export default function TechnicianPortal() {
       {loading && (
         <div className="space-y-3 stagger-enter">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl" />
+            <Skeleton key={i} className="h-28 rounded-2xl bg-[#2d2418]" />
           ))}
         </div>
       )}
 
       {!loading && filtered.length === 0 && (
         <div className="text-center py-16">
-          <div className="empty-state-circle w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Inbox className="h-8 w-8 text-gray-300" />
+          <div className="w-20 h-20 rounded-full bg-[#2d2418] flex items-center justify-center mx-auto mb-4">
+            <Inbox className="h-8 w-8 text-[#6b5e4f]" />
           </div>
-          <p className="text-gray-500 font-medium mb-1">
+          <p className="text-[#9c8e7c] font-medium mb-1">
             {filter === "completed" ? "No completed jobs" : filter === "active" ? "No active jobs" : "No jobs found"}
           </p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-[#6b5e4f] text-sm">
             {filter === "active" ? "New assignments will appear here automatically." : "Jobs will appear here when assigned."}
           </p>
         </div>

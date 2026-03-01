@@ -16,7 +16,7 @@ const CampusMap = dynamic(
   () => import("@/components/map/campus-map").then((mod) => mod.CampusMap),
   {
     ssr: false,
-    loading: () => <div className="h-[450px] bg-gray-100 rounded-2xl animate-pulse" />,
+    loading: () => <div className="h-[450px] bg-[#2d2418] rounded-2xl animate-pulse" />,
   }
 );
 
@@ -105,13 +105,13 @@ export default function ManagerDashboard() {
   if (loading) {
     return (
       <div className="p-6 space-y-5 page-enter">
-        <Skeleton className="h-16 rounded-2xl" />
+        <Skeleton className="h-16 rounded-2xl bg-[#2d2418]" />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-20 rounded-2xl" />
+            <Skeleton key={i} className="h-20 rounded-2xl bg-[#2d2418]" />
           ))}
         </div>
-        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-96 rounded-2xl bg-[#2d2418]" />
       </div>
     );
   }
@@ -123,8 +123,8 @@ export default function ManagerDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="section-header">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">AI Manager Dashboard</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <h1 className="text-2xl font-bold text-[#f4e4c1] tracking-tight">AI Manager Dashboard</h1>
+          <p className="text-sm text-[#6b5e4f] mt-0.5">
             Automated maintenance assignment & oversight
           </p>
         </div>
@@ -132,7 +132,7 @@ export default function ManagerDashboard() {
           {unassignedCount > 0 && (
             <Button
               onClick={handleAutoAssignAll}
-              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl shadow-lg shadow-violet-500/20 h-10 px-5"
+              className="btn-western rounded-xl h-10 px-5"
             >
               <Sparkles className="h-4 w-4 mr-2" />
               AI Assign All ({unassignedCount})
@@ -145,7 +145,7 @@ export default function ManagerDashboard() {
               setRefreshing(true);
               loadData();
             }}
-            className="rounded-xl h-10 w-10 p-0 border-gray-200"
+            className="rounded-xl h-10 w-10 p-0 border-[#3d3124] text-[#9c8e7c] hover:bg-[#2d2418]"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           </Button>
@@ -157,14 +157,14 @@ export default function ManagerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="reports">
-        <TabsList className="rounded-xl h-11 bg-gray-100/80 p-1">
-          <TabsTrigger value="reports" className="rounded-lg text-sm font-semibold data-[state=active]:shadow-sm px-6">
+        <TabsList className="rounded-xl h-11 bg-[#1a1410] border border-[#3d3124] p-1">
+          <TabsTrigger value="reports" className="rounded-lg text-sm font-semibold data-[state=active]:bg-[#2d2418] data-[state=active]:text-[#c8a55c] text-[#6b5e4f] px-6">
             Reports
           </TabsTrigger>
-          <TabsTrigger value="assignments" className="rounded-lg text-sm font-semibold data-[state=active]:shadow-sm px-6">
+          <TabsTrigger value="assignments" className="rounded-lg text-sm font-semibold data-[state=active]:bg-[#2d2418] data-[state=active]:text-[#c8a55c] text-[#6b5e4f] px-6">
             Assignments
           </TabsTrigger>
-          <TabsTrigger value="map" className="rounded-lg text-sm font-semibold data-[state=active]:shadow-sm px-6">
+          <TabsTrigger value="map" className="rounded-lg text-sm font-semibold data-[state=active]:bg-[#2d2418] data-[state=active]:text-[#c8a55c] text-[#6b5e4f] px-6">
             Campus Map
           </TabsTrigger>
         </TabsList>

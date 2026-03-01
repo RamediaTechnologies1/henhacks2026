@@ -58,20 +58,20 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
           <button
             type="button"
             onClick={() => { onClear(); cameraInputRef.current?.click(); }}
-            className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-white transition"
+            className="bg-[#1a1410]/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-[#2d2418] transition"
           >
-            <RotateCcw className="h-4 w-4 text-gray-700" />
+            <RotateCcw className="h-4 w-4 text-[#e8d5a3]" />
           </button>
           <button
             type="button"
             onClick={onClear}
-            className="bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-white transition"
+            className="bg-[#1a1410]/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-[#2d2418] transition"
           >
-            <X className="h-4 w-4 text-gray-700" />
+            <X className="h-4 w-4 text-[#e8d5a3]" />
           </button>
         </div>
         <div className="absolute bottom-3 left-3">
-          <div className="flex items-center gap-1.5 bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg">
+          <div className="flex items-center gap-1.5 bg-[#6b7c5e] text-[#f4e4c1] text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg">
             <CheckCircle2 className="h-3.5 w-3.5" />
             Photo captured
           </div>
@@ -88,31 +88,31 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
           type="button"
           onClick={() => cameraInputRef.current?.click()}
           disabled={processing}
-          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-[#00539F]/20 bg-gradient-to-br from-blue-50/80 to-cyan-50/50 hover:from-blue-50 hover:to-cyan-50 hover:border-[#00539F]/40 transition-all duration-200 active:scale-[0.98]"
+          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-[#c8a55c]/30 bg-[#c8a55c]/5 hover:bg-[#c8a55c]/10 hover:border-[#c8a55c]/50 transition-all duration-200 active:scale-[0.98]"
         >
-          <div className="bg-[#00539F]/10 p-3 rounded-2xl group-hover:bg-[#00539F]/15 transition">
-            <Camera className="h-7 w-7 text-[#00539F]" />
+          <div className="bg-[#c8a55c]/15 p-3 rounded-2xl group-hover:bg-[#c8a55c]/20 transition">
+            <Camera className="h-7 w-7 text-[#c8a55c]" />
           </div>
-          <span className="text-sm font-semibold text-[#00539F]">Take Photo</span>
+          <span className="text-sm font-semibold text-[#c8a55c]">Take Photo</span>
         </button>
 
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={processing}
-          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-gray-200 bg-gradient-to-br from-gray-50/80 to-slate-50/50 hover:from-gray-50 hover:to-slate-50 hover:border-gray-300 transition-all duration-200 active:scale-[0.98]"
+          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-[#3d3124] bg-[#1a1410] hover:bg-[#2d2418] hover:border-[#4d3f30] transition-all duration-200 active:scale-[0.98]"
         >
-          <div className="bg-gray-100 p-3 rounded-2xl group-hover:bg-gray-200/70 transition">
-            <ImagePlus className="h-7 w-7 text-gray-500" />
+          <div className="bg-[#2d2418] p-3 rounded-2xl group-hover:bg-[#3d3124] transition">
+            <ImagePlus className="h-7 w-7 text-[#9c8e7c]" />
           </div>
-          <span className="text-sm font-semibold text-gray-500">Upload Image</span>
+          <span className="text-sm font-semibold text-[#9c8e7c]">Upload Image</span>
         </button>
       </div>
 
       {processing && (
         <div className="flex items-center justify-center gap-2 py-2">
-          <div className="w-4 h-4 rounded-full border-2 border-[#00539F]/30 border-t-[#00539F] animate-spin" />
-          <span className="text-sm text-gray-400">Processing...</span>
+          <div className="w-4 h-4 rounded-full border-2 border-[#c8a55c]/30 border-t-[#c8a55c] animate-spin" />
+          <span className="text-sm text-[#9c8e7c]">Processing...</span>
         </div>
       )}
 

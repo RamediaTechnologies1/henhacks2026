@@ -111,16 +111,16 @@ export function ReportForm() {
     return (
       <div className="p-6 text-center py-16 page-enter">
         <div className="relative inline-block mb-6">
-          <div className="absolute inset-0 bg-emerald-400 rounded-full blur-xl opacity-20" />
-          <div className="relative bg-gradient-to-br from-emerald-400 to-green-500 p-5 rounded-full shadow-lg shadow-emerald-500/30">
-            <PartyPopper className="h-10 w-10 text-white" />
+          <div className="absolute inset-0 bg-[#6b7c5e] rounded-full blur-xl opacity-20" />
+          <div className="relative bg-gradient-to-br from-[#6b7c5e] to-[#5a6b4e] p-5 rounded-full shadow-lg shadow-[#6b7c5e]/30">
+            <PartyPopper className="h-10 w-10 text-[#f4e4c1]" />
           </div>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Report Submitted!</h2>
-        <p className="text-gray-500 mb-8 max-w-xs mx-auto leading-relaxed">
+        <h2 className="text-2xl font-bold text-[#f4e4c1] mb-2">Report Submitted!</h2>
+        <p className="text-[#9c8e7c] mb-8 max-w-xs mx-auto leading-relaxed">
           Our AI has analyzed and dispatched your report to the maintenance team.
         </p>
-        <Button onClick={resetForm} className="bg-gradient-to-r from-[#00539F] to-[#0066cc] hover:from-[#004080] hover:to-[#00539F] rounded-xl h-12 px-8 shadow-lg shadow-blue-500/20">
+        <Button onClick={resetForm} className="btn-western rounded-xl h-12 px-8">
           Report Another Issue
         </Button>
       </div>
@@ -141,20 +141,20 @@ export function ReportForm() {
                 <div
                   className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                     isCurrent
-                      ? "bg-gradient-to-br from-[#00539F] to-[#0066cc] text-white shadow-lg shadow-blue-500/30 scale-110"
+                      ? "bg-gradient-to-br from-[#c8a55c] to-[#9a7d3f] text-[#0d0a07] shadow-lg shadow-[#c8a55c]/30 scale-110"
                       : isActive
-                        ? "bg-[#00539F] text-white"
-                        : "bg-gray-100 text-gray-400"
+                        ? "bg-[#c8a55c] text-[#0d0a07]"
+                        : "bg-[#2d2418] text-[#6b5e4f]"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
                 </div>
-                <span className={`text-[10px] font-semibold ${isActive ? "text-[#00539F]" : "text-gray-300"}`}>
+                <span className={`text-[10px] font-semibold ${isActive ? "text-[#c8a55c]" : "text-[#4d3f30]"}`}>
                   {s.label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`w-10 h-0.5 mx-1 mb-4 rounded-full transition-colors ${i < currentStepIndex ? "bg-[#00539F]" : "bg-gray-100"}`} />
+                <div className={`w-10 h-0.5 mx-1 mb-4 rounded-full transition-colors ${i < currentStepIndex ? "bg-[#c8a55c]" : "bg-[#2d2418]"}`} />
               )}
             </div>
           );
@@ -165,8 +165,8 @@ export function ReportForm() {
       {step === "photo" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Capture the Issue</h2>
-            <p className="text-sm text-gray-500 mt-1">Take a clear photo so our AI can analyze it.</p>
+            <h2 className="text-xl font-bold text-[#f4e4c1]">Capture the Issue</h2>
+            <p className="text-sm text-[#9c8e7c] mt-1">Take a clear photo so our AI can analyze it.</p>
           </div>
           <CameraCapture
             onCapture={(base64) => setPhotoBase64(base64)}
@@ -176,7 +176,7 @@ export function ReportForm() {
           <Button
             onClick={() => setStep("location")}
             disabled={!photoBase64}
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00539F] to-[#0066cc] hover:from-[#004080] hover:to-[#00539F] text-[15px] font-semibold shadow-lg shadow-blue-500/20 transition-all"
+            className="w-full h-12 rounded-xl btn-western text-[15px] font-semibold transition-all"
           >
             Next: Select Location <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -187,12 +187,12 @@ export function ReportForm() {
       {step === "location" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Where is the issue?</h2>
-            <p className="text-sm text-gray-500 mt-1">Select the building and tap the room.</p>
+            <h2 className="text-xl font-bold text-[#f4e4c1]">Where is the issue?</h2>
+            <p className="text-sm text-[#9c8e7c] mt-1">Select the building and tap the room.</p>
           </div>
 
           <Select value={building} onValueChange={(val) => { setBuilding(val); setSelectedRoom(null); }}>
-            <SelectTrigger className="h-12 rounded-xl text-[15px] border-gray-200">
+            <SelectTrigger className="h-12 rounded-xl text-[15px] border-[#3d3124] bg-[#1a1410] text-[#f4e4c1]">
               <SelectValue placeholder="Select Building" />
             </SelectTrigger>
             <SelectContent>
@@ -209,22 +209,22 @@ export function ReportForm() {
           )}
 
           {selectedRoom && (
-            <div className="flex items-center gap-2 bg-gradient-to-r from-[#FFD200]/15 to-amber-50 border border-[#FFD200]/40 rounded-xl p-3.5">
-              <MapPin className="h-4 w-4 text-[#00539F]" />
-              <span className="text-sm font-medium text-gray-800">
+            <div className="flex items-center gap-2 bg-[#c8a55c]/10 border border-[#c8a55c]/30 rounded-xl p-3.5">
+              <MapPin className="h-4 w-4 text-[#c8a55c]" />
+              <span className="text-sm font-medium text-[#e8d5a3]">
                 {building}, Floor {selectedRoom.floor}, Room {selectedRoom.label}
               </span>
             </div>
           )}
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("photo")} className="flex-1 h-12 rounded-xl">
+            <Button variant="outline" onClick={() => setStep("photo")} className="flex-1 h-12 rounded-xl border-[#3d3124] text-[#9c8e7c] hover:bg-[#2d2418] hover:text-[#e8d5a3]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={() => setStep("details")}
               disabled={!building || !selectedRoom}
-              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#00539F] to-[#0066cc] shadow-lg shadow-blue-500/20"
+              className="flex-1 h-12 rounded-xl btn-western"
             >
               Next <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -236,33 +236,33 @@ export function ReportForm() {
       {step === "details" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Describe the Issue</h2>
-            <p className="text-sm text-gray-500 mt-1">Help the maintenance team understand the problem.</p>
+            <h2 className="text-xl font-bold text-[#f4e4c1]">Describe the Issue</h2>
+            <p className="text-sm text-[#9c8e7c] mt-1">Help the maintenance team understand the problem.</p>
           </div>
 
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g., The AC unit is making loud rattling noises and not cooling the room..."
-            className="w-full h-28 px-4 py-3 text-sm border border-gray-200 rounded-xl resize-none focus:border-[#00539F] focus:ring-2 focus:ring-[#00539F]/10 outline-none bg-gray-50/50 placeholder:text-gray-400"
+            className="w-full h-28 px-4 py-3 text-sm border border-[#3d3124] rounded-xl resize-none focus:border-[#c8a55c] focus:ring-2 focus:ring-[#c8a55c]/10 outline-none bg-[#1a1410] text-[#f4e4c1] placeholder:text-[#6b5e4f]"
           />
 
           {/* Mini summary */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+          <div className="flex items-center gap-3 p-3 bg-[#1a1410] rounded-xl border border-[#3d3124]">
             {photoBase64 && <img src={photoBase64} alt="Preview" className="w-12 h-12 rounded-lg object-cover" />}
-            <div className="text-xs text-gray-500">
-              <p className="font-semibold text-gray-700">{building}</p>
+            <div className="text-xs text-[#9c8e7c]">
+              <p className="font-semibold text-[#e8d5a3]">{building}</p>
               <p>Floor {selectedRoom?.floor || floor}, Room {selectedRoom?.label || room}</p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("location")} className="flex-1 h-12 rounded-xl">
+            <Button variant="outline" onClick={() => setStep("location")} className="flex-1 h-12 rounded-xl border-[#3d3124] text-[#9c8e7c] hover:bg-[#2d2418] hover:text-[#e8d5a3]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={handleAnalyze}
-              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/20"
+              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-[#c8a55c] to-[#b87333] hover:from-[#b8953c] hover:to-[#a86323] text-[#0d0a07] font-bold shadow-lg shadow-[#c8a55c]/20"
             >
               <Sparkles className="mr-2 h-4 w-4" /> Analyze with AI
             </Button>
@@ -274,24 +274,24 @@ export function ReportForm() {
       {step === "analyzing" && (
         <div className="text-center py-12 page-enter">
           <div className="relative inline-block mb-6">
-            <div className="absolute inset-0 bg-[#00539F] rounded-full blur-xl opacity-20 animate-pulse" />
+            <div className="absolute inset-0 bg-[#c8a55c] rounded-full blur-xl opacity-20 animate-pulse" />
             <div className="relative w-20 h-20">
-              <div className="absolute inset-0 rounded-full border-4 border-blue-100" />
-              <div className="absolute inset-0 rounded-full border-4 border-t-[#00539F] border-r-[#FFD200] animate-spin" />
-              <div className="absolute inset-3 rounded-full bg-gradient-to-br from-[#00539F] to-[#0066cc] flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-white" />
+              <div className="absolute inset-0 rounded-full border-4 border-[#3d3124]" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-[#c8a55c] border-r-[#b87333] animate-spin" />
+              <div className="absolute inset-3 rounded-full bg-gradient-to-br from-[#c8a55c] to-[#9a7d3f] flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-[#0d0a07]" />
               </div>
             </div>
           </div>
-          <h3 className="text-lg font-bold text-gray-900">AI Analyzing Your Photo</h3>
-          <p className="text-sm text-gray-400 mt-2 max-w-xs mx-auto">
+          <h3 className="text-lg font-bold text-[#f4e4c1]">AI Analyzing Your Photo</h3>
+          <p className="text-sm text-[#9c8e7c] mt-2 max-w-xs mx-auto">
             Identifying trade type, assessing priority, and generating recommended actions...
           </p>
           <div className="flex justify-center gap-1 mt-4">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="w-2 h-2 rounded-full bg-[#00539F] animate-bounce"
+                className="w-2 h-2 rounded-full bg-[#c8a55c] animate-bounce"
                 style={{ animationDelay: `${i * 150}ms` }}
               />
             ))}
@@ -305,23 +305,23 @@ export function ReportForm() {
           <AIAnalysisDisplay analysis={aiAnalysis} />
 
           {/* Location summary */}
-          <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
+          <div className="flex items-center gap-3 p-4 bg-[#1a1410] rounded-xl border border-[#3d3124]">
             {photoBase64 && <img src={photoBase64} alt="Preview" className="w-14 h-14 rounded-xl object-cover shadow" />}
             <div className="text-sm">
-              <p className="font-semibold text-gray-800">{building}, Room {selectedRoom?.label || room}</p>
-              <p className="text-gray-400 text-xs">Floor {selectedRoom?.floor || floor}</p>
-              {description && <p className="text-gray-500 text-xs mt-1 line-clamp-1">{description}</p>}
+              <p className="font-semibold text-[#e8d5a3]">{building}, Room {selectedRoom?.label || room}</p>
+              <p className="text-[#6b5e4f] text-xs">Floor {selectedRoom?.floor || floor}</p>
+              {description && <p className="text-[#9c8e7c] text-xs mt-1 line-clamp-1">{description}</p>}
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("details")} className="flex-1 h-12 rounded-xl">
+            <Button variant="outline" onClick={() => setStep("details")} className="flex-1 h-12 rounded-xl border-[#3d3124] text-[#9c8e7c] hover:bg-[#2d2418] hover:text-[#e8d5a3]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/20"
+              className="flex-1 h-12 rounded-xl btn-sage"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (
                 <><CheckCircle2 className="mr-2 h-4 w-4" /> Submit Report</>
