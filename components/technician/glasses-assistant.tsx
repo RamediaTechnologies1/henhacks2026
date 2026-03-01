@@ -386,10 +386,10 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
                       <span className="text-[12px] text-[#3B82F6] flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Processing...</span>
                     ) : recording ? (
                       <span className="text-[12px] text-red-400 flex items-center gap-1">
-                        <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" /> Recording...
+                        <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" /> Listening — tap to send
                       </span>
                     ) : (
-                      <span className="text-[12px] text-emerald-400">Ready</span>
+                      <span className="text-[12px] text-emerald-400">Tap mic to speak</span>
                     )}
                     {lastHeard && !expanded && (
                       <p className="text-[11px] text-[#9CA3AF] truncate max-w-[160px]">&quot;{lastHeard}&quot;</p>
@@ -405,16 +405,13 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
                   <Camera className="h-4.5 w-4.5" />
                 </button>
 
-                {/* Push-to-talk mic button */}
+                {/* Tap-to-record mic button */}
                 <button
-                  onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
-                  onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
-                  onMouseDown={() => startRecording()}
-                  onMouseUp={() => stopRecording()}
+                  onClick={() => { if (recording) { stopRecording(); } else { startRecording(); } }}
                   disabled={processing}
                   className={`h-12 w-12 flex items-center justify-center rounded-full flex-shrink-0 active:scale-95 transition-all ${
                     recording
-                      ? "bg-red-500 text-white scale-110 shadow-lg shadow-red-500/30"
+                      ? "bg-red-500 text-white scale-110 shadow-lg shadow-red-500/30 animate-pulse"
                       : processing
                         ? "bg-[#262626] text-[#6B7280]"
                         : "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
@@ -422,6 +419,8 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
                 >
                   {processing ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : recording ? (
+                    <Volume2 className="h-5 w-5" />
                   ) : (
                     <Mic className="h-5 w-5" />
                   )}
