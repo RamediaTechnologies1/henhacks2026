@@ -35,7 +35,9 @@ export function CampusMap({ reports }: CampusMapProps) {
   const [mounted, setMounted] = useState(false);
   const [L, setL] = useState<typeof import("leaflet") | null>(null);
   const [mapRef, setMapRef] = useState<import("leaflet").Map | null>(null);
+  const [markersLayer, setMarkersLayer] = useState<import("leaflet").LayerGroup | null>(null);
 
+  // Load Leaflet once
   useEffect(() => {
     setMounted(true);
     import("leaflet").then((leaflet) => {
@@ -43,6 +45,7 @@ export function CampusMap({ reports }: CampusMapProps) {
     });
   }, []);
 
+  // Create map once (never destroyed on reports change)
   useEffect(() => {
     if (!mounted || !L || mapRef) return;
 
@@ -64,6 +67,23 @@ export function CampusMap({ reports }: CampusMapProps) {
       maxZoom: 20,
     }).addTo(map);
 
+    const layer = L.layerGroup().addTo(map);
+    setMarkersLayer(layer);
+    setMapRef(map);
+
+    return () => {
+      map.remove();
+      setMapRef(null);
+      setMarkersLayer(null);
+    };
+  }, [mounted, L]);
+
+  // Update markers when reports change (without destroying the map)
+  useEffect(() => {
+    if (!L || !mapRef || !markersLayer) return;
+
+    markersLayer.clearLayers();
+
     UDEL_BUILDINGS.forEach((building) => {
       const buildingReports = reports.filter((r) => r.building === building.name);
       const openReports = buildingReports.filter((r) => r.status !== "resolved");
@@ -73,7 +93,6 @@ export function CampusMap({ reports }: CampusMapProps) {
       const hasReports = openReports.length > 0;
       const hasSafety = safetyReports.length > 0;
 
-      // Color by safety score, not just priority
       const color = hasSafety
         ? getSafetyColor(safetyScore)
         : hasReports
@@ -118,9 +137,8 @@ export function CampusMap({ reports }: CampusMapProps) {
         iconAnchor: [size / 2, size / 2],
       });
 
-      const marker = L.marker([building.lat, building.lng], { icon }).addTo(map);
+      const marker = L.marker([building.lat, building.lng], { icon });
 
-      // Enhanced popup with safety info
       const safetyLabel = safetyScore >= 7 ? "CRITICAL" : safetyScore >= 4 ? "AT RISK" : safetyScore >= 2 ? "CAUTION" : "SAFE";
       const safetyColor = getSafetyColor(safetyScore);
 
@@ -146,15 +164,10 @@ export function CampusMap({ reports }: CampusMapProps) {
         maxWidth: 300,
         closeButton: false,
       });
+
+      markersLayer.addLayer(marker);
     });
-
-    setMapRef(map);
-
-    return () => {
-      map.remove();
-      setMapRef(null);
-    };
-  }, [mounted, L, reports]);
+  }, [L, mapRef, markersLayer, reports]);
 
   if (!mounted) {
     return (
