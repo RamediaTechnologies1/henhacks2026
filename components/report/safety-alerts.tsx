@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShieldAlert, ChevronDown, ChevronUp, MapPin } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 import type { Report } from "@/lib/types";
 
 export function SafetyAlerts() {
@@ -42,21 +42,19 @@ export function SafetyAlerts() {
   const buildings = [...new Set(reports.map((r) => r.building))];
 
   return (
-    <div className="mx-4 mt-3 rounded-2xl border border-[#ef4444]/20 bg-[#ef4444]/[0.05] overflow-hidden page-enter">
+    <div className="mx-4 mt-3 rounded-[6px] border border-[#DC2626]/20 bg-[#FEF2F2] overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between p-3.5"
+        className="w-full flex items-center justify-between p-3"
       >
-        <div className="flex items-center gap-2.5">
-          <div className="bg-[#ef4444]/15 p-2 rounded-xl">
-            <ShieldAlert className="h-4 w-4 text-[#ef4444]" />
-          </div>
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-[#DC2626]" />
           <div className="text-left">
-            <p className="text-xs font-bold text-[#ef4444]">
-              {reports.length} Active Safety Alert{reports.length !== 1 ? "s" : ""}
+            <p className="text-[13px] font-medium text-[#DC2626]">
+              {reports.length} active safety alert{reports.length !== 1 ? "s" : ""}
               {criticalCount > 0 && ` (${criticalCount} critical)`}
             </p>
-            <p className="text-[10px] text-[#666666]">
+            <p className="text-[12px] text-[#6B7280]">
               {buildings.slice(0, 3).join(", ")}
               {buildings.length > 3 ? ` +${buildings.length - 3} more` : ""}
             </p>
@@ -65,57 +63,57 @@ export function SafetyAlerts() {
         <div className="flex items-center gap-2">
           <button
             onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
-            className="text-[10px] text-[#666666] hover:text-[#a1a1a1] px-2 py-1"
+            className="text-[12px] text-[#6B7280] hover:text-[#111111] px-2 py-1"
           >
             Dismiss
           </button>
           {expanded ? (
-            <ChevronUp className="h-4 w-4 text-[#666666]" />
+            <ChevronUp className="h-4 w-4 text-[#6B7280]" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-[#666666]" />
+            <ChevronDown className="h-4 w-4 text-[#6B7280]" />
           )}
         </div>
       </button>
 
       {expanded && (
-        <div className="px-3.5 pb-3.5 space-y-2 stagger-enter">
-          <p className="text-[10px] text-[#666666] font-medium px-1">
+        <div className="px-3 pb-3 space-y-2">
+          <p className="text-[12px] text-[#6B7280] px-1">
             Use caution in these locations. Reports are being addressed by maintenance.
           </p>
           {reports.slice(0, 5).map((r) => (
             <div
               key={r.id}
-              className={`flex items-start gap-2.5 p-2.5 rounded-xl border ${
+              className={`flex items-start gap-2 p-2 rounded-[6px] border ${
                 r.priority === "critical"
-                  ? "bg-[#ef4444]/10 border-[#ef4444]/20"
-                  : "bg-white/[0.03] border-white/[0.08]"
+                  ? "bg-white border-[#DC2626]/20"
+                  : "bg-white border-[#E5E7EB]"
               }`}
             >
-              <div className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
-                r.priority === "critical" ? "bg-[#ef4444] animate-pulse" : "bg-[#f97316]"
+              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
+                r.priority === "critical" ? "bg-[#DC2626]" : "bg-[#F59E0B]"
               }`} />
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-[#ededed] leading-snug">
+                <p className="text-[13px] font-medium text-[#111111] leading-snug">
                   {r.ai_description}
                 </p>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <MapPin className="h-2.5 w-2.5 text-[#666666]" />
-                  <span className="text-[10px] text-[#666666]">
+                  <MapPin className="h-3 w-3 text-[#6B7280]" />
+                  <span className="text-[12px] text-[#6B7280]">
                     {r.building}{r.room ? `, Room ${r.room}` : ""}
                   </span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                  <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded-[4px] ${
                     r.priority === "critical"
-                      ? "bg-[#ef4444]/15 text-[#ef4444]"
-                      : "bg-[#f97316]/15 text-[#f97316]"
+                      ? "bg-[#FEF2F2] text-[#DC2626]"
+                      : "bg-[#FFFBEB] text-[#F59E0B]"
                   }`}>
-                    {r.priority.toUpperCase()}
+                    {r.priority}
                   </span>
                 </div>
               </div>
             </div>
           ))}
           {reports.length > 5 && (
-            <p className="text-[10px] text-[#666666] text-center py-1">
+            <p className="text-[12px] text-[#6B7280] text-center py-1">
               +{reports.length - 5} more alerts
             </p>
           )}

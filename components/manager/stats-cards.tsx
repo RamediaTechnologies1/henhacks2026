@@ -1,6 +1,5 @@
 "use client";
 
-import { ClipboardList, AlertTriangle, CheckCircle2, Clock, Users, Bot } from "lucide-react";
 import type { Report, Assignment } from "@/lib/types";
 
 interface StatsCardsProps {
@@ -29,58 +28,16 @@ export function StatsCards({ reports, assignments, onFilterChange, activeFilter 
     : 0;
 
   const stats = [
-    {
-      label: "Open Reports",
-      value: openReports,
-      icon: ClipboardList,
-      color: "text-[#ffffff]",
-      iconBg: "bg-[#ffffff]/15",
-      filterKey: "open",
-    },
-    {
-      label: "Safety Issues",
-      value: safetyIssues,
-      icon: AlertTriangle,
-      color: "text-[#ef4444]",
-      iconBg: "bg-[#ef4444]/15",
-      filterKey: "safety",
-    },
-    {
-      label: "Resolved",
-      value: resolved,
-      icon: CheckCircle2,
-      color: "text-[#ffffff]",
-      iconBg: "bg-[#ffffff]/15",
-      filterKey: "resolved",
-    },
-    {
-      label: "AI Assigned",
-      value: aiAssigned,
-      icon: Bot,
-      color: "text-[#888888]",
-      iconBg: "bg-[#888888]/15",
-      filterKey: "ai_assigned",
-    },
-    {
-      label: "Active Jobs",
-      value: activeJobs,
-      icon: Users,
-      color: "text-[#f97316]",
-      iconBg: "bg-[#f97316]/15",
-      filterKey: "active_jobs",
-    },
-    {
-      label: "Avg Response",
-      value: `${avgResponse}m`,
-      icon: Clock,
-      color: "text-[#666666]",
-      iconBg: "bg-[#666666]/15",
-      filterKey: "",
-    },
+    { label: "Open Reports", value: openReports, borderColor: "#00539F", filterKey: "open" },
+    { label: "Safety Issues", value: safetyIssues, borderColor: "#DC2626", filterKey: "safety" },
+    { label: "Resolved", value: resolved, borderColor: "#10B981", filterKey: "resolved" },
+    { label: "AI Assigned", value: aiAssigned, borderColor: "#00539F", filterKey: "ai_assigned" },
+    { label: "Active Jobs", value: activeJobs, borderColor: "#F59E0B", filterKey: "active_jobs" },
+    { label: "Avg Response", value: `${avgResponse}m`, borderColor: "#6B7280", filterKey: "" },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 stagger-enter">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
       {stats.map((stat) => {
         const isActive = activeFilter === stat.filterKey;
         const isClickable = !!stat.filterKey;
@@ -91,19 +48,13 @@ export function StatsCards({ reports, assignments, onFilterChange, activeFilter 
               if (!isClickable || !onFilterChange) return;
               onFilterChange(isActive ? "" : stat.filterKey);
             }}
-            className={`glass-card rounded-2xl p-4 card-hover-lift transition-all ${
-              isClickable ? "cursor-pointer" : ""
-            } ${isActive ? "ring-1 ring-white/30 bg-white/[0.08]" : ""}`}
+            className={`bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-colors duration-150 ${
+              isClickable ? "cursor-pointer hover:bg-[#F3F4F6]" : ""
+            } ${isActive ? "ring-1 ring-[#00539F] bg-[#EFF6FF]" : ""}`}
+            style={{ borderBottomWidth: '3px', borderBottomColor: stat.borderColor }}
           >
-            <div className="flex items-center gap-3">
-              <div className={`${stat.iconBg} p-2.5 rounded-xl`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </div>
-              <div>
-                <p className="text-xl font-bold text-[#ededed] tracking-tight">{stat.value}</p>
-                <p className="text-[10px] text-[#666666] font-medium">{stat.label}</p>
-              </div>
-            </div>
+            <p className="text-[28px] font-semibold text-[#111111]">{stat.value}</p>
+            <p className="text-[13px] text-[#6B7280]">{stat.label}</p>
           </div>
         );
       })}

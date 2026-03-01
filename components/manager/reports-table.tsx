@@ -1,8 +1,6 @@
 "use client";
 
-import { MapPin, Clock, AlertTriangle, Bot, Sparkles, Inbox, User, UserCheck } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { MapPin, Clock, AlertTriangle, Sparkles, Inbox, User, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -21,14 +19,14 @@ function getSLAInfo(report: Report): { label: string; color: string; urgent: boo
 
   const label = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
 
-  if (report.status === "resolved") return { label, color: "text-[#22c55e]", urgent: false };
-  if (report.priority === "critical" && hours >= 2) return { label, color: "text-[#ef4444]", urgent: true };
-  if (report.priority === "critical" && hours >= 1) return { label, color: "text-[#f97316]", urgent: true };
-  if (report.priority === "high" && hours >= 4) return { label, color: "text-[#ef4444]", urgent: true };
-  if (report.priority === "high" && hours >= 2) return { label, color: "text-[#f97316]", urgent: true };
-  if (hours >= 8) return { label, color: "text-[#f97316]", urgent: true };
-  if (hours >= 4) return { label, color: "text-[#eab308]", urgent: false };
-  return { label, color: "text-[#666666]", urgent: false };
+  if (report.status === "resolved") return { label, color: "text-[#10B981]", urgent: false };
+  if (report.priority === "critical" && hours >= 2) return { label, color: "text-[#DC2626]", urgent: true };
+  if (report.priority === "critical" && hours >= 1) return { label, color: "text-[#F59E0B]", urgent: true };
+  if (report.priority === "high" && hours >= 4) return { label, color: "text-[#DC2626]", urgent: true };
+  if (report.priority === "high" && hours >= 2) return { label, color: "text-[#F59E0B]", urgent: true };
+  if (hours >= 8) return { label, color: "text-[#F59E0B]", urgent: true };
+  if (hours >= 4) return { label, color: "text-[#F59E0B]", urgent: false };
+  return { label, color: "text-[#9CA3AF]", urgent: false };
 }
 
 interface ReportsTableProps {
@@ -39,19 +37,19 @@ interface ReportsTableProps {
   onStatusFilterChange: (val: string) => void;
 }
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> = {
-  submitted: { bg: "bg-[#ffffff]/15", text: "text-[#ffffff]", dot: "bg-[#ffffff]" },
-  analyzing: { bg: "bg-[#888888]/15", text: "text-[#888888]", dot: "bg-[#888888]" },
-  dispatched: { bg: "bg-[#a1a1a1]/15", text: "text-[#a1a1a1]", dot: "bg-[#a1a1a1]" },
-  in_progress: { bg: "bg-[#cccccc]/15", text: "text-[#cccccc]", dot: "bg-[#cccccc]" },
-  resolved: { bg: "bg-[#ffffff]/15", text: "text-[#ffffff]", dot: "bg-[#ffffff]" },
+const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string }> = {
+  submitted: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  analyzing: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  dispatched: { bg: "bg-[#FFFBEB]", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
+  in_progress: { bg: "bg-[#EFF6FF]", text: "text-[#00539F]", border: "border-[#00539F]/20" },
+  resolved: { bg: "bg-[#ECFDF5]", text: "text-[#10B981]", border: "border-[#10B981]/20" },
 };
 
-const PRIORITY_STRIP: Record<string, string> = {
-  critical: "priority-strip-critical",
-  high: "priority-strip-high",
-  medium: "priority-strip-medium",
-  low: "priority-strip-low",
+const PRIORITY_DOT: Record<string, string> = {
+  critical: "bg-[#DC2626]",
+  high: "bg-[#F59E0B]",
+  medium: "bg-[#00539F]",
+  low: "bg-[#10B981]",
 };
 
 export function ReportsTable({
@@ -61,27 +59,27 @@ export function ReportsTable({
   statusFilter,
   onStatusFilterChange,
 }: ReportsTableProps) {
-  // Build a map of report_id -> assignment for quick lookup
   const assignmentByReport: Record<string, Assignment> = {};
   for (const a of assignments) {
     if (a.report_id) assignmentByReport[a.report_id] = a;
   }
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="section-header">
-          <h2 className="font-bold text-lg text-[#ededed] font-[family-name:var(--font-outfit)]">Reports</h2>
-          <p className="text-xs text-[#666666] mt-0.5">{reports.length} total</p>
+        <div>
+          <h2 className="text-[16px] font-medium text-[#111111]">Reports</h2>
+          <p className="text-[13px] text-[#6B7280]">{reports.length} total</p>
         </div>
         <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-          <SelectTrigger className="w-40 rounded-xl border-white/[0.08] bg-[#000000] text-[#a1a1a1] h-10">
+          <SelectTrigger className="w-40 rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] h-9 text-[14px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="submitted">Submitted</SelectItem>
             <SelectItem value="dispatched">Dispatched</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="in_progress">In progress</SelectItem>
             <SelectItem value="resolved">Resolved</SelectItem>
           </SelectContent>
         </Select>
@@ -89,114 +87,80 @@ export function ReportsTable({
 
       {reports.length === 0 && (
         <div className="text-center py-16">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-            <Inbox className="h-7 w-7 text-[#666666]" />
-          </div>
-          <p className="text-[#666666] font-medium">No reports found</p>
-          <p className="text-[#666666] text-sm mt-1">Reports will appear here when submitted.</p>
+          <p className="text-[14px] text-[#6B7280]">No reports found</p>
         </div>
       )}
 
-      <div className="space-y-2.5 stagger-enter">
-        {reports.map((report) => {
-          const status = STATUS_CONFIG[report.status] || STATUS_CONFIG.submitted;
-          const reportAssignment = assignmentByReport[report.id];
-          return (
-            <Card key={report.id} className={`overflow-hidden rounded-2xl card-hover-lift border-white/[0.08] bg-white/[0.04] ${PRIORITY_STRIP[report.priority] || ""}`}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="secondary" className="text-[10px] font-bold rounded-lg bg-white/10 text-[#a1a1a1] border-white/[0.08]">
-                      {report.trade.replace("_", " ").toUpperCase()}
-                    </Badge>
-                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${status.bg} ${status.text}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
-                      {report.status.replace("_", " ").toUpperCase()}
-                    </div>
+      {/* Table */}
+      {reports.length > 0 && (
+        <div className="bg-white border border-[#E5E7EB] rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] overflow-hidden">
+          {/* Table Header */}
+          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-2.5 border-b-2 border-[#E5E7EB]">
+            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em]">Issue</span>
+            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-24">Status</span>
+            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-28">Building</span>
+            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-20">Time</span>
+            <span className="text-[13px] font-medium text-[#6B7280] uppercase tracking-[0.05em] w-20">Action</span>
+          </div>
+
+          {/* Table Body */}
+          {reports.map((report) => {
+            const status = STATUS_CONFIG[report.status] || STATUS_CONFIG.submitted;
+            const reportAssignment = assignmentByReport[report.id];
+            const sla = getSLAInfo(report);
+            return (
+              <div key={report.id} className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-3 border-b border-[#E5E7EB] hover:bg-[#F9FAFB] transition-colors duration-150 items-center">
+                {/* Issue */}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[report.priority] || ""}`} />
+                    <span className="text-[14px] text-[#111111] truncate">{report.ai_description}</span>
                     {report.safety_concern && (
-                      <Badge className="text-[10px] font-bold bg-[#ef4444] text-[#ededed] border-none">
-                        <AlertTriangle className="h-3 w-3 mr-0.5" /> Safety
-                      </Badge>
-                    )}
-                    {report.upvote_count > 1 && (
-                      <Badge variant="outline" className="text-[10px] font-semibold border-white/[0.08] text-[#666666]">
-                        {report.upvote_count} reports
-                      </Badge>
+                      <AlertTriangle className="h-3.5 w-3.5 text-[#DC2626] flex-shrink-0" />
                     )}
                   </div>
+                  {reportAssignment ? (
+                    <span className="text-[12px] text-[#6B7280] flex items-center gap-1 ml-4">
+                      <UserCheck className="h-3 w-3 text-[#10B981]" />
+                      {reportAssignment.technician?.name || "Assigned"}
+                    </span>
+                  ) : (
+                    <span className="text-[12px] text-[#DC2626] ml-4">Unassigned</span>
+                  )}
+                </div>
+
+                {/* Status */}
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium border w-24 justify-center ${status.bg} ${status.text} ${status.border}`}>
+                  {report.status.replace("_", " ")}
+                </span>
+
+                {/* Building */}
+                <span className="text-[14px] text-[#111111] w-28 truncate">
+                  {report.building}
+                </span>
+
+                {/* Time */}
+                <span className={`text-[13px] w-20 ${sla.color}`}>
+                  {sla.label}
+                </span>
+
+                {/* Action */}
+                <div className="w-20">
                   {report.status === "submitted" && (
                     <Button
                       size="sm"
                       onClick={() => onAssign(report.id)}
-                      className="bg-[#ffffff] hover:bg-[#e5e5e5] text-black text-xs rounded-lg h-8"
+                      className="bg-[#00539F] hover:bg-[#003d75] text-white text-[12px] rounded-[4px] h-7 px-2"
                     >
-                      <Sparkles className="h-3 w-3 mr-1" /> AI Assign
+                      <Sparkles className="h-3 w-3 mr-1" /> Assign
                     </Button>
                   )}
                 </div>
-
-                <p className="text-sm font-semibold text-[#ededed] mb-2 leading-snug">
-                  {report.ai_description}
-                </p>
-
-                {/* Assignment status */}
-                {reportAssignment ? (
-                  <div className="flex items-center gap-2 mb-2.5 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.08]">
-                    <UserCheck className="h-3.5 w-3.5 text-[#22c55e]" />
-                    <span className="text-xs text-[#a1a1a1]">
-                      Assigned to <span className="font-semibold text-[#ededed]">{reportAssignment.technician?.name || "Technician"}</span>
-                    </span>
-                    <span className={`ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      reportAssignment.status === "completed" ? "bg-[#22c55e]/15 text-[#22c55e]" :
-                      reportAssignment.status === "in_progress" ? "bg-[#eab308]/15 text-[#eab308]" :
-                      "bg-white/10 text-[#a1a1a1]"
-                    }`}>
-                      {reportAssignment.status.replace("_", " ").toUpperCase()}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 mb-2.5 px-3 py-2 rounded-lg bg-[#ef4444]/5 border border-[#ef4444]/15">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#ef4444] animate-pulse" />
-                    <span className="text-xs text-[#ef4444]/80 font-medium">Unassigned</span>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3 text-xs text-[#666666] flex-wrap">
-                  {/* Reporter */}
-                  {report.reporter_email && (
-                    <span className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {report.reporter_name || report.reporter_email}
-                    </span>
-                  )}
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {report.building}
-                    {report.room ? `, ${report.room}` : ""}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {new Date(report.created_at).toLocaleString()}
-                  </span>
-                  {/* SLA Timer */}
-                  {report.status !== "resolved" && (() => {
-                    const sla = getSLAInfo(report);
-                    return (
-                      <span className={`flex items-center gap-1 font-semibold ${sla.color}`}>
-                        {sla.urgent && <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />}
-                        {sla.label} elapsed
-                      </span>
-                    );
-                  })()}
-                  <span className="text-[10px] font-mono text-[#444444]">
-                    #{report.id.slice(0, 8)}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

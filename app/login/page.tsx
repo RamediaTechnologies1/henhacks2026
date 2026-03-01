@@ -2,18 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Wrench,
-  User,
-  HardHat,
-  Shield,
-  ArrowRight,
-  Loader2,
-  Zap,
-  Camera,
-  Brain,
-  Mail,
-} from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -22,40 +11,24 @@ import type { UserRole } from "@/lib/types";
 const ROLES: {
   value: UserRole;
   label: string;
-  icon: React.ReactNode;
   desc: string;
 }[] = [
   {
     value: "user",
     label: "Student",
-    icon: <User className="h-6 w-6" />,
     desc: "Report a maintenance issue",
   },
   {
     value: "technician",
     label: "Technician",
-    icon: <HardHat className="h-6 w-6" />,
     desc: "View & complete work orders",
   },
   {
     value: "manager",
     label: "Manager",
-    icon: <Shield className="h-6 w-6" />,
     desc: "AI dashboard & oversight",
   },
 ];
-
-const ROLE_ACTIVE: Record<UserRole, string> = {
-  user: "border-white bg-white/10 shadow-white/20",
-  technician: "border-white bg-white/10 shadow-white/20",
-  manager: "border-[#888888] bg-[#888888]/10 shadow-[#888888]/20",
-};
-
-const ROLE_ICON_ACTIVE: Record<UserRole, string> = {
-  user: "text-white bg-white/15",
-  technician: "text-white bg-white/15",
-  manager: "text-[#888888] bg-[#888888]/15",
-};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -91,110 +64,75 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="fixit-gradient-bg min-h-screen flex flex-col items-center justify-center p-4 relative">
-      <div className="relative z-10 w-full max-w-md page-enter">
-        {/* Logo + Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-white rounded-2xl blur-lg opacity-30" />
-              <div className="relative bg-gradient-to-br from-white to-[#cccccc] p-4 rounded-2xl shadow-lg shadow-white/20">
-                <Wrench className="h-10 w-10 text-black" />
-              </div>
-            </div>
-          </div>
-          <h1 className="font-[family-name:var(--font-outfit)] text-4xl text-white tracking-wide">
-            FixIt AI
-          </h1>
-          <p className="text-[#666666] mt-1 text-sm font-medium">
-            University of Delaware &middot; Campus Maintenance
-          </p>
-
-          {/* Feature pills */}
-          <div className="flex items-center justify-center gap-2 mt-4">
-            {[
-              { icon: Camera, label: "Snap" },
-              { icon: Brain, label: "AI Analyze" },
-              { icon: Zap, label: "Auto-Fix" },
-            ].map((f) => (
-              <div
-                key={f.label}
-                className="glass-card-dark flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium text-[#a1a1a1]"
-              >
-                <f.icon className="h-3 w-3 text-white" />
-                {f.label}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Login Card */}
-        <div className="glass-card rounded-2xl p-6 space-y-6">
-          {/* Decorative stitching */}
-          <div className="western-divider" />
-
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-[#ededed]">Welcome back</h2>
-            <p className="text-sm text-[#666666] mt-1">
-              Select your role to continue
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FAFAFA]">
+      <div className="w-full max-w-[400px]">
+        {/* Card */}
+        <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-8 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">
+              FixIt AI
+            </h1>
+            <p className="text-[13px] text-[#6B7280] mt-1">
+              University of Delaware
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Role Selection */}
-            <div className="space-y-2.5 stagger-enter">
-              {ROLES.map((r) => {
-                const isActive = role === r.value;
-                return (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => setRole(r.value)}
-                    className={`w-full flex items-center gap-4 rounded-xl p-4 border transition-all duration-200 text-left press-scale ${
-                      isActive
-                        ? `${ROLE_ACTIVE[r.value]} shadow-lg border-2`
-                        : "border-white/[0.08] hover:border-white/[0.15] hover:bg-white/5"
-                    }`}
-                  >
-                    <div
-                      className={`p-2.5 rounded-xl transition-colors ${
-                        isActive ? ROLE_ICON_ACTIVE[r.value] : "text-[#666666] bg-white/[0.04]"
-                      }`}
-                    >
-                      {r.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-semibold text-[15px] ${isActive ? "text-[#ededed]" : "text-[#a1a1a1]"}`}>
-                        {r.label}
-                      </p>
-                      <p className="text-xs text-[#666666] mt-0.5">{r.desc}</p>
-                    </div>
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 transition-all flex items-center justify-center ${
+            <div className="space-y-1.5">
+              <label className="text-[13px] font-medium text-[#374151]">
+                Select your role
+              </label>
+              <div className="space-y-2">
+                {ROLES.map((r) => {
+                  const isActive = role === r.value;
+                  return (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={() => setRole(r.value)}
+                      className={`w-full flex items-center justify-between rounded-[6px] p-3 border text-left transition-colors duration-150 ${
                         isActive
-                          ? "border-white bg-white"
-                          : "border-white/[0.08]"
+                          ? "border-[#00539F] bg-[#EFF6FF]"
+                          : "border-[#E5E7EB] hover:bg-[#F3F4F6]"
                       }`}
                     >
-                      {isActive && (
-                        <div className="w-2 h-2 rounded-full bg-black" />
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                      <div>
+                        <p className={`text-[14px] font-medium ${isActive ? "text-[#00539F]" : "text-[#111111]"}`}>
+                          {r.label}
+                        </p>
+                        <p className="text-[13px] text-[#6B7280]">{r.desc}</p>
+                      </div>
+                      <div
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                          isActive
+                            ? "border-[#00539F]"
+                            : "border-[#D1D5DB]"
+                        }`}
+                      >
+                        {isActive && (
+                          <div className="w-2 h-2 rounded-full bg-[#00539F]" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Email Input */}
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666666]" />
+            <div className="space-y-1.5">
+              <label className="text-[13px] font-medium text-[#374151]">
+                Email address
+              </label>
               <Input
                 type="email"
-                placeholder="Enter your email address"
+                placeholder="you@udel.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-13 pl-11 text-[15px] rounded-xl border-white/[0.08] bg-white/5 text-[#ededed] placeholder:text-[#484f58]"
+                className="h-10 text-[14px] rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] placeholder:text-[#9CA3AF] focus:border-[#00539F] focus:ring-0"
               />
             </div>
 
@@ -202,29 +140,22 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={!email || !role || loading}
-              className={`w-full h-13 rounded-xl text-[15px] font-bold transition-all duration-300 ${
-                role
-                  ? "btn-western"
-                  : "bg-white/5 text-[#484f58] border border-white/[0.08]"
-              }`}
+              className="w-full h-11 rounded-[6px] text-[14px] font-medium bg-[#00539F] hover:bg-[#003d75] text-white transition-colors duration-150 disabled:opacity-50"
             >
               {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  Send Login PIN
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  Send login PIN
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
             </Button>
           </form>
-
-          <div className="western-divider" />
         </div>
 
-        {/* Footer */}
-        <p className="text-center mt-6 text-xs text-[#484f58] font-medium tracking-wide">
-          HenHacks 2026 &middot; Automation Systems & Public Infrastructure
+        <p className="text-center mt-4 text-[13px] text-[#9CA3AF]">
+          HenHacks 2026
         </p>
       </div>
     </div>

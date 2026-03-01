@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { HardHat, RefreshCw, Inbox } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { JobCard } from "@/components/technician/job-card";
 import type { Assignment } from "@/lib/types";
 import { useRealtimeTable } from "@/hooks/use-realtime";
@@ -74,11 +73,11 @@ export default function TechnicianPortal() {
   });
 
   return (
-    <div className="p-4 space-y-4 page-enter">
+    <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="section-header">
-          <h1 className="text-xl font-bold text-[#ededed]">My Jobs</h1>
-          <p className="text-xs text-[#64748b] mt-0.5">
+        <div>
+          <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">My Jobs</h1>
+          <p className="text-[13px] text-[#6B7280] mt-0.5">
             {activeCount > 0 ? `${activeCount} active assignment${activeCount !== 1 ? "s" : ""}` : "No active assignments"}
           </p>
         </div>
@@ -86,49 +85,46 @@ export default function TechnicianPortal() {
           variant="outline"
           size="sm"
           onClick={() => { setRefreshing(true); loadAssignments(); }}
-          className="rounded-xl h-9 w-9 p-0 border-white/[0.08] text-[#666666] hover:bg-white/5"
+          className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
         </Button>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>
-        <TabsList className="w-full rounded-xl h-11 bg-white/[0.03] border border-white/[0.08] p-1">
-          <TabsTrigger value="active" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-white/10 data-[state=active]:text-white text-[#64748b]">
+        <TabsList className="w-full rounded-[6px] h-9 bg-[#F3F4F6] border border-[#E5E7EB] p-0.5">
+          <TabsTrigger value="active" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280]">
             Active ({activeCount})
           </TabsTrigger>
-          <TabsTrigger value="completed" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-white/10 data-[state=active]:text-white text-[#64748b]">
+          <TabsTrigger value="completed" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280]">
             Done ({completedCount})
           </TabsTrigger>
-          <TabsTrigger value="all" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-white/10 data-[state=active]:text-white text-[#64748b]">
+          <TabsTrigger value="all" className="flex-1 rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280]">
             All ({assignments.length})
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
       {loading && (
-        <div className="space-y-3 stagger-enter">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl bg-white/5" />
+            <div key={i} className="h-28 rounded-[6px] skeleton-pulse" />
           ))}
         </div>
       )}
 
       {!loading && filtered.length === 0 && (
         <div className="text-center py-16">
-          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-            <Inbox className="h-8 w-8 text-[#64748b]" />
-          </div>
-          <p className="text-[#666666] font-medium mb-1">
+          <p className="text-[14px] text-[#6B7280]">
             {filter === "completed" ? "No completed jobs" : filter === "active" ? "No active jobs" : "No jobs found"}
           </p>
-          <p className="text-[#64748b] text-sm">
+          <p className="text-[13px] text-[#9CA3AF] mt-1">
             {filter === "active" ? "New assignments will appear here automatically." : "Jobs will appear here when assigned."}
           </p>
         </div>
       )}
 
-      <div className="space-y-3 stagger-enter">
+      <div className="space-y-3">
         {filtered.map((assignment) => (
           <JobCard
             key={assignment.id}

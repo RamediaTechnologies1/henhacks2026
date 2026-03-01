@@ -66,28 +66,26 @@ export function EmergencyButton() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-4 z-50 bg-[#ef4444] hover:bg-[#dc2626] text-white p-4 rounded-full shadow-lg shadow-[#ef4444]/30 transition-all active:scale-95 animate-pulse hover:animate-none"
+        className="fixed bottom-20 right-4 z-50 bg-[#DC2626] hover:bg-[#B91C1C] text-white p-3 rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] border border-[#DC2626] transition-colors duration-150"
       >
-        <AlertTriangle className="h-6 w-6" />
+        <AlertTriangle className="h-5 w-5" />
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-24 right-4 z-50 w-72 bg-[#111111] border border-[#ef4444]/30 rounded-2xl p-4 space-y-3 shadow-2xl shadow-[#ef4444]/10">
+    <div className="fixed bottom-20 right-4 z-50 w-72 bg-white border border-[#E5E7EB] rounded-[6px] p-4 space-y-3 shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
       <div className="flex items-center gap-2">
-        <div className="bg-[#ef4444]/15 p-2 rounded-lg">
-          <AlertTriangle className="h-4 w-4 text-[#ef4444]" />
-        </div>
+        <AlertTriangle className="h-4 w-4 text-[#DC2626]" />
         <div>
-          <p className="text-sm font-bold text-[#ef4444]">Emergency Report</p>
-          <p className="text-[10px] text-[#666666]">Quick safety hazard report</p>
+          <p className="text-[14px] font-medium text-[#DC2626]">Emergency report</p>
+          <p className="text-[13px] text-[#6B7280]">Quick safety hazard report</p>
         </div>
       </div>
 
       <Select value={building} onValueChange={setBuilding}>
-        <SelectTrigger className="rounded-xl border-[#ef4444]/20 bg-black text-[#a1a1a1] h-10">
-          <SelectValue placeholder="Select Building" />
+        <SelectTrigger className="rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] h-10 text-[14px]">
+          <SelectValue placeholder="Select building" />
         </SelectTrigger>
         <SelectContent>
           {DEMO_BUILDINGS.map((b) => (
@@ -101,22 +99,19 @@ export function EmergencyButton() {
           variant="outline"
           size="sm"
           onClick={() => { setOpen(false); setBuilding(""); }}
-          className="flex-1 rounded-xl border-white/[0.08] text-[#666666] hover:bg-white/5 h-10"
+          className="flex-1 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] h-10 text-[14px]"
         >
           Cancel
         </Button>
         <Button
           onClick={handleEmergency}
           disabled={submitting || !building}
-          className="flex-1 rounded-xl bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold h-10"
+          className="flex-1 rounded-[6px] bg-[#DC2626] hover:bg-[#B91C1C] text-white font-medium h-10 text-[14px]"
         >
           {submitting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <>
-              <AlertTriangle className="h-4 w-4 mr-1.5" />
-              Report
-            </>
+            "Report"
           )}
         </Button>
       </div>

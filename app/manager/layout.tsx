@@ -31,7 +31,7 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
   if (!ready) return null;
 
   return (
-    <div className="min-h-screen portal-bg">
+    <div className="min-h-screen bg-[#FAFAFA]">
       <PortalHeader role="manager" email={email} />
       <main className="max-w-7xl mx-auto pb-20">{children}</main>
       <BottomNav items={NAV_ITEMS} />

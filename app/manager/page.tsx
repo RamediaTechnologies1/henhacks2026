@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { RefreshCw, Sparkles, Loader2 } from "lucide-react";
+import { RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { StatsCards } from "@/components/manager/stats-cards";
 import { ReportsTable } from "@/components/manager/reports-table";
 import { AssignmentPanel } from "@/components/manager/assignment-panel";
@@ -18,7 +17,7 @@ const CampusMap = dynamic(
   () => import("@/components/map/campus-map").then((mod) => mod.CampusMap),
   {
     ssr: false,
-    loading: () => <div className="h-[450px] bg-white/5 rounded-2xl animate-pulse" />,
+    loading: () => <div className="h-[450px] skeleton-pulse rounded-[6px]" />,
   }
 );
 
@@ -103,7 +102,6 @@ export default function ManagerDashboard() {
     }
   }
 
-  // Apply stat card filter first, then status dropdown filter
   let filteredReports = reports;
   if (statFilter === "open") filteredReports = reports.filter((r) => r.status !== "resolved");
   else if (statFilter === "safety") filteredReports = reports.filter((r) => r.safety_concern && r.status !== "resolved");
@@ -122,14 +120,14 @@ export default function ManagerDashboard() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-5 page-enter">
-        <Skeleton className="h-16 rounded-2xl bg-white/5" />
+      <div className="p-6 space-y-5">
+        <div className="h-10 w-64 skeleton-pulse rounded-[6px]" />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-20 rounded-2xl bg-white/5" />
+            <div key={i} className="h-20 skeleton-pulse rounded-[6px]" />
           ))}
         </div>
-        <Skeleton className="h-96 rounded-2xl bg-white/5" />
+        <div className="h-96 skeleton-pulse rounded-[6px]" />
       </div>
     );
   }
@@ -137,12 +135,12 @@ export default function ManagerDashboard() {
   const unassignedCount = reports.filter((r) => r.status === "submitted").length;
 
   return (
-    <div className="p-4 md:p-6 space-y-6 page-enter">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="section-header">
-          <h1 className="text-2xl font-bold text-[#ededed] tracking-tight">AI Manager Dashboard</h1>
-          <p className="text-sm text-[#666666] mt-0.5">
+        <div>
+          <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">Dashboard</h1>
+          <p className="text-[13px] text-[#6B7280] mt-0.5">
             Automated maintenance assignment & oversight
           </p>
         </div>
@@ -150,10 +148,10 @@ export default function ManagerDashboard() {
           {unassignedCount > 0 && (
             <Button
               onClick={handleAutoAssignAll}
-              className="btn-western rounded-xl h-10 px-5"
+              className="bg-[#00539F] hover:bg-[#003d75] text-white rounded-[6px] h-9 px-4 text-[14px] font-medium"
             >
               <Sparkles className="h-4 w-4 mr-2" />
-              AI Assign All ({unassignedCount})
+              AI assign all ({unassignedCount})
             </Button>
           )}
           <Button
@@ -163,7 +161,7 @@ export default function ManagerDashboard() {
               setRefreshing(true);
               loadData();
             }}
-            className="rounded-xl h-10 w-10 p-0 border-white/[0.08] text-[#666666] hover:bg-white/5"
+            className="rounded-[6px] h-9 w-9 p-0 border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           </Button>
@@ -175,22 +173,22 @@ export default function ManagerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="reports">
-        <TabsList className="rounded-xl h-11 bg-white/[0.03] border border-white/[0.08] p-1">
-          <TabsTrigger value="reports" className="rounded-lg text-sm font-semibold data-[state=active]:bg-white/10 data-[state=active]:text-[#ffffff] text-[#666666] px-6">
+        <TabsList className="rounded-[6px] h-9 bg-[#F3F4F6] border border-[#E5E7EB] p-0.5">
+          <TabsTrigger value="reports" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
             Reports
           </TabsTrigger>
-          <TabsTrigger value="assignments" className="rounded-lg text-sm font-semibold data-[state=active]:bg-white/10 data-[state=active]:text-[#ffffff] text-[#666666] px-6">
+          <TabsTrigger value="assignments" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
             Assignments
           </TabsTrigger>
-          <TabsTrigger value="safety" className="rounded-lg text-sm font-semibold data-[state=active]:bg-white/10 data-[state=active]:text-[#ffffff] text-[#666666] px-6">
+          <TabsTrigger value="safety" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
             Safety
           </TabsTrigger>
-          <TabsTrigger value="map" className="rounded-lg text-sm font-semibold data-[state=active]:bg-white/10 data-[state=active]:text-[#ffffff] text-[#666666] px-6">
+          <TabsTrigger value="map" className="rounded-[4px] text-[13px] font-medium data-[state=active]:bg-white data-[state=active]:text-[#111111] data-[state=active]:shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[#6B7280] px-4">
             Campus Map
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="reports" className="mt-5">
+        <TabsContent value="reports" className="mt-4">
           <ReportsTable
             reports={filteredReports}
             assignments={assignments}
@@ -200,15 +198,15 @@ export default function ManagerDashboard() {
           />
         </TabsContent>
 
-        <TabsContent value="assignments" className="mt-5">
+        <TabsContent value="assignments" className="mt-4">
           <AssignmentPanel assignments={assignments} />
         </TabsContent>
 
-        <TabsContent value="safety" className="mt-5">
+        <TabsContent value="safety" className="mt-4">
           <SafetyDashboard reports={reports} assignments={assignments} />
         </TabsContent>
 
-        <TabsContent value="map" className="mt-5">
+        <TabsContent value="map" className="mt-4">
           <div className="map-container">
             <CampusMap reports={reports} />
           </div>

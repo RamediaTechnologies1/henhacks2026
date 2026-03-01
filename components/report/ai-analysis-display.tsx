@@ -1,17 +1,17 @@
 "use client";
 
-import { Bot, AlertTriangle, Clock, Gauge, Sparkles, Shield, ShieldAlert, TrendingUp } from "lucide-react";
+import { AlertTriangle, Clock, ShieldAlert, TrendingUp } from "lucide-react";
 import type { AIAnalysis } from "@/lib/types";
 
 interface AIAnalysisDisplayProps {
   analysis: AIAnalysis;
 }
 
-const PRIORITY_CONFIG: Record<string, { bg: string; text: string; icon: string; glow: string }> = {
-  critical: { bg: "bg-[#ef4444]/15 border-[#ef4444]/30", text: "text-[#ef4444]", icon: "!!", glow: "shadow-[#ef4444]/20" },
-  high: { bg: "bg-[#f97316]/15 border-[#f97316]/30", text: "text-[#f97316]", icon: "!", glow: "shadow-[#f97316]/20" },
-  medium: { bg: "bg-[#eab308]/15 border-[#eab308]/30", text: "text-[#eab308]", icon: "~", glow: "shadow-[#eab308]/20" },
-  low: { bg: "bg-[#22c55e]/15 border-[#22c55e]/30", text: "text-[#22c55e]", icon: "-", glow: "shadow-[#22c55e]/20" },
+const PRIORITY_CONFIG: Record<string, { border: string; text: string; bg: string }> = {
+  critical: { border: "border-[#DC2626]", text: "text-[#DC2626]", bg: "bg-[#FEF2F2]" },
+  high: { border: "border-[#F59E0B]", text: "text-[#F59E0B]", bg: "bg-[#FFFBEB]" },
+  medium: { border: "border-[#00539F]", text: "text-[#00539F]", bg: "bg-[#EFF6FF]" },
+  low: { border: "border-[#10B981]", text: "text-[#10B981]", bg: "bg-[#ECFDF5]" },
 };
 
 const RISK_LABELS: Record<string, string> = {
@@ -25,21 +25,6 @@ const RISK_LABELS: Record<string, string> = {
   chemical_exposure: "Chemical Exposure",
 };
 
-function SafetyScoreBar({ score }: { score: number }) {
-  const color = score >= 7 ? "#ef4444" : score >= 4 ? "#f97316" : score >= 2 ? "#eab308" : "#22c55e";
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 h-2 bg-white/[0.08] rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${score * 10}%`, backgroundColor: color }}
-        />
-      </div>
-      <span className="text-xs font-bold" style={{ color }}>{score}/10</span>
-    </div>
-  );
-}
-
 export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
   const priority = PRIORITY_CONFIG[analysis.priority] || PRIORITY_CONFIG.medium;
   const confidence = Math.round(analysis.confidence_score * 100);
@@ -47,56 +32,53 @@ export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
   const safetyScore = analysis.safety_score ?? 0;
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden page-enter">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-white to-[#cccccc] px-5 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="bg-black/15 p-1.5 rounded-lg">
-            <Sparkles className="h-4 w-4 text-black" />
-          </div>
-          <span className="font-semibold text-sm text-black">AI Safety Analysis</span>
-        </div>
-        <div className="flex items-center gap-1.5 bg-black/15 px-2.5 py-1 rounded-full">
-          <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          <span className="text-[11px] font-medium text-black/80">{confidence}% confident</span>
-        </div>
-      </div>
-
-      <div className="p-5 space-y-4 stagger-enter">
-        {/* Priority + Trade + Safety */}
+    <div className={`rounded-[6px] border bg-white overflow-hidden ${priority.border}`} style={{ borderLeftWidth: '3px' }}>
+      <div className="p-4 space-y-4">
+        {/* Trade + Priority + Safety badges */}
         <div className="flex flex-wrap gap-2">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border ${priority.bg} ${priority.text} shadow-sm ${priority.glow}`}>
-            {priority.icon} {analysis.priority.toUpperCase()}
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium border ${priority.bg} ${priority.text} ${priority.border}`}>
+            {analysis.priority}
           </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-white/10 text-[#a1a1a1] border border-white/[0.08]">
-            {analysis.trade.replace("_", " ").toUpperCase()}
+          <span className="inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium bg-[#F3F4F6] text-[#6B7280] border border-[#E5E7EB]">
+            {analysis.trade.replace("_", " ")}
           </span>
           {analysis.safety_concern && (
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-[#ef4444] text-white shadow-lg shadow-[#ef4444]/20">
-              <AlertTriangle className="h-3 w-3" /> SAFETY HAZARD
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[12px] font-medium bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/20">
+              <AlertTriangle className="h-3 w-3" /> safety hazard
             </span>
           )}
         </div>
 
         {/* Description */}
-        <p className="text-sm text-[#a1a1a1] leading-relaxed">{analysis.description}</p>
+        <p className="text-[14px] text-[#111111] leading-relaxed">{analysis.description}</p>
 
-        {/* Safety Intelligence Section */}
+        {/* Safety Risk Assessment */}
         {(safetyRisks.length > 0 || safetyScore > 0) && (
-          <div className="bg-white/[0.04] rounded-xl p-4 border border-white/[0.08] space-y-3">
+          <div className="bg-[#FAFAFA] rounded-[6px] p-3 border border-[#E5E7EB] space-y-2">
             <div className="flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-[#ef4444]" />
-              <span className="text-[11px] font-bold text-[#ededed] uppercase tracking-wider">Safety Risk Assessment</span>
+              <ShieldAlert className="h-4 w-4 text-[#DC2626]" />
+              <span className="text-[13px] font-medium text-[#111111]">Safety risk assessment</span>
             </div>
 
-            {/* Safety Score */}
-            <SafetyScoreBar score={safetyScore} />
+            {/* Safety Score Bar */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${safetyScore * 10}%`,
+                    backgroundColor: safetyScore >= 7 ? "#DC2626" : safetyScore >= 4 ? "#F59E0B" : "#10B981",
+                  }}
+                />
+              </div>
+              <span className="text-[12px] font-medium text-[#6B7280]">{safetyScore}/10</span>
+            </div>
 
             {/* Risk Tags */}
             {safetyRisks.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-1">
                 {safetyRisks.map((risk) => (
-                  <span key={risk} className="px-2 py-1 rounded-lg text-[10px] font-semibold bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20">
+                  <span key={risk} className="px-2 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/15">
                     {RISK_LABELS[risk] || risk}
                   </span>
                 ))}
@@ -106,9 +88,9 @@ export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
             {/* Risk Escalation */}
             {analysis.risk_escalation && (
               <div className="flex gap-2 mt-1">
-                <TrendingUp className="h-3.5 w-3.5 text-[#f97316] mt-0.5 flex-shrink-0" />
-                <p className="text-[11px] text-[#f97316]/80 leading-relaxed">
-                  <span className="font-bold text-[#f97316]">If unfixed: </span>
+                <TrendingUp className="h-3.5 w-3.5 text-[#F59E0B] mt-0.5 flex-shrink-0" />
+                <p className="text-[12px] text-[#6B7280] leading-relaxed">
+                  <span className="font-medium text-[#F59E0B]">If unfixed: </span>
                   {analysis.risk_escalation}
                 </p>
               </div>
@@ -117,25 +99,25 @@ export function AIAnalysisDisplay({ analysis }: AIAnalysisDisplayProps) {
         )}
 
         {/* Suggested Action */}
-        <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-          <p className="text-[11px] font-bold text-white uppercase tracking-wider mb-1.5">Recommended Action</p>
-          <p className="text-sm text-[#a1a1a1] leading-relaxed">{analysis.suggested_action}</p>
+        <div>
+          <p className="text-[13px] font-medium text-[#6B7280] mb-1">Recommended action</p>
+          <p className="text-[14px] text-[#111111] leading-relaxed">{analysis.suggested_action}</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { icon: Clock, label: "Est. Time", value: analysis.estimated_time, color: "text-white", bg: "bg-white/15" },
-            { icon: Gauge, label: "Confidence", value: `${confidence}%`, color: "text-[#888888]", bg: "bg-[#888888]/15" },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-white/[0.04] rounded-xl p-3 border border-white/[0.08] text-center">
-              <div className={`${stat.bg} w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1.5`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </div>
-              <p className="text-[10px] text-[#64748b] font-medium">{stat.label}</p>
-              <p className="text-xs font-bold text-[#ededed] mt-0.5">{stat.value}</p>
-            </div>
-          ))}
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <p className="text-[13px] text-[#6B7280]">Est. time</p>
+            <p className="text-[14px] font-medium text-[#111111]">{analysis.estimated_time}</p>
+          </div>
+          <div>
+            <p className="text-[13px] text-[#6B7280]">Est. cost</p>
+            <p className="text-[14px] font-medium text-[#111111]">{analysis.estimated_cost}</p>
+          </div>
+          <div>
+            <p className="text-[13px] text-[#6B7280]">Confidence</p>
+            <p className="text-[14px] font-medium text-[#111111]">{confidence}%</p>
+          </div>
         </div>
       </div>
     </div>

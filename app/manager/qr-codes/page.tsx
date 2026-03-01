@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { QrCode, Download, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -17,10 +16,8 @@ import { toast } from "sonner";
 const FLOORS = ["1", "2", "3"];
 
 function generateQRSvg(text: string, size: number = 200): string {
-  // Simple QR-like visual using a data URL approach
-  // We'll create an SVG that encodes the URL visually
   const encoded = encodeURIComponent(text);
-  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&bgcolor=000000&color=ffffff&format=svg`;
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&format=svg`;
 }
 
 interface QRRoom {
@@ -68,84 +65,80 @@ export default function QRCodesPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6 page-enter">
-      <div className="section-header">
-        <h1 className="text-2xl font-bold text-[#ededed] tracking-tight">Room QR Codes</h1>
-        <p className="text-sm text-[#666666] mt-0.5">
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">Room QR codes</h1>
+        <p className="text-[13px] text-[#6B7280] mt-0.5">
           Generate QR codes for rooms — students scan to pre-fill report location
         </p>
       </div>
 
-      <Card className="rounded-2xl border-white/[0.08] bg-white/[0.04]">
-        <CardContent className="p-4 space-y-4">
-          <div className="flex gap-3 flex-wrap">
-            <Select value={building} onValueChange={setBuilding}>
-              <SelectTrigger className="w-48 rounded-xl border-white/[0.08] bg-[#000000] text-[#a1a1a1] h-10">
-                <SelectValue placeholder="Select Building" />
-              </SelectTrigger>
-              <SelectContent>
-                {DEMO_BUILDINGS.map((b) => (
-                  <SelectItem key={b} value={b}>{b}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+        <div className="flex gap-3 flex-wrap">
+          <Select value={building} onValueChange={setBuilding}>
+            <SelectTrigger className="w-48 rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] h-10 text-[14px]">
+              <SelectValue placeholder="Select building" />
+            </SelectTrigger>
+            <SelectContent>
+              {DEMO_BUILDINGS.map((b) => (
+                <SelectItem key={b} value={b}>{b}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            <Select value={floor} onValueChange={setFloor}>
-              <SelectTrigger className="w-32 rounded-xl border-white/[0.08] bg-[#000000] text-[#a1a1a1] h-10">
-                <SelectValue placeholder="Floor" />
-              </SelectTrigger>
-              <SelectContent>
-                {FLOORS.map((f) => (
-                  <SelectItem key={f} value={f}>Floor {f}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <Select value={floor} onValueChange={setFloor}>
+            <SelectTrigger className="w-32 rounded-[6px] border-[#E5E7EB] bg-white text-[#111111] h-10 text-[14px]">
+              <SelectValue placeholder="Floor" />
+            </SelectTrigger>
+            <SelectContent>
+              {FLOORS.map((f) => (
+                <SelectItem key={f} value={f}>Floor {f}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-            <Button onClick={generateRoomQRs} className="btn-western rounded-xl h-10 px-5">
-              <QrCode className="h-4 w-4 mr-2" /> Generate QR Codes
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          <Button onClick={generateRoomQRs} className="bg-[#00539F] hover:bg-[#003d75] text-white rounded-[6px] h-10 px-5 text-[14px] font-medium">
+            <QrCode className="h-4 w-4 mr-2" /> Generate QR codes
+          </Button>
+        </div>
+      </div>
 
       {rooms.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 stagger-enter">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {rooms.map((r) => (
-            <Card key={r.room} className="rounded-2xl border-white/[0.08] bg-white/[0.04] overflow-hidden card-hover-lift">
-              <CardContent className="p-4 text-center space-y-3">
-                <div className="bg-white rounded-xl p-2 inline-block mx-auto">
-                  <img
-                    src={generateQRSvg(r.url, 150)}
-                    alt={`QR for ${r.building} Room ${r.room}`}
-                    className="w-[150px] h-[150px]"
-                    crossOrigin="anonymous"
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-[#ededed]">{r.building}</p>
-                  <p className="text-xs text-[#666666]">Floor {r.floor}, Room {r.room}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyUrl(r.url, r.room)}
-                    className="flex-1 rounded-lg border-white/[0.08] text-[#666666] hover:bg-white/5 text-xs h-8"
-                  >
-                    {copied === r.room ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                    {copied === r.room ? "Copied" : "Copy URL"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(generateQRSvg(r.url, 400), "_blank")}
-                    className="rounded-lg border-white/[0.08] text-[#666666] hover:bg-white/5 text-xs h-8 px-2"
-                  >
-                    <Download className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={r.room} className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 text-center shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:border-[#D1D5DB] transition-colors duration-150">
+              <div className="bg-white rounded-[4px] p-2 inline-block mx-auto border border-[#E5E7EB]">
+                <img
+                  src={generateQRSvg(r.url, 150)}
+                  alt={`QR for ${r.building} Room ${r.room}`}
+                  className="w-[150px] h-[150px]"
+                  crossOrigin="anonymous"
+                />
+              </div>
+              <div className="mt-3">
+                <p className="text-[14px] font-medium text-[#111111]">{r.building}</p>
+                <p className="text-[13px] text-[#6B7280]">Floor {r.floor}, Room {r.room}</p>
+              </div>
+              <div className="flex gap-2 mt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyUrl(r.url, r.room)}
+                  className="flex-1 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] text-[12px] h-8"
+                >
+                  {copied === r.room ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                  {copied === r.room ? "Copied" : "Copy URL"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(generateQRSvg(r.url, 400), "_blank")}
+                  className="rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] text-[12px] h-8 px-2"
+                >
+                  <Download className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}

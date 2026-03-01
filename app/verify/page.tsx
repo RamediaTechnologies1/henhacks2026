@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Wrench, ArrowLeft, Loader2, Mail, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -69,36 +69,29 @@ function VerifyForm() {
   }
 
   return (
-    <div className="fixit-gradient-bg min-h-screen flex flex-col items-center justify-center p-4 relative">
-      <div className="relative z-10 w-full max-w-md page-enter">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-white rounded-2xl blur-lg opacity-30" />
-              <div className="relative bg-gradient-to-br from-white to-[#cccccc] p-4 rounded-2xl shadow-lg shadow-white/20">
-                <ShieldCheck className="h-10 w-10 text-black" />
-              </div>
-            </div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#FAFAFA]">
+      <div className="w-full max-w-[400px]">
+        {/* Card */}
+        <div className="bg-white border border-[#E5E7EB] rounded-[6px] p-8 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">
+              FixIt AI
+            </h1>
+            <p className="text-[13px] text-[#6B7280] mt-1">
+              University of Delaware
+            </p>
           </div>
-          <h1 className="font-[family-name:var(--font-outfit)] text-3xl text-white tracking-wide">
-            Verify Your Identity
-          </h1>
-          <p className="text-[#666666] mt-2 text-sm">
-            Enter the 6-digit code sent to
-          </p>
-          <div className="inline-flex items-center gap-2 mt-1 glass-card-dark px-4 py-2 rounded-full">
-            <Mail className="h-3.5 w-3.5 text-white" />
-            <span className="text-sm font-medium text-[#a1a1a1]">{email}</span>
-          </div>
-        </div>
 
-        {/* PIN Card */}
-        <div className="glass-card rounded-2xl p-8 space-y-8">
-          <div className="western-divider" />
+          <div className="text-center mb-6">
+            <p className="text-[14px] text-[#111111]">
+              Enter the 6-digit code sent to
+            </p>
+            <p className="text-[13px] font-medium text-[#00539F] mt-1">{email}</p>
+          </div>
 
           {/* PIN Input */}
-          <div className="flex justify-center gap-3" onPaste={handlePaste}>
+          <div className="flex justify-center gap-2 mb-6" onPaste={handlePaste}>
             {pin.map((digit, i) => (
               <input
                 key={i}
@@ -110,10 +103,10 @@ function VerifyForm() {
                 onChange={(e) => handleChange(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 disabled={loading}
-                className={`w-13 h-16 text-center text-2xl font-bold rounded-2xl outline-none transition-all duration-200 disabled:opacity-50 ${
+                className={`w-11 h-12 text-center text-[18px] font-semibold rounded-[6px] border outline-none transition-colors duration-150 disabled:opacity-50 ${
                   digit
-                    ? "border-2 border-white bg-white/10 text-white shadow-lg shadow-white/10"
-                    : "border-2 border-white/[0.08] bg-white/[0.03] text-[#ededed] focus:border-white focus:shadow-lg focus:shadow-white/10"
+                    ? "border-[#00539F] bg-[#EFF6FF] text-[#111111]"
+                    : "border-[#E5E7EB] bg-white text-[#111111] focus:border-[#00539F]"
                 }`}
                 autoFocus={i === 0}
               />
@@ -121,36 +114,30 @@ function VerifyForm() {
           </div>
 
           {loading && (
-            <div className="flex flex-col items-center gap-2">
-              <div className="relative w-12 h-12">
-                <div className="absolute inset-0 rounded-full border-4 border-white/10" />
-                <div className="absolute inset-0 rounded-full border-4 border-t-white animate-spin" />
-              </div>
-              <p className="text-sm text-[#666666]">Verifying...</p>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Loader2 className="h-4 w-4 animate-spin text-[#00539F]" />
+              <p className="text-[13px] text-[#6B7280]">Verifying...</p>
             </div>
           )}
 
           {!loading && (
-            <p className="text-center text-xs text-[#484f58]">
+            <p className="text-center text-[13px] text-[#9CA3AF] mb-6">
               Didn&apos;t receive the code? Check your spam folder.
             </p>
           )}
 
           <Button
             variant="ghost"
-            className="w-full text-[#666666] hover:text-[#a1a1a1] hover:bg-white/[0.04] rounded-xl"
+            className="w-full text-[14px] text-[#6B7280] hover:text-[#111111] hover:bg-[#F3F4F6] rounded-[6px] h-10"
             onClick={() => router.push("/login")}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to login
           </Button>
-
-          <div className="western-divider" />
         </div>
 
-        {/* Footer */}
-        <p className="text-center mt-6 text-xs text-[#484f58] font-medium tracking-wide">
-          HenHacks 2026 &middot; Automation Systems & Public Infrastructure
+        <p className="text-center mt-4 text-[13px] text-[#9CA3AF]">
+          HenHacks 2026
         </p>
       </div>
     </div>
@@ -161,8 +148,10 @@ export default function VerifyPage() {
   return (
     <Suspense
       fallback={
-        <div className="fixit-gradient-bg min-h-screen flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-white" />
+        <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+          <div className="w-48 h-1 rounded-full overflow-hidden bg-[#E5E7EB]">
+            <div className="h-full w-1/3 bg-[#00539F] rounded-full skeleton-pulse" />
+          </div>
         </div>
       }
     >

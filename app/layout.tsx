@@ -1,17 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono, Outfit, DM_Sans } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
-
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -25,7 +15,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "FixIt AI",
   },
   icons: {
@@ -35,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#FAFAFA",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -48,9 +38,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${outfit.variable} ${dmSans.variable} ${geistMono.variable} antialiased bg-black text-[#a1a1a1] min-h-screen`}
+        className={`${geistMono.variable} antialiased bg-[#FAFAFA] text-[#111111] min-h-screen`}
+        style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}
       >
         {children}
         <Toaster
@@ -58,10 +49,11 @@ export default function RootLayout({
           richColors
           toastOptions={{
             style: {
-              background: "rgba(10, 10, 10, 0.95)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              color: "#ededed",
-              backdropFilter: "blur(12px)",
+              background: "#FFFFFF",
+              border: "1px solid #E5E7EB",
+              color: "#111111",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              borderRadius: "6px",
             },
           }}
         />

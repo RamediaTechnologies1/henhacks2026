@@ -1,7 +1,6 @@
 "use client";
 
-import { Shield, ShieldAlert, AlertTriangle, Building2, TrendingUp, Clock, Activity } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Shield, ShieldAlert, AlertTriangle, TrendingUp, Clock } from "lucide-react";
 import type { Report, Assignment } from "@/lib/types";
 
 interface SafetyDashboardProps {
@@ -34,7 +33,6 @@ function computeBuildingSafety(reports: Report[], assignments: Assignment[]): Bu
     const openSafety = open.filter((r) => r.safety_concern).length;
     const totalOpen = open.length;
 
-    // Compute avg resolution time from resolved reports
     const resolved = bReports.filter((r) => r.status === "resolved");
     let avgResolutionHours: number | null = null;
     if (resolved.length > 0) {
@@ -46,7 +44,6 @@ function computeBuildingSafety(reports: Report[], assignments: Assignment[]): Bu
       avgResolutionHours = Math.round(totalHours / resolved.length);
     }
 
-    // Collect unique risk types from open reports
     const risks = new Set<string>();
     for (const r of open) {
       if (r.safety_concern) {
@@ -59,8 +56,6 @@ function computeBuildingSafety(reports: Report[], assignments: Assignment[]): Bu
       }
     }
 
-    // Safety score: 0 (safe) to 10 (dangerous)
-    // Factors: open safety issues (weight 3), total open (weight 1), high priority count (weight 2)
     const criticalCount = open.filter((r) => r.priority === "critical").length;
     const highCount = open.filter((r) => r.priority === "high").length;
     const score = Math.min(10, Math.round(
@@ -74,17 +69,17 @@ function computeBuildingSafety(reports: Report[], assignments: Assignment[]): Bu
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 7) return "#ef4444";
-  if (score >= 4) return "#f97316";
-  if (score >= 2) return "#eab308";
-  return "#22c55e";
+  if (score >= 7) return "#DC2626";
+  if (score >= 4) return "#F59E0B";
+  if (score >= 2) return "#F59E0B";
+  return "#10B981";
 }
 
 function getScoreLabel(score: number): string {
-  if (score >= 7) return "CRITICAL";
-  if (score >= 4) return "AT RISK";
-  if (score >= 2) return "CAUTION";
-  return "SAFE";
+  if (score >= 7) return "Critical";
+  if (score >= 4) return "At risk";
+  if (score >= 2) return "Caution";
+  return "Safe";
 }
 
 const RISK_LABELS: Record<string, string> = {
@@ -98,31 +93,6 @@ const RISK_LABELS: Record<string, string> = {
   chemical_exposure: "Chemical",
 };
 
-function SafetyScoreRing({ score, size = 48 }: { score: number; size?: number }) {
-  const color = getScoreColor(score);
-  const circumference = 2 * Math.PI * 18;
-  const progress = (score / 10) * circumference;
-
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg viewBox="0 0 40 40" className="w-full h-full -rotate-90">
-        <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
-        <circle
-          cx="20" cy="20" r="18" fill="none"
-          stroke={color} strokeWidth="3"
-          strokeDasharray={circumference}
-          strokeDashoffset={circumference - progress}
-          strokeLinecap="round"
-          className="transition-all duration-700"
-        />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xs font-bold" style={{ color }}>{score}</span>
-      </div>
-    </div>
-  );
-}
-
 export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) {
   const buildingSafety = computeBuildingSafety(reports, assignments);
   const totalSafetyIssues = reports.filter((r) => r.safety_concern && r.status !== "resolved").length;
@@ -134,7 +104,6 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
     return updated.toDateString() === today.toDateString();
   }).length;
 
-  // Compute campus-wide safety score
   const campusScore = buildingSafety.length > 0
     ? Math.round(buildingSafety.reduce((acc, b) => acc + b.score, 0) / buildingSafety.length)
     : 0;
@@ -153,11 +122,11 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
     for (const [trade, count] of tradeMap) {
       if (count >= 2) {
         const messages: Record<string, string> = {
-          plumbing: `${count} plumbing reports — potential pipe deterioration. Risk: water damage, mold growth, slip hazards`,
-          electrical: `${count} electrical reports — possible wiring degradation. Risk: fire hazard, electrical shock`,
-          hvac: `${count} HVAC reports — system may be failing. Risk: air quality decline, temperature extremes`,
-          structural: `${count} structural reports — building integrity concern. Risk: structural failure, falling debris`,
-          safety_hazard: `${count} safety reports — active danger zone. Risk: immediate harm to occupants`,
+          plumbing: `${count} plumbing reports — potential pipe deterioration`,
+          electrical: `${count} electrical reports — possible wiring degradation`,
+          hvac: `${count} HVAC reports — system may be failing`,
+          structural: `${count} structural reports — building integrity concern`,
+          safety_hazard: `${count} safety reports — active danger zone`,
         };
         predictions.push({
           building,
@@ -169,102 +138,65 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
   }
 
   return (
-    <div className="space-y-5 stagger-enter">
+    <div className="space-y-6">
       {/* Campus Safety Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="rounded-2xl border-white/[0.08] bg-white/[0.04]">
-          <CardContent className="p-4 flex items-center gap-3">
-            <SafetyScoreRing score={campusScore} />
-            <div>
-              <p className="text-lg font-bold text-[#ededed]">{getScoreLabel(campusScore)}</p>
-              <p className="text-[10px] text-[#666666] font-medium">Campus Safety</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-white/[0.08] bg-white/[0.04]">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="bg-[#ef4444]/15 p-2.5 rounded-xl">
-              <ShieldAlert className="h-5 w-5 text-[#ef4444]" />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-[#ededed]">{totalSafetyIssues}</p>
-              <p className="text-[10px] text-[#666666] font-medium">Active Hazards</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-white/[0.08] bg-white/[0.04]">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="bg-[#f97316]/15 p-2.5 rounded-xl">
-              <AlertTriangle className="h-5 w-5 text-[#f97316]" />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-[#ededed]">{criticalUnresolved}</p>
-              <p className="text-[10px] text-[#666666] font-medium">Critical Unresolved</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-2xl border-white/[0.08] bg-white/[0.04]">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="bg-[#22c55e]/15 p-2.5 rounded-xl">
-              <Shield className="h-5 w-5 text-[#22c55e]" />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-[#22c55e]">{safetyResolvedToday}</p>
-              <p className="text-[10px] text-[#666666] font-medium">Resolved Today</p>
-            </div>
-          </CardContent>
-        </Card>
+        {[
+          { label: "Campus Safety", value: getScoreLabel(campusScore), borderColor: getScoreColor(campusScore) },
+          { label: "Active Hazards", value: totalSafetyIssues, borderColor: "#DC2626" },
+          { label: "Critical Unresolved", value: criticalUnresolved, borderColor: "#F59E0B" },
+          { label: "Resolved Today", value: safetyResolvedToday, borderColor: "#10B981" },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+            style={{ borderBottomWidth: '3px', borderBottomColor: stat.borderColor }}
+          >
+            <p className="text-[28px] font-semibold text-[#111111]">{stat.value}</p>
+            <p className="text-[13px] text-[#6B7280]">{stat.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Predictive Safety Alerts */}
       {predictions.length > 0 && (
-        <Card className="rounded-2xl border-[#ef4444]/20 bg-[#ef4444]/[0.03]">
-          <CardContent className="p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-[#ef4444]" />
-              <span className="text-sm font-bold text-[#ededed]">Predictive Safety Alerts</span>
-              <span className="text-[10px] bg-[#ef4444]/15 text-[#ef4444] px-2 py-0.5 rounded-full font-semibold">
-                {predictions.length} detected
-              </span>
-            </div>
-            <div className="space-y-2">
-              {predictions.map((p, i) => (
-                <div key={i} className={`flex gap-3 p-3 rounded-xl border ${
-                  p.severity === "critical"
-                    ? "bg-[#ef4444]/10 border-[#ef4444]/20"
-                    : "bg-[#f97316]/10 border-[#f97316]/20"
-                }`}>
-                  <div className={`w-1.5 rounded-full flex-shrink-0 ${
-                    p.severity === "critical" ? "bg-[#ef4444]" : "bg-[#f97316]"
-                  }`} />
-                  <div>
-                    <p className="text-xs font-bold text-[#ededed]">{p.building}</p>
-                    <p className="text-[11px] text-[#a1a1a1] leading-relaxed mt-0.5">{p.message}</p>
-                  </div>
+        <div className="bg-white border border-[#DC2626]/20 rounded-[6px] p-4 space-y-3 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-[#DC2626]" />
+            <span className="text-[14px] font-medium text-[#111111]">Predictive safety alerts</span>
+            <span className="text-[12px] bg-[#FEF2F2] text-[#DC2626] px-2 py-0.5 rounded-[4px] font-medium">
+              {predictions.length} detected
+            </span>
+          </div>
+          <div className="space-y-2">
+            {predictions.map((p, i) => (
+              <div key={i} className={`flex gap-3 p-3 rounded-[6px] border ${
+                p.severity === "critical"
+                  ? "bg-[#FEF2F2] border-[#DC2626]/20"
+                  : "bg-[#FFFBEB] border-[#F59E0B]/20"
+              }`}>
+                <div className={`w-1.5 rounded-full flex-shrink-0 ${
+                  p.severity === "critical" ? "bg-[#DC2626]" : "bg-[#F59E0B]"
+                }`} />
+                <div>
+                  <p className="text-[13px] font-medium text-[#111111]">{p.building}</p>
+                  <p className="text-[13px] text-[#6B7280] mt-0.5">{p.message}</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Building Safety Index */}
       <div>
-        <div className="section-header mb-3">
-          <h2 className="font-bold text-lg text-[#ededed] font-[family-name:var(--font-outfit)]">Building Safety Index</h2>
-          <p className="text-xs text-[#666666] mt-0.5">Real-time safety scoring per building</p>
-        </div>
+        <h2 className="text-[16px] font-medium text-[#111111] mb-1">Building safety index</h2>
+        <p className="text-[13px] text-[#6B7280] mb-3">Real-time safety scoring per building</p>
 
         {buildingSafety.length === 0 && (
           <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-[#22c55e]/10 flex items-center justify-center mx-auto mb-4">
-              <Shield className="h-7 w-7 text-[#22c55e]" />
-            </div>
-            <p className="text-[#22c55e] font-medium">All Clear</p>
-            <p className="text-[#666666] text-sm mt-1">No safety concerns detected across campus.</p>
+            <p className="text-[14px] text-[#10B981] font-medium">All clear</p>
+            <p className="text-[13px] text-[#6B7280] mt-1">No safety concerns detected across campus.</p>
           </div>
         )}
 
@@ -272,45 +204,47 @@ export function SafetyDashboard({ reports, assignments }: SafetyDashboardProps) 
           {buildingSafety.map((b) => {
             const color = getScoreColor(b.score);
             return (
-              <Card key={b.name} className="rounded-2xl border-white/[0.08] bg-white/[0.04] overflow-hidden">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <SafetyScoreRing score={b.score} size={44} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-bold text-[#ededed]">{b.name}</p>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{
-                          backgroundColor: `${color}20`,
-                          color,
-                        }}>
-                          {getScoreLabel(b.score)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 mt-1.5 text-[10px] text-[#666666]">
-                        <span>{b.totalOpen} open</span>
-                        {b.openSafety > 0 && (
-                          <span className="text-[#ef4444] font-semibold">{b.openSafety} safety</span>
-                        )}
-                        {b.avgResolutionHours !== null && (
-                          <span className="flex items-center gap-0.5">
-                            <Clock className="h-2.5 w-2.5" />
-                            avg {b.avgResolutionHours}h resolution
-                          </span>
-                        )}
-                      </div>
-                      {b.risks.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {b.risks.map((risk) => (
-                            <span key={risk} className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-[#ef4444]/10 text-[#ef4444]/80 border border-[#ef4444]/15">
-                              {RISK_LABELS[risk] || risk}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+              <div key={b.name} className="bg-white border border-[#E5E7EB] rounded-[6px] p-4 shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:border-[#D1D5DB] transition-colors duration-150">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[14px] font-medium text-[#111111]">{b.name}</p>
+                  <span className="text-[12px] font-medium px-2 py-0.5 rounded-[4px]" style={{
+                    backgroundColor: `${color}15`,
+                    color,
+                  }}>
+                    {getScoreLabel(b.score)} ({b.score}/10)
+                  </span>
+                </div>
+                {/* Score bar */}
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex-1 h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${b.score * 10}%`, backgroundColor: color }}
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="flex items-center gap-3 text-[12px] text-[#6B7280]">
+                  <span>{b.totalOpen} open</span>
+                  {b.openSafety > 0 && (
+                    <span className="text-[#DC2626] font-medium">{b.openSafety} safety</span>
+                  )}
+                  {b.avgResolutionHours !== null && (
+                    <span className="flex items-center gap-0.5">
+                      <Clock className="h-3 w-3" />
+                      avg {b.avgResolutionHours}h resolution
+                    </span>
+                  )}
+                </div>
+                {b.risks.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {b.risks.map((risk) => (
+                      <span key={risk} className="px-1.5 py-0.5 rounded-[4px] text-[11px] font-medium bg-[#FEF2F2] text-[#DC2626] border border-[#DC2626]/15">
+                        {RISK_LABELS[risk] || risk}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>

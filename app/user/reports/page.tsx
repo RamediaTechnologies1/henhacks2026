@@ -2,19 +2,16 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Clock, MapPin, AlertTriangle, ClipboardList, Camera, RefreshCw, CheckCircle2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import type { Report } from "@/lib/types";
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-  submitted: { bg: "bg-[#ffffff]/15", text: "text-[#ffffff]", dot: "bg-[#ffffff]" },
-  analyzing: { bg: "bg-[#888888]/15", text: "text-[#888888]", dot: "bg-[#888888]" },
-  dispatched: { bg: "bg-[#a1a1a1]/15", text: "text-[#a1a1a1]", dot: "bg-[#a1a1a1]" },
-  in_progress: { bg: "bg-[#cccccc]/15", text: "text-[#cccccc]", dot: "bg-[#cccccc]" },
-  resolved: { bg: "bg-[#22c55e]/15", text: "text-[#22c55e]", dot: "bg-[#22c55e]" },
+const STATUS_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  submitted: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  analyzing: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20" },
+  dispatched: { bg: "bg-[#FFFBEB]", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20" },
+  in_progress: { bg: "bg-[#EFF6FF]", text: "text-[#00539F]", border: "border-[#00539F]/20" },
+  resolved: { bg: "bg-[#ECFDF5]", text: "text-[#10B981]", border: "border-[#10B981]/20" },
 };
 
 const STATUS_STEPS = ["submitted", "dispatched", "in_progress", "resolved"];
@@ -41,25 +38,22 @@ function StatusTimeline({ status }: { status: string }) {
     <div className="flex items-center gap-1 mt-3">
       {STATUS_STEPS.map((step, i) => {
         const isCompleted = i <= progress;
-        const isCurrent = i === progress;
         return (
-          <div key={step} className="flex items-center flex-1">
-            <div className="flex flex-col items-center flex-1">
-              <div
-                className={`w-full h-1.5 rounded-full transition-all ${
-                  isCompleted
-                    ? status === "resolved" && i === STATUS_STEPS.length - 1
-                      ? "bg-[#22c55e]"
-                      : "bg-white"
-                    : "bg-white/[0.08]"
-                } ${isCurrent && status !== "resolved" ? "animate-pulse" : ""}`}
-              />
-              <span className={`text-[8px] mt-1 font-semibold ${
-                isCompleted ? "text-[#a1a1a1]" : "text-[#444444]"
-              }`}>
-                {step.replace("_", " ").toUpperCase()}
-              </span>
-            </div>
+          <div key={step} className="flex flex-col items-center flex-1">
+            <div
+              className={`w-full h-1 rounded-full ${
+                isCompleted
+                  ? status === "resolved" && i === STATUS_STEPS.length - 1
+                    ? "bg-[#10B981]"
+                    : "bg-[#00539F]"
+                  : "bg-[#E5E7EB]"
+              }`}
+            />
+            <span className={`text-[9px] mt-1 ${
+              isCompleted ? "text-[#6B7280]" : "text-[#9CA3AF]"
+            }`}>
+              {step.replace("_", " ")}
+            </span>
           </div>
         );
       })}
@@ -67,11 +61,11 @@ function StatusTimeline({ status }: { status: string }) {
   );
 }
 
-const PRIORITY_STRIP: Record<string, string> = {
-  critical: "priority-strip-critical",
-  high: "priority-strip-high",
-  medium: "priority-strip-medium",
-  low: "priority-strip-low",
+const PRIORITY_COLORS: Record<string, string> = {
+  critical: "border-l-[#DC2626]",
+  high: "border-l-[#F59E0B]",
+  medium: "border-l-[#00539F]",
+  low: "border-l-[#10B981]",
 };
 
 export default function MyReports() {
@@ -101,17 +95,17 @@ export default function MyReports() {
   }, [loadReports]);
 
   return (
-    <div className="p-4 space-y-4 page-enter">
+    <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="section-header">
-          <h1 className="text-xl font-bold text-[#ededed]">My Reports</h1>
-          <p className="text-xs text-[#64748b] mt-0.5">Track the status of your submissions</p>
+        <div>
+          <h1 className="text-[20px] font-medium text-[#111111] tracking-[-0.01em]">My Reports</h1>
+          <p className="text-[13px] text-[#6B7280] mt-0.5">Track the status of your submissions</p>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => { setRefreshing(true); loadReports(); }}
-          className="rounded-xl h-9 w-9 p-0 border-white/[0.08] text-[#666666] hover:bg-white/5"
+          className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6]"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
         </Button>
@@ -119,88 +113,74 @@ export default function MyReports() {
 
       {/* Quick Stats */}
       {!loading && reports.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
-          <div className="glass-card rounded-xl p-3 text-center">
-            <p className="text-lg font-bold text-[#ededed]">{reports.length}</p>
-            <p className="text-[9px] text-[#666666] font-medium">Total</p>
-          </div>
-          <div className="glass-card rounded-xl p-3 text-center">
-            <p className="text-lg font-bold text-[#ededed]">
-              {reports.filter((r) => r.status !== "resolved").length}
-            </p>
-            <p className="text-[9px] text-[#666666] font-medium">Active</p>
-          </div>
-          <div className="glass-card rounded-xl p-3 text-center">
-            <p className="text-lg font-bold text-[#22c55e]">
-              {reports.filter((r) => r.status === "resolved").length}
-            </p>
-            <p className="text-[9px] text-[#666666] font-medium">Resolved</p>
-          </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: "Total", value: reports.length },
+            { label: "Active", value: reports.filter((r) => r.status !== "resolved").length },
+            { label: "Resolved", value: reports.filter((r) => r.status === "resolved").length },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white border border-[#E5E7EB] rounded-[6px] p-3 text-center shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+              <p className="text-[28px] font-semibold text-[#111111]">{stat.value}</p>
+              <p className="text-[13px] text-[#6B7280]">{stat.label}</p>
+            </div>
+          ))}
         </div>
       )}
 
       {loading && (
-        <div className="space-y-3 stagger-enter">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-28 rounded-2xl bg-white/5" />
+            <div key={i} className="h-28 rounded-[6px] skeleton-pulse" />
           ))}
         </div>
       )}
 
       {!loading && reports.length === 0 && (
         <div className="text-center py-16">
-          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-            <ClipboardList className="h-8 w-8 text-[#64748b]" />
-          </div>
-          <p className="text-[#666666] font-medium mb-1">No reports yet</p>
-          <p className="text-[#64748b] text-sm mb-6">Submit your first maintenance report to get started.</p>
+          <p className="text-[14px] text-[#6B7280] mb-4">No reports yet</p>
           <Link href="/user">
-            <Button className="btn-western rounded-xl h-11 px-6">
+            <Button className="bg-[#00539F] hover:bg-[#003d75] text-white rounded-[6px] h-11 px-6 text-[14px] font-medium">
               <Camera className="mr-2 h-4 w-4" />
-              Report an Issue
+              Report an issue
             </Button>
           </Link>
         </div>
       )}
 
-      <div className="space-y-3 stagger-enter">
+      <div className="space-y-3">
         {reports.map((report) => {
           const status = STATUS_STYLES[report.status] || STATUS_STYLES.submitted;
           return (
-            <Card
+            <div
               key={report.id}
-              className={`overflow-hidden rounded-2xl card-hover-lift border-white/[0.08] bg-white/[0.04] ${PRIORITY_STRIP[report.priority] || ""}`}
+              className={`bg-white border border-[#E5E7EB] rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] overflow-hidden border-l-[3px] ${PRIORITY_COLORS[report.priority] || ""}`}
             >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-2.5">
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-[10px] font-bold rounded-lg bg-white/5 text-[#a1a1a1] border-white/[0.08]">
-                      {report.trade.replace("_", " ").toUpperCase()}
-                    </Badge>
+                    <span className="text-[12px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-[4px] border border-[#E5E7EB]">
+                      {report.trade.replace("_", " ")}
+                    </span>
                     {report.safety_concern && (
-                      <Badge className="text-[10px] font-bold bg-[#ef4444] text-[#ededed] border-none">
-                        <AlertTriangle className="h-3 w-3 mr-0.5" /> Safety
-                      </Badge>
+                      <span className="text-[12px] font-medium text-[#DC2626] bg-[#FEF2F2] px-2 py-0.5 rounded-[4px] border border-[#DC2626]/20 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" /> safety
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-[#666666] font-medium">{getTimeAgo(report.created_at)}</span>
-                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${status.bg} ${status.text}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${status.dot} ${report.status === "in_progress" ? "dot-breathing" : ""}`} />
-                      {report.status === "resolved" ? (
-                        <><CheckCircle2 className="h-3 w-3" /> RESOLVED</>
-                      ) : (
-                        report.status.replace("_", " ").toUpperCase()
-                      )}
-                    </div>
+                    <span className="text-[12px] text-[#9CA3AF]">{getTimeAgo(report.created_at)}</span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[12px] font-medium border ${status.bg} ${status.text} ${status.border}`}>
+                      {report.status === "resolved" && <CheckCircle2 className="h-3 w-3" />}
+                      {report.status.replace("_", " ")}
+                    </span>
                   </div>
                 </div>
 
-                <p className="text-sm font-semibold text-[#ededed] mb-1 leading-snug">
+                <p className="text-[14px] font-medium text-[#111111] mb-1 leading-snug">
                   {report.ai_description}
                 </p>
 
-                <div className="flex items-center gap-3 text-xs text-[#64748b]">
+                <div className="flex items-center gap-3 text-[13px] text-[#6B7280]">
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
                     {report.building}
@@ -212,10 +192,9 @@ export default function MyReports() {
                   </span>
                 </div>
 
-                {/* Status Timeline */}
                 <StatusTimeline status={report.status} />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           );
         })}
       </div>

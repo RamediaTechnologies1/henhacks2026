@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, ImagePlus, X, RotateCcw, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Camera, ImagePlus, X, RotateCcw } from "lucide-react";
 
 interface CameraCaptureProps {
   onCapture: (base64: string) => void;
@@ -52,35 +51,19 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
 
   if (photoPreview) {
     return (
-      <div className="relative rounded-2xl overflow-hidden shadow-lg group">
+      <div className="relative rounded-[6px] overflow-hidden border border-[#E5E7EB]">
         <img
           src={photoPreview}
           alt="Captured maintenance issue"
-          className="w-full h-52 object-cover"
+          className="w-full h-[200px] object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute top-3 right-3 flex gap-2">
-          <button
-            type="button"
-            onClick={() => { onClear(); cameraInputRef.current?.click(); }}
-            className="bg-[#060a13]/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-white/5 transition"
-          >
-            <RotateCcw className="h-4 w-4 text-[#a1a1a1]" />
-          </button>
-          <button
-            type="button"
-            onClick={onClear}
-            className="bg-[#060a13]/90 backdrop-blur-sm p-2 rounded-xl shadow-lg hover:bg-white/5 transition"
-          >
-            <X className="h-4 w-4 text-[#a1a1a1]" />
-          </button>
-        </div>
-        <div className="absolute bottom-3 left-3">
-          <div className="flex items-center gap-1.5 bg-white text-black text-xs px-3 py-1.5 rounded-full font-semibold shadow-lg">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Photo captured
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={onClear}
+          className="absolute top-2 right-2 bg-white border border-[#E5E7EB] px-2 py-1 rounded-[4px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] text-[12px] font-medium text-[#6B7280] hover:bg-[#F3F4F6] transition-colors duration-150"
+        >
+          Retake
+        </button>
         <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleInputChange} className="hidden" />
       </div>
     );
@@ -88,36 +71,20 @@ export function CameraCapture({ onCapture, photoPreview, onClear }: CameraCaptur
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          onClick={() => cameraInputRef.current?.click()}
-          disabled={processing}
-          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-200 active:scale-[0.98]"
-        >
-          <div className="bg-white/15 p-3 rounded-2xl group-hover:bg-white/20 transition">
-            <Camera className="h-7 w-7 text-white" />
-          </div>
-          <span className="text-sm font-semibold text-white">Take Photo</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={processing}
-          className="group flex flex-col items-center justify-center gap-3 h-36 rounded-2xl border-2 border-dashed border-white/[0.08] bg-white/[0.03] hover:bg-white/5 hover:border-white/[0.15] transition-all duration-200 active:scale-[0.98]"
-        >
-          <div className="bg-white/[0.04] p-3 rounded-2xl group-hover:bg-white/[0.08] transition">
-            <ImagePlus className="h-7 w-7 text-[#666666]" />
-          </div>
-          <span className="text-sm font-semibold text-[#666666]">Upload Image</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => cameraInputRef.current?.click()}
+        disabled={processing}
+        className="w-full flex flex-col items-center justify-center gap-2 h-[200px] rounded-[6px] border-2 border-dashed border-[#D1D5DB] bg-white hover:border-[#00539F] hover:bg-[#FAFAFA] transition-colors duration-150"
+      >
+        <Camera className="h-6 w-6 text-[#9CA3AF]" />
+        <span className="text-[14px] text-[#6B7280]">Take a photo or upload</span>
+      </button>
 
       {processing && (
         <div className="flex items-center justify-center gap-2 py-2">
-          <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-          <span className="text-sm text-[#666666]">Processing...</span>
+          <div className="w-4 h-4 rounded-full border-2 border-[#E5E7EB] border-t-[#00539F] animate-spin" />
+          <span className="text-[13px] text-[#6B7280]">Processing...</span>
         </div>
       )}
 

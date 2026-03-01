@@ -1,7 +1,6 @@
 "use client";
 
-import { MapPin, Clock, AlertTriangle, ChevronRight, Zap } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { MapPin, Clock, AlertTriangle, ChevronRight } from "lucide-react";
 import type { Assignment } from "@/lib/types";
 
 interface JobCardProps {
@@ -9,19 +8,19 @@ interface JobCardProps {
   onClick: () => void;
 }
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-  pending: { bg: "bg-white/15", text: "text-white", dot: "bg-white", label: "NEW" },
-  accepted: { bg: "bg-[#cccccc]/15", text: "text-[#cccccc]", dot: "bg-[#cccccc]", label: "ACCEPTED" },
-  in_progress: { bg: "bg-[#888888]/15", text: "text-[#888888]", dot: "bg-[#888888]", label: "IN PROGRESS" },
-  completed: { bg: "bg-white/15", text: "text-white", dot: "bg-white", label: "DONE" },
-  cancelled: { bg: "bg-[#64748b]/15", text: "text-[#64748b]", dot: "bg-[#64748b]", label: "CANCELLED" },
+const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; label: string }> = {
+  pending: { bg: "bg-[#F3F4F6]", text: "text-[#6B7280]", border: "border-[#6B7280]/20", label: "New" },
+  accepted: { bg: "bg-[#EFF6FF]", text: "text-[#00539F]", border: "border-[#00539F]/20", label: "Accepted" },
+  in_progress: { bg: "bg-[#FFFBEB]", text: "text-[#F59E0B]", border: "border-[#F59E0B]/20", label: "In progress" },
+  completed: { bg: "bg-[#ECFDF5]", text: "text-[#10B981]", border: "border-[#10B981]/20", label: "Done" },
+  cancelled: { bg: "bg-[#F3F4F6]", text: "text-[#9CA3AF]", border: "border-[#9CA3AF]/20", label: "Cancelled" },
 };
 
-const PRIORITY_STRIP: Record<string, string> = {
-  critical: "priority-strip-critical",
-  high: "priority-strip-high",
-  medium: "priority-strip-medium",
-  low: "priority-strip-low",
+const PRIORITY_BORDER: Record<string, string> = {
+  critical: "border-l-[#DC2626]",
+  high: "border-l-[#F59E0B]",
+  medium: "border-l-[#00539F]",
+  low: "border-l-[#10B981]",
 };
 
 export function JobCard({ assignment, onClick }: JobCardProps) {
@@ -31,36 +30,35 @@ export function JobCard({ assignment, onClick }: JobCardProps) {
   const status = STATUS_CONFIG[assignment.status] || STATUS_CONFIG.pending;
 
   return (
-    <Card
-      className={`cursor-pointer card-hover-lift rounded-2xl overflow-hidden border-white/[0.08] bg-white/[0.04] ${PRIORITY_STRIP[report.priority] || ""}`}
+    <div
+      className={`cursor-pointer bg-white border border-[#E5E7EB] rounded-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.05)] overflow-hidden border-l-[3px] hover:border-[#D1D5DB] hover:bg-[#FAFAFA] transition-colors duration-150 ${PRIORITY_BORDER[report.priority] || ""}`}
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-2.5">
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/10 text-[#a1a1a1] uppercase tracking-wide">
+            <span className="text-[12px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-[4px] border border-[#E5E7EB]">
               {report.trade.replace("_", " ")}
             </span>
             {report.priority === "critical" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold bg-[#ef4444]/15 text-[#ef4444]">
-                <Zap className="h-3 w-3" /> URGENT
+              <span className="text-[12px] font-medium text-[#DC2626] bg-[#FEF2F2] px-2 py-0.5 rounded-[4px] border border-[#DC2626]/20">
+                urgent
               </span>
             )}
           </div>
           <div className="flex items-center gap-1.5">
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${status.bg} ${status.text}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${status.dot} ${assignment.status === "pending" ? "dot-breathing" : ""}`} />
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[12px] font-medium border ${status.bg} ${status.text} ${status.border}`}>
               {status.label}
             </span>
-            <ChevronRight className="h-4 w-4 text-[#484f58]" />
+            <ChevronRight className="h-4 w-4 text-[#9CA3AF]" />
           </div>
         </div>
 
-        <p className="text-sm font-semibold text-[#ededed] mb-2.5 leading-snug">
+        <p className="text-[14px] font-medium text-[#111111] mb-2 leading-snug">
           {report.ai_description}
         </p>
 
-        <div className="flex items-center gap-3 text-xs text-[#64748b]">
+        <div className="flex items-center gap-3 text-[13px] text-[#6B7280]">
           <span className="flex items-center gap-1">
             <MapPin className="h-3 w-3" />
             {report.building}{report.room ? `, ${report.room}` : ""}
@@ -70,12 +68,12 @@ export function JobCard({ assignment, onClick }: JobCardProps) {
             {new Date(assignment.created_at).toLocaleDateString()}
           </span>
           {report.safety_concern && (
-            <span className="flex items-center gap-1 text-[#ef4444] font-semibold rounded-full px-1.5">
-              <AlertTriangle className="h-3 w-3" /> Safety
+            <span className="flex items-center gap-1 text-[#DC2626] font-medium">
+              <AlertTriangle className="h-3 w-3" /> safety
             </span>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

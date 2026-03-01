@@ -8,10 +8,8 @@ import {
   MessageSquare,
   CheckCircle2,
   Camera,
-  Sparkles,
   ArrowLeft,
   ArrowRight,
-  PartyPopper,
   EyeOff,
   Eye,
   ShieldAlert,
@@ -36,10 +34,10 @@ import type { AIAnalysis, FloorPlanRoom } from "@/lib/types";
 type Step = "photo" | "location" | "details" | "analyzing" | "review" | "submitted";
 
 const STEPS = [
-  { key: "photo", label: "Photo", icon: Camera },
-  { key: "location", label: "Location", icon: MapPin },
-  { key: "details", label: "Details", icon: MessageSquare },
-  { key: "review", label: "Review", icon: Sparkles },
+  { key: "photo", label: "Photo" },
+  { key: "location", label: "Location" },
+  { key: "details", label: "Details" },
+  { key: "review", label: "Review" },
 ];
 
 interface ReportFormProps {
@@ -121,42 +119,39 @@ export function ReportForm({ prefill }: ReportFormProps) {
     const isSafety = aiAnalysis?.safety_concern;
     const isCritical = aiAnalysis?.priority === "critical";
     return (
-      <div className="p-6 text-center py-10 page-enter space-y-5">
-        <div className="relative inline-block mb-2">
-          <div className="absolute inset-0 bg-white rounded-full blur-xl opacity-20" />
-          <div className="relative bg-gradient-to-br from-white to-[#e5e5e5] p-5 rounded-full shadow-lg shadow-white/30">
-            <PartyPopper className="h-10 w-10 text-black" />
-          </div>
+      <div className="p-6 text-center py-10 space-y-5">
+        <div className="w-12 h-12 rounded-full bg-[#ECFDF5] flex items-center justify-center mx-auto">
+          <CheckCircle2 className="h-6 w-6 text-[#10B981]" />
         </div>
-        <h2 className="text-2xl font-bold text-[#ededed]">Report Submitted!</h2>
-        <p className="text-[#666666] max-w-xs mx-auto leading-relaxed">
+        <h2 className="text-[20px] font-medium text-[#111111]">Report submitted</h2>
+        <p className="text-[14px] text-[#6B7280] max-w-xs mx-auto leading-relaxed">
           Our AI has analyzed and dispatched your report to the maintenance team.
         </p>
 
-        {/* Safety escalation transparency */}
+        {/* Safety escalation */}
         {isSafety && (
-          <div className="text-left mx-auto max-w-xs bg-[#ef4444]/[0.05] border border-[#ef4444]/20 rounded-xl p-4 space-y-2">
+          <div className="text-left mx-auto max-w-xs bg-[#FEF2F2] border border-[#DC2626]/20 rounded-[6px] p-4 space-y-2">
             <div className="flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-[#ef4444]" />
-              <span className="text-xs font-bold text-[#ef4444]">Safety Alert Triggered</span>
+              <ShieldAlert className="h-4 w-4 text-[#DC2626]" />
+              <span className="text-[13px] font-medium text-[#DC2626]">Safety alert triggered</span>
             </div>
-            <div className="space-y-1.5 text-[11px] text-[#a1a1a1]">
+            <div className="space-y-1.5 text-[13px] text-[#6B7280]">
               <p className="flex items-center gap-2">
-                <CheckCircle2 className="h-3 w-3 text-[#22c55e] flex-shrink-0" />
+                <CheckCircle2 className="h-3 w-3 text-[#10B981] flex-shrink-0" />
                 Safety team notified immediately
               </p>
               <p className="flex items-center gap-2">
-                <CheckCircle2 className="h-3 w-3 text-[#22c55e] flex-shrink-0" />
+                <CheckCircle2 className="h-3 w-3 text-[#10B981] flex-shrink-0" />
                 Report prioritized in dispatch queue
               </p>
               {isCritical && (
                 <p className="flex items-center gap-2">
-                  <CheckCircle2 className="h-3 w-3 text-[#22c55e] flex-shrink-0" />
+                  <CheckCircle2 className="h-3 w-3 text-[#10B981] flex-shrink-0" />
                   Auto-escalated to campus safety director
                 </p>
               )}
               <p className="flex items-center gap-2">
-                <CheckCircle2 className="h-3 w-3 text-[#22c55e] flex-shrink-0" />
+                <CheckCircle2 className="h-3 w-3 text-[#10B981] flex-shrink-0" />
                 Technician dispatched for immediate response
               </p>
             </div>
@@ -165,21 +160,21 @@ export function ReportForm({ prefill }: ReportFormProps) {
 
         {/* Privacy confirmation */}
         {anonymous && (
-          <div className="text-left mx-auto max-w-xs bg-[#22c55e]/[0.05] border border-[#22c55e]/20 rounded-xl p-4">
+          <div className="text-left mx-auto max-w-xs bg-[#ECFDF5] border border-[#10B981]/20 rounded-[6px] p-4">
             <div className="flex items-center gap-2 mb-1.5">
-              <EyeOff className="h-4 w-4 text-[#22c55e]" />
-              <span className="text-xs font-bold text-[#22c55e]">Identity Protected</span>
+              <EyeOff className="h-4 w-4 text-[#10B981]" />
+              <span className="text-[13px] font-medium text-[#10B981]">Identity protected</span>
             </div>
-            <p className="text-[11px] text-[#a1a1a1] leading-relaxed">
+            <p className="text-[13px] text-[#6B7280] leading-relaxed">
               Your report was submitted anonymously. Your name and email are not stored or visible to anyone.
             </p>
           </div>
         )}
 
         {/* Data transparency */}
-        <div className="text-left mx-auto max-w-xs bg-white/[0.03] border border-white/[0.08] rounded-xl p-4">
-          <p className="text-[10px] font-bold text-[#666666] uppercase tracking-wider mb-2">What happens with your data</p>
-          <div className="space-y-1.5 text-[10px] text-[#666666]">
+        <div className="text-left mx-auto max-w-xs bg-[#FAFAFA] border border-[#E5E7EB] rounded-[6px] p-4">
+          <p className="text-[13px] font-medium text-[#6B7280] mb-2">What happens with your data</p>
+          <div className="space-y-1 text-[12px] text-[#6B7280]">
             <p>Your photo is analyzed by AI and stored securely for the work order.</p>
             <p>Location data is used only to dispatch the correct maintenance team.</p>
             {!anonymous && <p>Your contact info may be used for follow-up on this report only.</p>}
@@ -187,42 +182,32 @@ export function ReportForm({ prefill }: ReportFormProps) {
           </div>
         </div>
 
-        <Button onClick={resetForm} className="btn-western rounded-xl h-12 px-8">
-          Report Another Issue
+        <Button onClick={resetForm} className="bg-[#00539F] hover:bg-[#003d75] text-white rounded-[6px] h-11 px-8 text-[14px] font-medium">
+          Report another issue
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="p-4 space-y-5 page-enter">
+    <div className="p-6 space-y-5">
       {/* Progress Steps */}
-      <div className="flex items-center justify-between px-1">
+      <div className="flex items-center justify-between">
         {STEPS.map((s, i) => {
-          const Icon = s.icon;
           const isActive = i <= currentStepIndex;
           const isCurrent = i === currentStepIndex;
           return (
-            <div key={s.key} className="flex items-center">
-              <div className="flex flex-col items-center gap-1">
+            <div key={s.key} className="flex items-center flex-1">
+              <div className="flex flex-col items-center gap-1 flex-1">
                 <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                    isCurrent
-                      ? "bg-gradient-to-br from-white to-white text-black shadow-lg shadow-white/30 scale-110"
-                      : isActive
-                        ? "bg-white text-black"
-                        : "bg-white/5 text-[#64748b]"
+                  className={`w-8 h-1 rounded-full transition-colors duration-150 ${
+                    isActive ? "bg-[#00539F]" : "bg-[#E5E7EB]"
                   }`}
-                >
-                  <Icon className="h-4 w-4" />
-                </div>
-                <span className={`text-[10px] font-semibold ${isActive ? "text-white" : "text-[#64748b]"}`}>
+                />
+                <span className={`text-[11px] ${isCurrent ? "font-medium text-[#00539F]" : isActive ? "text-[#111111]" : "text-[#9CA3AF]"}`}>
                   {s.label}
                 </span>
               </div>
-              {i < STEPS.length - 1 && (
-                <div className={`w-10 h-0.5 mx-1 mb-4 rounded-full transition-colors ${i < currentStepIndex ? "bg-white" : "bg-white/[0.08]"}`} />
-              )}
             </div>
           );
         })}
@@ -232,8 +217,8 @@ export function ReportForm({ prefill }: ReportFormProps) {
       {step === "photo" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold text-[#ededed]">Capture the Issue</h2>
-            <p className="text-sm text-[#666666] mt-1">Take a clear photo so our AI can analyze it.</p>
+            <h2 className="text-[16px] font-medium text-[#111111]">Capture the issue</h2>
+            <p className="text-[13px] text-[#6B7280] mt-1">Take a clear photo so our AI can analyze it.</p>
           </div>
           <CameraCapture
             onCapture={(base64) => setPhotoBase64(base64)}
@@ -243,9 +228,9 @@ export function ReportForm({ prefill }: ReportFormProps) {
           <Button
             onClick={() => setStep("location")}
             disabled={!photoBase64}
-            className="w-full h-12 rounded-xl btn-western text-[15px] font-semibold transition-all"
+            className="w-full h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium transition-colors duration-150 disabled:opacity-50"
           >
-            Next: Select Location <ArrowRight className="ml-2 h-4 w-4" />
+            Next: Select location <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       )}
@@ -254,18 +239,21 @@ export function ReportForm({ prefill }: ReportFormProps) {
       {step === "location" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-bold text-[#ededed]">Where is the issue?</h2>
-            <p className="text-sm text-[#666666] mt-1">Select the building and tap the room.</p>
+            <h2 className="text-[16px] font-medium text-[#111111]">Where is the issue?</h2>
+            <p className="text-[13px] text-[#6B7280] mt-1">Select the building and tap the room.</p>
           </div>
 
-          <Select value={building} onValueChange={(val) => { setBuilding(val); setSelectedRoom(null); }}>
-            <SelectTrigger className="h-12 rounded-xl text-[15px] border-white/[0.08] bg-white/[0.03] text-[#ededed]">
-              <SelectValue placeholder="Select Building" />
-            </SelectTrigger>
-            <SelectContent>
-              {DEMO_BUILDINGS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <div className="space-y-1.5">
+            <label className="text-[13px] text-[#6B7280]">Building</label>
+            <Select value={building} onValueChange={(val) => { setBuilding(val); setSelectedRoom(null); }}>
+              <SelectTrigger className="h-10 rounded-[6px] text-[14px] border-[#E5E7EB] bg-white text-[#111111]">
+                <SelectValue placeholder="Select building" />
+              </SelectTrigger>
+              <SelectContent>
+                {DEMO_BUILDINGS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
 
           {building && hasFloorPlan(building) && (
             <FloorPlanViewer
@@ -276,22 +264,22 @@ export function ReportForm({ prefill }: ReportFormProps) {
           )}
 
           {selectedRoom && (
-            <div className="flex items-center gap-2 bg-white/10 border border-white/30 rounded-xl p-3.5">
-              <MapPin className="h-4 w-4 text-white" />
-              <span className="text-sm font-medium text-[#a1a1a1]">
+            <div className="flex items-center gap-2 bg-[#EFF6FF] border border-[#00539F]/20 rounded-[6px] p-3">
+              <MapPin className="h-4 w-4 text-[#00539F]" />
+              <span className="text-[14px] text-[#111111]">
                 {building}, Floor {selectedRoom.floor}, Room {selectedRoom.label}
               </span>
             </div>
           )}
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("photo")} className="flex-1 h-12 rounded-xl border-white/[0.08] text-[#666666] hover:bg-white/5 hover:text-[#a1a1a1]">
+            <Button variant="outline" onClick={() => setStep("photo")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111] text-[14px]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={() => setStep("details")}
               disabled={!building || !selectedRoom}
-              className="flex-1 h-12 rounded-xl btn-western"
+              className="flex-1 h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium disabled:opacity-50"
             >
               Next <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -304,8 +292,8 @@ export function ReportForm({ prefill }: ReportFormProps) {
         <div className="space-y-4">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-[#ededed]">Describe the Issue</h2>
-              <p className="text-sm text-[#666666] mt-1">Type or use voice input.</p>
+              <h2 className="text-[16px] font-medium text-[#111111]">Describe the issue</h2>
+              <p className="text-[13px] text-[#6B7280] mt-1">Type or use voice input.</p>
             </div>
             <VoiceInput
               onTranscript={(text) => setDescription((prev) => prev ? `${prev} ${text}` : text)}
@@ -315,53 +303,53 @@ export function ReportForm({ prefill }: ReportFormProps) {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="e.g., The AC unit is making loud rattling noises and not cooling the room..."
-            className="w-full h-28 px-4 py-3 text-sm border border-white/[0.08] rounded-xl resize-none focus:border-white focus:ring-2 focus:ring-white/10 outline-none bg-white/[0.03] text-[#ededed] placeholder:text-[#64748b]"
+            placeholder="Describe the issue..."
+            className="w-full h-[100px] px-3 py-2.5 text-[14px] border border-[#E5E7EB] rounded-[6px] resize-none bg-white text-[#111111] placeholder:text-[#9CA3AF]"
           />
 
           {/* Anonymous Reporting Toggle */}
           <button
             type="button"
             onClick={() => setAnonymous(!anonymous)}
-            className={`flex items-center gap-2.5 w-full p-3 rounded-xl border transition-all ${
+            className={`flex items-center gap-2.5 w-full p-3 rounded-[6px] border transition-colors duration-150 ${
               anonymous
-                ? "bg-[#22c55e]/10 border-[#22c55e]/30"
-                : "bg-white/[0.03] border-white/[0.08]"
+                ? "bg-[#ECFDF5] border-[#10B981]/30"
+                : "bg-white border-[#E5E7EB] hover:bg-[#F3F4F6]"
             }`}
           >
             {anonymous ? (
-              <EyeOff className="h-4 w-4 text-[#22c55e]" />
+              <EyeOff className="h-4 w-4 text-[#10B981]" />
             ) : (
-              <Eye className="h-4 w-4 text-[#666666]" />
+              <Eye className="h-4 w-4 text-[#6B7280]" />
             )}
             <div className="text-left">
-              <p className={`text-xs font-semibold ${anonymous ? "text-[#22c55e]" : "text-[#a1a1a1]"}`}>
-                {anonymous ? "Anonymous Report — Identity Protected" : "Report Anonymously"}
+              <p className={`text-[13px] font-medium ${anonymous ? "text-[#10B981]" : "text-[#111111]"}`}>
+                {anonymous ? "Anonymous report — identity protected" : "Report anonymously"}
               </p>
-              <p className="text-[10px] text-[#666666]">
+              <p className="text-[12px] text-[#6B7280]">
                 {anonymous ? "Your identity will not be shared with anyone" : "Toggle to hide your identity from technicians and reports"}
               </p>
             </div>
           </button>
 
           {/* Mini summary */}
-          <div className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl border border-white/[0.08]">
-            {photoBase64 && <img src={photoBase64} alt="Preview" className="w-12 h-12 rounded-lg object-cover" />}
-            <div className="text-xs text-[#666666]">
-              <p className="font-semibold text-[#a1a1a1]">{building}</p>
+          <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] rounded-[6px] border border-[#E5E7EB]">
+            {photoBase64 && <img src={photoBase64} alt="Preview" className="w-10 h-10 rounded-[4px] object-cover" />}
+            <div className="text-[13px] text-[#6B7280]">
+              <p className="font-medium text-[#111111]">{building}</p>
               <p>Floor {selectedRoom?.floor || floor}, Room {selectedRoom?.label || room}</p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("location")} className="flex-1 h-12 rounded-xl border-white/[0.08] text-[#666666] hover:bg-white/5 hover:text-[#a1a1a1]">
+            <Button variant="outline" onClick={() => setStep("location")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111] text-[14px]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={handleAnalyze}
-              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-white to-[#cccccc] hover:from-white hover:to-[#b3b3b3] text-black font-bold shadow-lg shadow-white/20"
+              className="flex-1 h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium"
             >
-              <Sparkles className="mr-2 h-4 w-4" /> Analyze with AI
+              Analyze with AI
             </Button>
           </div>
         </div>
@@ -369,59 +357,43 @@ export function ReportForm({ prefill }: ReportFormProps) {
 
       {/* Analyzing */}
       {step === "analyzing" && (
-        <div className="text-center py-12 page-enter">
-          <div className="relative inline-block mb-6">
-            <div className="absolute inset-0 bg-white rounded-full blur-xl opacity-20 animate-pulse" />
-            <div className="relative w-20 h-20">
-              <div className="absolute inset-0 rounded-full border-4 border-white/[0.08]" />
-              <div className="absolute inset-0 rounded-full border-4 border-t-white border-r-[#cccccc] animate-spin" />
-              <div className="absolute inset-3 rounded-full bg-gradient-to-br from-white to-white flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-black" />
-              </div>
-            </div>
+        <div className="text-center py-12">
+          <div className="w-10 h-10 mx-auto mb-4">
+            <div className="w-10 h-10 rounded-full border-2 border-[#E5E7EB] border-t-[#00539F] animate-spin" />
           </div>
-          <h3 className="text-lg font-bold text-[#ededed]">AI Analyzing Your Photo</h3>
-          <p className="text-sm text-[#666666] mt-2 max-w-xs mx-auto">
+          <h3 className="text-[16px] font-medium text-[#111111]">Analyzing your photo</h3>
+          <p className="text-[13px] text-[#6B7280] mt-2 max-w-xs mx-auto">
             Identifying trade type, assessing priority, and generating recommended actions...
           </p>
-          <div className="flex justify-center gap-1 mt-4">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-2 h-2 rounded-full bg-white animate-bounce"
-                style={{ animationDelay: `${i * 150}ms` }}
-              />
-            ))}
-          </div>
         </div>
       )}
 
       {/* Step 4: Review */}
       {step === "review" && aiAnalysis && (
-        <div className="space-y-4 stagger-enter">
+        <div className="space-y-4">
           <AIAnalysisDisplay analysis={aiAnalysis} />
 
           {/* Location summary */}
-          <div className="flex items-center gap-3 p-4 bg-white/[0.03] rounded-xl border border-white/[0.08]">
-            {photoBase64 && <img src={photoBase64} alt="Preview" className="w-14 h-14 rounded-xl object-cover shadow" />}
-            <div className="text-sm">
-              <p className="font-semibold text-[#a1a1a1]">{building}, Room {selectedRoom?.label || room}</p>
-              <p className="text-[#64748b] text-xs">Floor {selectedRoom?.floor || floor}</p>
-              {description && <p className="text-[#666666] text-xs mt-1 line-clamp-1">{description}</p>}
+          <div className="flex items-center gap-3 p-3 bg-[#FAFAFA] rounded-[6px] border border-[#E5E7EB]">
+            {photoBase64 && <img src={photoBase64} alt="Preview" className="w-12 h-12 rounded-[4px] object-cover" />}
+            <div className="text-[13px]">
+              <p className="font-medium text-[#111111]">{building}, Room {selectedRoom?.label || room}</p>
+              <p className="text-[#6B7280]">Floor {selectedRoom?.floor || floor}</p>
+              {description && <p className="text-[#9CA3AF] mt-0.5 line-clamp-1">{description}</p>}
             </div>
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep("details")} className="flex-1 h-12 rounded-xl border-white/[0.08] text-[#666666] hover:bg-white/5 hover:text-[#a1a1a1]">
+            <Button variant="outline" onClick={() => setStep("details")} className="flex-1 h-11 rounded-[6px] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111] text-[14px]">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex-1 h-12 rounded-xl btn-sage"
+              className="flex-1 h-11 rounded-[6px] bg-[#00539F] hover:bg-[#003d75] text-white text-[14px] font-medium disabled:opacity-50"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (
-                <><CheckCircle2 className="mr-2 h-4 w-4" /> Submit Report</>
+                <>Submit report</>
               )}
             </Button>
           </div>

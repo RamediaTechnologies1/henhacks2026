@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface VoiceInputProps {
@@ -62,21 +62,21 @@ export function VoiceInput({ onTranscript, disabled }: VoiceInputProps) {
       size="sm"
       onClick={toggle}
       disabled={disabled}
-      className={`rounded-xl h-9 px-3 border-white/[0.08] transition-all ${
+      className={`rounded-[6px] h-9 px-3 border-[#E5E7EB] transition-colors duration-150 ${
         listening
-          ? "bg-[#ef4444]/15 border-[#ef4444]/30 text-[#ef4444] animate-pulse"
-          : "text-[#666666] hover:bg-white/5 hover:text-[#a1a1a1]"
+          ? "bg-[#FEF2F2] border-[#DC2626]/30 text-[#DC2626]"
+          : "text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111111]"
       }`}
     >
       {listening ? (
         <>
           <MicOff className="h-3.5 w-3.5 mr-1.5" />
-          <span className="text-xs">Stop</span>
+          <span className="text-[12px]">Stop</span>
         </>
       ) : (
         <>
           <Mic className="h-3.5 w-3.5 mr-1.5" />
-          <span className="text-xs">Voice</span>
+          <span className="text-[12px]">Voice</span>
         </>
       )}
     </Button>
