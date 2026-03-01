@@ -7,16 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useTheme } from "@/lib/theme";
 
-function maskIdentifier(value: string, isPhone: boolean): string {
-  if (isPhone) {
-    // Show last 4 digits: (***) ***-1234
-    const digits = value.replace(/\D/g, "");
-    if (digits.length >= 4) {
-      return `(***) ***-${digits.slice(-4)}`;
-    }
-    return value;
-  }
-  // Mask email: j***@udel.edu
+function maskEmail(value: string): string {
   const at = value.indexOf("@");
   if (at > 1) {
     return `${value[0]}***${value.slice(at)}`;
@@ -29,20 +20,17 @@ function VerifyForm() {
   const searchParams = useSearchParams();
   const { resolvedTheme, setTheme } = useTheme();
   const email = searchParams.get("email") || "";
-  const phone = searchParams.get("phone") || "";
   const role = searchParams.get("role") || "";
 
-  const isPhoneAuth = role === "user" && !!phone;
-  const identifier = isPhoneAuth ? phone : email;
-  const maskedId = maskIdentifier(identifier, isPhoneAuth);
+  const maskedEmail = maskEmail(email);
 
   const [pin, setPin] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (!identifier || !role) router.replace("/login");
-  }, [identifier, role, router]);
+    if (!email || !role) router.replace("/login");
+  }, [email, role, router]);
 
   function toggleTheme() {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
@@ -75,14 +63,10 @@ function VerifyForm() {
   async function verifyPin(code: string) {
     setLoading(true);
     try {
-      const body = isPhoneAuth
-        ? { phone, pin: code, role }
-        : { email, pin: code, role };
-
       const res = await fetch("/api/auth/verify-pin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ email, pin: code, role }),
       });
       if (!res.ok) {
         toast.error("Invalid or expired code");
@@ -127,9 +111,9 @@ function VerifyForm() {
             <p className="text-[14px] text-[#111111] dark:text-[#E5E7EB]">
               Enter the 6-digit code sent to
             </p>
-            <p className="text-[13px] font-medium text-[#00539F] dark:text-[#60A5FA] mt-1">{maskedId}</p>
+            <p className="text-[13px] font-medium text-[#00539F] dark:text-[#60A5FA] mt-1">{maskedEmail}</p>
             <p className="text-[11px] text-[#9CA3AF] dark:text-[#6B7280] mt-1">
-              {isPhoneAuth ? "via text message" : "via email"}
+              via email
             </p>
           </div>
 
@@ -164,9 +148,7 @@ function VerifyForm() {
 
           {!loading && (
             <p className="text-center text-[13px] text-[#9CA3AF] dark:text-[#6B7280] mb-6">
-              {isPhoneAuth
-                ? "Didn\u2019t receive the text? Make sure your number is correct."
-                : "Didn\u2019t receive the code? Check your spam folder."}
+              Didn&apos;t receive the code? Check your spam folder.
             </p>
           )}
 

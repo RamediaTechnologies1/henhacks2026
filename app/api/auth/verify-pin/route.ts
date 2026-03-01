@@ -8,26 +8,22 @@ const VALID_ROLES: UserRole[] = ["manager", "technician", "user"];
 
 export async function POST(request: Request) {
   try {
-    const { email, phone, pin, role } = await request.json();
+    const { email, pin, role } = await request.json();
 
-    // User/Report role uses phone, others use email
-    const isPhoneAuth = role === "user";
-    const identifier = isPhoneAuth ? phone : email;
-
-    if (!identifier || !pin || !role || !VALID_ROLES.includes(role)) {
+    if (!email || !pin || !role || !VALID_ROLES.includes(role)) {
       return NextResponse.json(
-        { error: "Credentials, PIN, and role required" },
+        { error: "Email, PIN, and role required" },
         { status: 400 }
       );
     }
 
     const pinHash = createHash("sha256").update(pin).digest("hex");
 
-    // Look up matching PIN (identifier stored in email column)
+    // Look up matching PIN
     const { data: pins, error: lookupError } = await supabaseAdmin
       .from("auth_pins")
       .select("*")
-      .eq("email", identifier)
+      .eq("email", email)
       .eq("role", role)
       .eq("pin_hash", pinHash)
       .gt("expires_at", new Date().toISOString())
@@ -40,14 +36,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create session (identifier stored in email column)
+    // Create session
     const expiresAt = new Date(
       Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000
     ).toISOString();
 
     const { data: session, error: sessionError } = await supabaseAdmin
       .from("sessions")
-      .insert({ email: identifier, role, expires_at: expiresAt })
+      .insert({ email, role, expires_at: expiresAt })
       .select()
       .single();
 
@@ -62,14 +58,14 @@ export async function POST(request: Request) {
     await supabaseAdmin
       .from("auth_pins")
       .delete()
-      .eq("email", identifier)
+      .eq("email", email)
       .eq("role", role);
 
     // Set session cookie
     const response = NextResponse.json({
       success: true,
       role,
-      email: identifier,
+      email,
     });
 
     response.cookies.set("fixit_session", session.id, {

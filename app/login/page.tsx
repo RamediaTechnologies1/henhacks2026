@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2, Sun, Moon, Phone, Mail } from "lucide-react";
+import { ArrowRight, Loader2, Sun, Moon, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -34,11 +34,9 @@ const ROLES: {
 export default function LoginPage() {
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
-  const [identifier, setIdentifier] = useState("");
+  const [email, setEmail] = useState("");
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const isPhoneAuth = role === "user";
 
   function toggleTheme() {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
@@ -46,18 +44,14 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!identifier || !role) return;
+    if (!email || !role) return;
 
     setLoading(true);
     try {
-      const body = isPhoneAuth
-        ? { phone: identifier, role }
-        : { email: identifier, role };
-
       const res = await fetch("/api/auth/send-pin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ email, role }),
       });
 
       if (!res.ok) {
@@ -66,12 +60,8 @@ export default function LoginPage() {
         return;
       }
 
-      const param = isPhoneAuth
-        ? `phone=${encodeURIComponent(identifier)}`
-        : `email=${encodeURIComponent(identifier)}`;
-
-      toast.success(isPhoneAuth ? "PIN sent! Check your texts." : "PIN sent! Check your email.");
-      router.push(`/verify?${param}&role=${role}`);
+      toast.success("PIN sent! Check your email.");
+      router.push(`/verify?email=${encodeURIComponent(email)}&role=${role}`);
     } catch {
       toast.error("Something went wrong. Try again.");
     } finally {
@@ -114,7 +104,7 @@ export default function LoginPage() {
                     <button
                       key={r.value}
                       type="button"
-                      onClick={() => { setRole(r.value); setIdentifier(""); }}
+                      onClick={() => { setRole(r.value); setEmail(""); }}
                       className={`w-full flex items-center justify-between rounded-[6px] p-3 border text-left transition-colors duration-150 ${
                         isActive
                           ? "border-[#00539F] dark:border-[#3B82F6] bg-[#EFF6FF] dark:bg-[#1E293B]"
@@ -125,11 +115,7 @@ export default function LoginPage() {
                         <div className={`w-8 h-8 rounded-[6px] flex items-center justify-center ${
                           isActive ? "bg-[#00539F]/10 dark:bg-[#3B82F6]/10" : "bg-[#F3F4F6] dark:bg-[#1C1C1E]"
                         }`}>
-                          {r.value === "user" ? (
-                            <Phone className={`h-4 w-4 ${isActive ? "text-[#00539F] dark:text-[#60A5FA]" : "text-[#6B7280]"}`} />
-                          ) : (
-                            <Mail className={`h-4 w-4 ${isActive ? "text-[#00539F] dark:text-[#60A5FA]" : "text-[#6B7280]"}`} />
-                          )}
+                          <Mail className={`h-4 w-4 ${isActive ? "text-[#00539F] dark:text-[#60A5FA]" : "text-[#6B7280]"}`} />
                         </div>
                         <div>
                           <p className={`text-[14px] font-medium ${isActive ? "text-[#00539F] dark:text-[#60A5FA]" : "text-[#111111] dark:text-[#E5E7EB]"}`}>
@@ -157,48 +143,28 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <label className="text-[13px] font-medium text-[#374151] dark:text-[#D1D5DB] flex items-center gap-1.5">
-                {isPhoneAuth ? (
-                  <><Phone className="h-3.5 w-3.5" /> Phone number</>
-                ) : (
-                  <><Mail className="h-3.5 w-3.5" /> Email address</>
-                )}
+                <Mail className="h-3.5 w-3.5" /> Email address
               </label>
-              {isPhoneAuth ? (
-                <Input
-                  type="tel"
-                  placeholder="+1 (302) 555-0100"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  required
-                  className="h-10 text-[14px] rounded-[6px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280] focus:border-[#00539F] dark:focus:border-[#3B82F6] focus:ring-0"
-                />
-              ) : (
-                <Input
-                  type="email"
-                  placeholder="you@udel.edu"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  required
-                  className="h-10 text-[14px] rounded-[6px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280] focus:border-[#00539F] dark:focus:border-[#3B82F6] focus:ring-0"
-                />
-              )}
-              {isPhoneAuth && (
-                <p className="text-[11px] text-[#9CA3AF] dark:text-[#6B7280]">
-                  You&apos;ll receive a verification code via text message
-                </p>
-              )}
+              <Input
+                type="email"
+                placeholder="you@udel.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-10 text-[14px] rounded-[6px] border-[#E5E7EB] dark:border-[#262626] bg-white dark:bg-[#1C1C1E] text-[#111111] dark:text-[#E5E7EB] placeholder:text-[#9CA3AF] dark:placeholder:text-[#6B7280] focus:border-[#00539F] dark:focus:border-[#3B82F6] focus:ring-0"
+              />
             </div>
 
             <Button
               type="submit"
-              disabled={!identifier || !role || loading}
+              disabled={!email || !role || loading}
               className="w-full h-11 rounded-[6px] text-[14px] font-medium bg-[#00539F] dark:bg-[#3B82F6] hover:bg-[#003d75] dark:hover:bg-[#2563EB] text-white transition-colors duration-150 disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  {isPhoneAuth ? "Send verification code" : "Send login PIN"}
+                  Send login PIN
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}
