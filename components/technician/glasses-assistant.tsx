@@ -21,14 +21,17 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
   const [processing, setProcessing] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [lastMessage, setLastMessage] = useState("");
+  const [lastHeard, setLastHeard] = useState("");
   const [expanded, setExpanded] = useState(false);
 
   const assignmentsRef = useRef<Assignment[]>([]);
   const prevIdsRef = useRef<Set<string>>(new Set());
   const initialLoadDoneRef = useRef(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const capturedImageRef = useRef<string | null>(null);
 
   assignmentsRef.current = assignments;
+  capturedImageRef.current = capturedImage;
 
   function getActiveJobs() {
     return assignmentsRef.current
@@ -89,6 +92,8 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
 
   const handleCommand = useCallback(async (transcript: string) => {
     const cmd = transcript.toLowerCase().trim();
+    setLastHeard(transcript);
+
     const activeJobs = getActiveJobs();
     const currentJob = activeJobs.find((a) => a.status === "in_progress") ||
       activeJobs.find((a) => a.status === "accepted") || activeJobs[0];
@@ -100,7 +105,7 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
     }
 
     // Image query
-    if (capturedImage) {
+    if (capturedImageRef.current) {
       await sendImageQuery(transcript);
       return;
     }
@@ -160,7 +165,7 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
     }
 
     // Queue
-    if (cmd.includes("jobs") || cmd.includes("queue") || cmd.includes("what's next") || cmd.includes("whats next") || cmd.includes("what do i have")) {
+    if (cmd.includes("jobs") || cmd.includes("queue") || cmd.includes("what's next") || cmd.includes("whats next") || cmd.includes("what do i have") || cmd.includes("my jobs") || cmd.includes("assignments") || cmd.includes("next") || cmd.includes("list")) {
       if (activeJobs.length === 0) { speak("No active jobs. You're all clear."); return; }
       const summary = activeJobs.map((a, i) => `Job ${i + 1}: ${a.report?.priority || "medium"} priority ${a.report?.trade || ""} at ${a.report?.building || "building"}. Status: ${a.status}.`).join(" ");
       const msg = `You have ${activeJobs.length} active job${activeJobs.length > 1 ? "s" : ""}. ${summary}`;
@@ -202,7 +207,7 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
     } catch { speak("Error connecting to AI."); }
     finally { setProcessing(false); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [techName, capturedImage]);
+  }, [techName]);
 
   const { isListening, isSpeaking, supported, startListening, stopListening, speak, stopSpeaking } =
     useVoiceAssistant({ onCommand: handleCommand });
@@ -343,7 +348,10 @@ export function GlassesAssistant({ email }: GlassesAssistantProps) {
                     ) : (
                       <span className="text-[12px] text-[#6B7280]">Glasses paused</span>
                     )}
-                    {lastMessage && !expanded && (
+                    {lastHeard && !expanded && (
+                      <p className="text-[11px] text-[#9CA3AF] truncate max-w-[180px]">&quot;{lastHeard}&quot;</p>
+                    )}
+                    {lastMessage && !expanded && !lastHeard && (
                       <p className="text-[11px] text-[#6B7280] truncate max-w-[180px]">{lastMessage}</p>
                     )}
                   </div>
