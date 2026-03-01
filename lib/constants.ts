@@ -95,21 +95,9 @@ export const BATCH_WINDOW_HOURS = 4;
 // Demo seed technicians
 export const DEMO_TECHNICIANS = [
   {
-    name: "Mike Johnson",
-    email: "mike@facilities.udel.edu",
+    name: "Sri Manvas",
+    email: "srimanvas@ramedia.dev",
     trade: "hvac" as const,
     assigned_buildings: ["Gore Hall", "Smith Hall"],
-  },
-  {
-    name: "Sarah Chen",
-    email: "sarah@facilities.udel.edu",
-    trade: "hvac" as const,
-    assigned_buildings: ["Gore Hall"],
-  },
-  {
-    name: "James Williams",
-    email: "james@facilities.udel.edu",
-    trade: "hvac" as const,
-    assigned_buildings: ["Smith Hall"],
   },
 ];
