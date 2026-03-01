@@ -10,6 +10,7 @@ import {
   PlayCircle,
   Loader2,
   CheckCircle2,
+  Glasses,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FloorPlanViewer } from "@/components/floor-plan/floor-plan-viewer";
@@ -121,9 +122,19 @@ export default function JobDetailPage() {
 
   return (
     <div className="p-6 space-y-4">
-      <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-[6px] text-[13px] text-[#6B7280] dark:text-[#9CA3AF] hover:text-[#111111] dark:hover:text-[#E5E7EB] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] -ml-2">
-        <ArrowLeft className="h-4 w-4 mr-1" /> Back to jobs
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-[6px] text-[13px] text-[#6B7280] dark:text-[#9CA3AF] hover:text-[#111111] dark:hover:text-[#E5E7EB] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E] -ml-2">
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back to jobs
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push(`/technician/voice?job=${assignment.id}`)}
+          className="rounded-[6px] text-[13px] border-[#3B82F6]/30 text-[#3B82F6] hover:bg-[#3B82F6]/10 dark:hover:bg-[#3B82F6]/10 gap-1.5"
+        >
+          <Glasses className="h-4 w-4" /> Glasses Mode
+        </Button>
+      </div>
 
       <div>
         <div className="flex items-center gap-2 mb-2 flex-wrap">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Glasses } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { JobCard } from "@/components/technician/job-card";
@@ -81,14 +81,24 @@ export default function TechnicianPortal() {
             {activeCount > 0 ? `${activeCount} active assignment${activeCount !== 1 ? "s" : ""}` : "No active assignments"}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => { setRefreshing(true); loadAssignments(); }}
-          className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]"
-        >
-          <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/technician/voice")}
+            className="rounded-[6px] h-8 gap-1.5 px-3 border-[#3B82F6]/30 text-[#3B82F6] hover:bg-[#3B82F6]/10 dark:hover:bg-[#3B82F6]/10 text-[12px]"
+          >
+            <Glasses className="h-3.5 w-3.5" /> Glasses
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => { setRefreshing(true); loadAssignments(); }}
+            className="rounded-[6px] h-8 w-8 p-0 border-[#E5E7EB] dark:border-[#262626] text-[#6B7280] dark:text-[#9CA3AF] hover:bg-[#F3F4F6] dark:hover:bg-[#1C1C1E]"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+          </Button>
+        </div>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>

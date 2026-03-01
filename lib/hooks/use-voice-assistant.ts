@@ -5,10 +5,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 interface UseVoiceAssistantOptions {
   onCommand?: (transcript: string) => void;
   continuous?: boolean;
+  useElevenLabs?: boolean;
 }
 
 export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
-  const { onCommand, continuous = true } = options;
+  const { continuous = true, useElevenLabs = true } = options;
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastTranscript, setLastTranscript] = useState("");
@@ -16,6 +17,23 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const speechQueueRef = useRef<string[]>([]);
   const speakingRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const listeningRef = useRef(false);
+
+  // Use ref for onCommand to avoid stale closures
+  const onCommandRef = useRef(options.onCommand);
+  onCommandRef.current = options.onCommand;
+
+  // Resume listening helper
+  const resumeListening = useCallback(() => {
+    if (listeningRef.current && recognitionRef.current) {
+      try {
+        recognitionRef.current.start();
+      } catch {
+        // already started
+      }
+    }
+  }, []);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -36,23 +54,24 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
       if (last.isFinal) {
         const transcript = last[0].transcript.trim();
         setLastTranscript(transcript);
-        onCommand?.(transcript);
+        // Always call the latest callback via ref
+        onCommandRef.current?.(transcript);
       }
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       if (event.error !== "no-speech" && event.error !== "aborted") {
         console.error("Speech recognition error:", event.error);
       }
     };
 
     recognition.onend = () => {
-      // Auto-restart if we should still be listening
-      if (recognitionRef.current && !speakingRef.current) {
+      // Auto-restart if we should still be listening and not speaking
+      if (listeningRef.current && !speakingRef.current) {
         try {
           recognition.start();
         } catch {
-          // ignore - already started
+          // ignore
         }
       }
     };
@@ -63,11 +82,11 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
       recognition.abort();
       recognitionRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [continuous]);
 
   const startListening = useCallback(() => {
     if (!recognitionRef.current) return;
+    listeningRef.current = true;
     try {
       recognitionRef.current.start();
       setIsListening(true);
@@ -77,74 +96,121 @@ export function useVoiceAssistant(options: UseVoiceAssistantOptions = {}) {
   }, []);
 
   const stopListening = useCallback(() => {
+    listeningRef.current = false;
     if (!recognitionRef.current) return;
     recognitionRef.current.abort();
     setIsListening(false);
   }, []);
 
-  // Text-to-speech
+  // ElevenLabs TTS
+  const speakElevenLabs = useCallback(
+    async (text: string) => {
+      try {
+        const res = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!res.ok) return false;
+
+        const audioBlob = await res.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+
+        return new Promise<boolean>((resolve) => {
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            audioRef.current = null;
+            resolve(true);
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(audioUrl);
+            audioRef.current = null;
+            resolve(false);
+          };
+          audio.play().catch(() => resolve(false));
+        });
+      } catch {
+        return false;
+      }
+    },
+    []
+  );
+
+  // Fallback Web Speech TTS
+  const speakWebSpeech = useCallback((text: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      utterance.lang = "en-US";
+      utterance.onend = () => resolve(true);
+      utterance.onerror = () => resolve(false);
+      window.speechSynthesis.speak(utterance);
+    });
+  }, []);
+
+  // Main speak function with queue
   const speak = useCallback(
     (text: string, priority = false) => {
       if (priority) {
         speechQueueRef.current = [text];
         window.speechSynthesis.cancel();
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
       } else {
         speechQueueRef.current.push(text);
       }
 
       if (speakingRef.current && !priority) return;
 
-      function processQueue() {
+      async function processQueue() {
         const next = speechQueueRef.current.shift();
         if (!next) {
           speakingRef.current = false;
           setIsSpeaking(false);
-          // Resume listening after speaking
-          if (isListening) {
-            try {
-              recognitionRef.current?.start();
-            } catch {
-              // ignore
-            }
-          }
+          resumeListening();
           return;
         }
 
         speakingRef.current = true;
         setIsSpeaking(true);
 
-        // Pause recognition while speaking to avoid echo
+        // Pause recognition while speaking
         try {
           recognitionRef.current?.abort();
         } catch {
           // ignore
         }
 
-        const utterance = new SpeechSynthesisUtterance(next);
-        utterance.rate = 1.05;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-        utterance.lang = "en-US";
+        // Try ElevenLabs first, fall back to Web Speech
+        let success = false;
+        if (useElevenLabs) {
+          success = await speakElevenLabs(next);
+        }
+        if (!success) {
+          await speakWebSpeech(next);
+        }
 
-        utterance.onend = () => {
-          processQueue();
-        };
-
-        utterance.onerror = () => {
-          processQueue();
-        };
-
-        window.speechSynthesis.speak(utterance);
+        processQueue();
       }
 
       if (!speakingRef.current) processQueue();
     },
-    [isListening]
+    [useElevenLabs, speakElevenLabs, speakWebSpeech, resumeListening]
   );
 
   const stopSpeaking = useCallback(() => {
     speechQueueRef.current = [];
     window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     speakingRef.current = false;
     setIsSpeaking(false);
   }, []);
