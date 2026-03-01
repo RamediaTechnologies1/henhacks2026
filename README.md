@@ -90,11 +90,25 @@ Managers get full visibility with AI-powered analytics and safety intelligence.
 
 > *"How might we use technology to make public systems more reliable, accessible, and adaptive to real human needs?"*
 
+**More Reliable:**
 - **Eliminates the human dispatcher** — AI classifies and routes in seconds, not hours
-- **Auto-assignment algorithm** scores technicians on 4 factors and dispatches optimally
+- **4-provider AI fallback** (OpenAI → Claude → Gemini → Groq) — system never goes down
+- **Automated Escalation Engine** — unaccepted jobs auto-reassign after SLA threshold (15m critical, 60m high, 2h default), manager auto-notified on breaches, stale jobs flagged after 8h
 - **Smart deduplication** — multiple reports of the same issue become a single work order with upvotes
-- **Pattern detection** — 3+ reports of the same trade in 90 days triggers preventive maintenance alerts
-- **QR codes on rooms** — infrastructure becomes self-reporting
+
+**More Accessible:**
+- **Photo-based reporting** — snap a picture, AI describes the issue. No technical vocabulary needed
+- **Voice input** via Web Speech API — hands-free, accessible reporting
+- **QR codes on rooms** — scan and location is pre-filled, zero friction
+- **Email ingestion** — students who still email fixit@udel.edu get their emails auto-parsed by AI into structured reports. Old workflow still works, but now it's automated
+- **Anonymous reporting** — lowers barriers for safety-sensitive reports
+
+**Adaptive to Real Human Needs:**
+- **Community-driven priority** — urgency score rises with upvotes: `base + (upvotes × 1.5) + (safety ? 3 : 0)`
+- **Predictive maintenance** — 3+ same-trade reports in 90 days → auto-generates preventive inspection work orders (not just alerts)
+- **Smart job batching** — groups same-building, same-trade reports into efficient batched work orders sorted by floor for one-trip sweeps
+- **Automated follow-up** — reporters auto-receive emails at every status change (dispatched → in progress → resolved)
+- **Pattern-to-prevention pipeline** — the system evolves from fixing problems to predicting and preventing them
 
 ### Security & Safety
 
@@ -129,7 +143,8 @@ Managers get full visibility with AI-powered analytics and safety intelligence.
 | **Styling** | Tailwind CSS + shadcn/ui |
 | **Database** | Supabase (PostgreSQL) + Realtime subscriptions |
 | **AI Vision** | Multi-provider fallback: OpenAI GPT-4o → Claude → Gemini → Groq |
-| **Email** | Nodemailer + Gmail SMTP (dispatch + escalation) |
+| **Email** | Nodemailer + Gmail SMTP (dispatch, escalation, follow-up, ingestion) |
+| **Automation** | 5 autonomous engines (escalation, batching, email ingestion, follow-up, preventive maintenance) |
 | **Maps** | React-Leaflet with CARTO dark tiles |
 | **Floor Plans** | Custom SVG — zero dependencies, touch-friendly |
 | **Voice** | Web Speech API (SpeechRecognition) |
@@ -156,9 +171,76 @@ Photo → [OpenAI GPT-4o / Claude / Gemini / Groq]
         Auto-dispatch email → Department
         Auto-assign → Best technician
         Auto-escalate → Safety director (if critical)
+        Auto-notify reporter → Status updates at every step
+        Auto-batch → Group same-building jobs
+        Auto-prevent → Generate inspection WOs from patterns
 ```
 
 The system tries up to 4 AI providers in sequence. If OpenAI quota is exhausted, it falls back to Claude, then Gemini, then Groq — ensuring the system never goes down.
+
+---
+
+## Automation Engines
+
+FixIt AI runs **5 autonomous engines** that operate without human intervention:
+
+### 1. Escalation Engine (`POST /api/escalation`)
+Time-based SLA monitoring that ensures no report falls through the cracks.
+
+```
+Report submitted → 15m (critical) / 60m (high) / 2h (default) with no assignment
+  → Auto-assigns to lowest-workload technician
+  → Emails manager with SLA breach details
+
+Assignment pending → 30m (critical) / 2h (default) with no acceptance
+  → Cancels assignment, reassigns to next available tech
+  → Emails manager with escalation alert
+
+Job in_progress → 8h+ without completion
+  → Flags to manager as stale
+```
+
+### 2. Job Batching Engine (`POST /api/batch-jobs`)
+Groups nearby reports for efficient one-trip resolution.
+
+```
+3 plumbing reports in Gore Hall (Floor 1, 2, 3)
+  → Batched into single sweep: Floor 1 → Floor 2 → Floor 3
+  → One technician assigned, one consolidated notification
+  → 3 trips reduced to 1
+```
+
+### 3. Email Ingestion (`POST /api/email-ingest`)
+Bridges the old fixit@udel.edu workflow into the automated pipeline.
+
+```
+Student emails: "There's water leaking from the ceiling in Gore Hall room 205"
+  → AI parses: building=Gore Hall, room=205, trade=plumbing, priority=high
+  → Auto-creates structured report → auto-dispatches → auto-assigns
+  → Same pipeline as photo reports — no dispatcher needed
+```
+
+### 4. Automated Follow-up (built into assignment updates)
+Reporters are auto-notified at every status change — no manual emails.
+
+```
+dispatched → "Your report has been assigned to Mike Johnson"
+in_progress → "A technician is working on your issue right now"
+resolved → "Issue resolved! Notes: Replaced corroded pipe coupling"
+```
+
+### 5. Preventive Maintenance Engine (`POST /api/preventive-maintenance`)
+Transforms pattern detection from alerts into action.
+
+```
+3+ HVAC reports in 90 days across Gore Hall and Smith Hall
+  → Auto-generates high-priority inspection work order
+  → Auto-assigns to HVAC technician
+  → Emails manager: "Schedule comprehensive HVAC inspection"
+  → 30-day dedup prevents duplicate preventive WOs
+```
+
+**Master Hub:** `POST /api/automation` runs engines 1, 2, and 5 in sequence. Can be triggered by Vercel Cron or any external scheduler.
 
 ---
 
@@ -168,7 +250,7 @@ The system tries up to 4 AI providers in sequence. If OpenAI quota is exhausted,
 |---------|-------------|
 | **Deduplication** | Same building + same trade within 7 days → upvote original instead of duplicate |
 | **Urgency Score** | `base_priority + (upvotes × 1.5) + (safety ? 3 : 0)` — safety issues bubble to top |
-| **Pattern Detection** | 3+ reports of same trade in 90 days → preventive maintenance alert |
+| **Pattern Detection** | 3+ reports of same trade in 90 days → auto-generates preventive maintenance work order |
 | **Building Safety Index** | `safety_issues × 3 + critical × 2.5 + high × 1.5 + open × 0.3` → 0-10 score |
 | **SLA Tracking** | Color-coded elapsed time — green (ok), yellow (4h+), orange (warning), red (SLA breach) |
 | **Predictive Alerts** | Clusters of same-trade reports → "Possible pipe deterioration. Risk: water damage, mold" |
@@ -249,6 +331,11 @@ app/
     assignments/route.ts  # List/create assignments
     assignments/[id]/     # Update assignment status
     ai-assign/route.ts    # AI technician scoring algorithm
+    escalation/route.ts   # SLA monitoring + auto-reassignment engine
+    batch-jobs/route.ts   # Smart job batching by building + trade
+    email-ingest/route.ts # AI email parsing → structured reports
+    preventive-maintenance/route.ts  # Pattern → auto work orders
+    automation/route.ts   # Master hub — runs all engines
     auth/                 # PIN send, verify, session management
     qr/route.ts           # QR code URL generator
     technicians/route.ts  # Technician management
@@ -264,7 +351,8 @@ hooks/
   use-notifications.ts    # Browser push notification hook
 lib/
   openai.ts               # Multi-provider AI with safety taxonomy prompt
-  supabase.ts             # Supabase clients (anon + admin)
+  supabase.ts             # Supabase client (anon, browser-safe)
+  supabase-admin.ts       # Supabase admin client (server-only, bypasses RLS)
   email.ts                # Gmail SMTP dispatch + escalation emails
   types.ts                # TypeScript interfaces (Report, Assignment, AIAnalysis, SafetyRisk...)
   constants.ts            # UDel buildings, departments, scoring weights
