@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PortalHeader } from "@/components/layout/portal-header";
 import { BottomNav } from "@/components/layout/bottom-nav";
+import { GlassesAssistant } from "@/components/technician/glasses-assistant";
 import { ClipboardList, MapPin } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -35,6 +36,7 @@ export default function TechnicianLayout({ children }: { children: React.ReactNo
       <PortalHeader role="technician" email={email} />
       <main className="pb-20 max-w-[640px] mx-auto">{children}</main>
       <BottomNav items={NAV_ITEMS} />
+      <GlassesAssistant email={email} />
     </div>
   );
 }
