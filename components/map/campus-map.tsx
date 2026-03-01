@@ -6,6 +6,7 @@ import { UDEL_MAP_CENTER, UDEL_MAP_ZOOM, UDEL_BUILDINGS } from "@/lib/constants"
 
 interface CampusMapProps {
   reports: Report[];
+  onBuildingSelect?: (buildingName: string) => void;
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -17,7 +18,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 let mapInstanceCount = 0;
 
-export function CampusMap({ reports }: CampusMapProps) {
+export function CampusMap({ reports, onBuildingSelect }: CampusMapProps) {
   const [mounted, setMounted] = useState(false);
   const [L, setL] = useState<typeof import("leaflet") | null>(null);
   const [mapRef, setMapRef] = useState<import("leaflet").Map | null>(null);
@@ -129,6 +130,12 @@ export function CampusMap({ reports }: CampusMapProps) {
         maxWidth: 300,
         closeButton: false,
       });
+
+      if (onBuildingSelect) {
+        marker.on("click", () => {
+          onBuildingSelect(building.name);
+        });
+      }
 
       markersLayer.addLayer(marker);
     });

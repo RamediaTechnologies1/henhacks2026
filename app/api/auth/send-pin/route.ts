@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createHash, randomInt } from "crypto";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { sendPinEmail } from "@/lib/email";
+import { sendPinSMS } from "@/lib/sms";
 import { PIN_LENGTH, PIN_EXPIRY_MINUTES } from "@/lib/constants";
 import type { UserRole } from "@/lib/types";
 
@@ -9,11 +10,22 @@ const VALID_ROLES: UserRole[] = ["manager", "technician", "user"];
 
 export async function POST(request: Request) {
   try {
-    const { email, role } = await request.json();
+    const { email, phone, role } = await request.json();
 
-    if (!email || !role || !VALID_ROLES.includes(role)) {
+    if (!role || !VALID_ROLES.includes(role)) {
       return NextResponse.json(
-        { error: "Valid email and role required" },
+        { error: "Valid role required" },
+        { status: 400 }
+      );
+    }
+
+    // User/Report role uses phone, others use email
+    const isPhoneAuth = role === "user";
+    const identifier = isPhoneAuth ? phone : email;
+
+    if (!identifier) {
+      return NextResponse.json(
+        { error: isPhoneAuth ? "Phone number required" : "Email required" },
         { status: 400 }
       );
     }
@@ -22,21 +34,21 @@ export async function POST(request: Request) {
     const pin = String(randomInt(10 ** (PIN_LENGTH - 1), 10 ** PIN_LENGTH));
     const pinHash = createHash("sha256").update(pin).digest("hex");
 
-    // Delete any existing PINs for this email+role
+    // Delete any existing PINs for this identifier+role
     await supabaseAdmin
       .from("auth_pins")
       .delete()
-      .eq("email", email)
+      .eq("email", identifier)
       .eq("role", role);
 
-    // Save hashed PIN
+    // Save hashed PIN (using email column for both email and phone)
     const expiresAt = new Date(
       Date.now() + PIN_EXPIRY_MINUTES * 60 * 1000
     ).toISOString();
 
     const { error: insertError } = await supabaseAdmin
       .from("auth_pins")
-      .insert({ email, role, pin_hash: pinHash, expires_at: expiresAt });
+      .insert({ email: identifier, role, pin_hash: pinHash, expires_at: expiresAt });
 
     if (insertError) {
       console.error("Failed to save PIN:", insertError);
@@ -46,8 +58,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Send PIN via email
-    await sendPinEmail(email, pin, role);
+    // Send PIN via SMS (user role) or email (tech/manager)
+    if (isPhoneAuth) {
+      await sendPinSMS(phone, pin);
+    } else {
+      await sendPinEmail(email, pin, role);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

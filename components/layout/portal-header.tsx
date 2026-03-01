@@ -7,7 +7,7 @@ import { useTheme } from "@/lib/theme";
 import type { UserRole } from "@/lib/types";
 
 const ROLE_LABELS: Record<UserRole, string> = {
-  user: "Student",
+  user: "Report",
   technician: "Technician",
   manager: "Manager",
 };

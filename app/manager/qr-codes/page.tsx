@@ -69,7 +69,7 @@ export default function QRCodesPage() {
       <div>
         <h1 className="text-[20px] font-medium text-[#111111] dark:text-[#E5E7EB] tracking-[-0.01em]">Room QR codes</h1>
         <p className="text-[13px] text-[#6B7280] dark:text-[#9CA3AF] mt-0.5">
-          Generate QR codes for rooms — students scan to pre-fill report location
+          Generate QR codes for rooms — scan to pre-fill report location
         </p>
       </div>
 

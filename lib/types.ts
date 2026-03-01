@@ -160,6 +160,17 @@ export interface Assignment {
   technician?: Technician;
 }
 
+// AI Activity Feed
+export interface AIActivity {
+  id: string;
+  timestamp: string;
+  type: "assign" | "analyze" | "escalate" | "pattern" | "error";
+  message: string;
+  details?: string;
+  reportId?: string;
+  technicianName?: string;
+}
+
 // Floor Plans
 export interface RoomEquipment {
   hvac_units?: number;
